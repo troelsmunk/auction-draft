@@ -5,7 +5,16 @@
   import { auth, db } from "./stores"
   import firebaseJson from "../../firebase.json"
 
-  let firebaseConfig
+  let firebaseConfig = {
+    apiKey: "AIzaSyBj-h-xrlpsSWg37Ptdt_wZZVmF_oB5mYw",
+    authDomain: "blind-auction-draft.firebaseapp.com",
+    databaseURL:
+      "https://blind-auction-draft-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "blind-auction-draft",
+    storageBucket: "blind-auction-draft.appspot.com",
+    messagingSenderId: "246925108308",
+    appId: "1:246925108308:web:200790013cfad346dff9c1",
+  }
 
   export function initialize() {
     console.log("Initializing Firebase")
