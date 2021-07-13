@@ -1,7 +1,7 @@
 <script>
   import { initializeApp } from "firebase/app"
-  import { getDatabase } from "firebase/database"
-  import { getAuth } from "firebase/auth"
+  import { getDatabase, useDatabaseEmulator } from "firebase/database"
+  import { getAuth, useAuthEmulator } from "firebase/auth"
   import { auth, db } from "./stores"
   import firebaseJson from "../../firebase.json"
 
@@ -24,8 +24,12 @@
     auth.set(getAuth())
 
     if (location.hostname === "localhost") {
-      $db.useEmulator("localhost", firebaseJson.emulators.database.port)
-      $auth.useEmulator("http://localhost:9099/") // Use firebaseJson
+      useDatabaseEmulator(
+        $db,
+        "localhost",
+        firebaseJson.emulators.database.port
+      )
+      useAuthEmulator($auth, "http://localhost:9099/") // Use firebaseJson
     }
   }
 </script>
