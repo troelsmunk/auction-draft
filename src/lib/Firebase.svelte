@@ -25,17 +25,20 @@
     console.log("Initializing Firebase")
 
     initializeApp(firebaseConfig)
-    db.set(getDatabase())
-    auth.set(getAuth())
 
     if (location.hostname === "localhost") {
       console.log("Using emulators")
       useDatabaseEmulator(
-        $db,
+        getDatabase(),
         "localhost",
         firebaseJson.emulators.database.port
       )
-      useAuthEmulator($auth, "http://localhost:9099/") // Use firebaseJson
+      useAuthEmulator(
+        getAuth(),
+        "http://localhost:" + firebaseJson.emulators.auth.port
+      )
     }
+    db.set(getDatabase())
+    auth.set(getAuth())
   }
 </script>
