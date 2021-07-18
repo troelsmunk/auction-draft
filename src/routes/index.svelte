@@ -1,7 +1,7 @@
 <script>
   import { db, auth } from "$lib/stores"
   import { ref, set, onValue } from "@firebase/database"
-  import { onAuthStateChanged, signInAnonymously, signOut } from "firebase/auth"
+  import { signInAnonymously } from "firebase/auth"
 
   let talRef
   let talFraDb = 0
@@ -22,27 +22,9 @@
   function loginHandler() {
     return signInAnonymously($auth)
   }
-  function logoutHandler() {
-    //TODO: remove user index data
-    return signOut($auth)
-  }
-
-  let uid
-  auth.subscribe((value) => {
-    if (!value) return
-    onAuthStateChanged($auth, (user) => {
-      if (user) {
-        uid = user.uid
-      } else {
-        uid = null
-      }
-    })
-  })
 </script>
 
 <button on:click={loginHandler}>Login</button>
-<button on:click={logoutHandler}>Logout</button>
-<p>UID: {uid}</p>
 
 <p>Jeg kan skrive alt muligt på nettet</p>
 <form on:submit|preventDefault={setTal}>
