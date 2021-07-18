@@ -1,5 +1,4 @@
 {
-  "ignorePatterns": "createBidder.js",
   "root": true,
   "env": {
     "es6": true,

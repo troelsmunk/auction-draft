@@ -18,6 +18,11 @@ export default async function createBidder(indexPinSnapshot, context) {
     }
     const auctionSize = sizeSnap.val()
     const seatsRef = auctionRef.child("seats")
+    const chooseAvailableSeat = chooseAvailableSeatReducer(
+      uid,
+      pin,
+      auctionSize
+    )
     const transactionResult = await transaction(seatsRef, chooseAvailableSeat)
     if (!transactionResult.committed) {
       throw new Error("The seat transaction didn't commit")
@@ -27,47 +32,46 @@ export default async function createBidder(indexPinSnapshot, context) {
     const scoreboardRef = auctionRef.child(`scoreboard/${biddersSeat}`)
     const readyRef = auctionRef.child(`readys/${uid}`)
     return Promise.all([scoreboardRef.set(200), readyRef.set(-1)])
-
-    /**
-     * Assign an available seat to the bidder and add it to the list of taken seats
-     * @param {?object} seatsData The seats already occupied in the auction
-     * @returns {object} The new list of occupied seats
-     */
-    function chooseAvailableSeat(seatsData) {
-      if (!seatsData) {
-        return { [uid]: pin % auctionSize }
-      }
-      if (Object.keys(seatsData).includes(uid)) {
-        return
-      }
-      const availableSeats = getAvailableSeats(seatsData)
-      const numberOfSeats = availableSeats.length
-      if (numberOfSeats <= 0) {
-        return
-      }
-      const modulo = pin % numberOfSeats
-      const assignedSeat = availableSeats[modulo]
-      return { ...seatsData, [uid]: assignedSeat }
-    }
-
-    /**
-     * Finds the available seats using the list of taken seats and the size of the auction
-     * @param {object} seatsData The seats already occupied in the auction
-     * @returns {Array<number>} An array of the available seats
-     */
-    function getAvailableSeats(seatsData) {
-      let availableSeats = new Array()
-      const takenSeats = Object.values(seatsData)
-      for (let index = 0; index < auctionSize; index++) {
-        if (!takenSeats.includes(index)) {
-          availableSeats.push(index)
-        }
-      }
-      return availableSeats
-    }
   } catch (error) {
     if (process.env.FUNCTIONS_EMULATOR === "false") {
       console.error(error)
     }
+  }
+}
+
+/**
+ * Reduce the context to a function which can act on its own in the transaction.
+ * @param {string} uid The UID of user
+ * @param {number} pin The PIN of the auction
+ * @param {number} auctionSize The size of the auction
+ * @returns {(seats:?object) => object} The reduced function
+ */
+function chooseAvailableSeatReducer(uid, pin, auctionSize) {
+  /**
+   * Assign an available seat to the bidder and add it to the list of taken seats
+   * @param {?object} seatsData The seats already occupied in the auction
+   * @returns {object} The new list of occupied seats
+   */
+  return function chooseAvailableSeat(seatsData) {
+    if (!seatsData) {
+      return { [uid]: pin % auctionSize }
+    }
+    if (Object.keys(seatsData).includes(uid)) {
+      return
+    }
+    let availableSeats = new Array()
+    const takenSeats = Object.values(seatsData)
+    for (let index = 0; index < auctionSize; index++) {
+      if (!takenSeats.includes(index)) {
+        availableSeats.push(index)
+      }
+    }
+    const numberOfSeats = availableSeats.length
+    if (numberOfSeats <= 0) {
+      return
+    }
+    const modulo = pin % numberOfSeats
+    const assignedSeat = availableSeats[modulo]
+    return { ...seatsData, [uid]: assignedSeat }
   }
 }
