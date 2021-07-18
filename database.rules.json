@@ -1,6 +1,98 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true
+    "auctions": {
+      "$pin": {
+        "size": {
+          ".read": true
+        },
+        "seats": {
+          "$uid": {
+            ".read": "auth != null && auth.uid == $uid"
+          }
+        },
+        "scoreboard": {
+          ".read": "data.parent().child('seats').child(auth.uid).exists()"
+        },
+        "readys": {
+          "$uid": {
+            ".read": "auth != null && auth.uid == $uid",
+            ".write": "auth != null && auth.uid == $uid",
+            ".validate": "newData.isNumber()"
+          }
+        },
+        "bids": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid",
+            ".validate": "newData.hasChildren(['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14'])",
+            "0": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "1": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "2": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "3": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "4": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "5": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "6": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "7": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "8": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "9": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "10": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "11": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "12": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "13": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "14": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "$others": {
+              ".validate": false
+            }
+          }
+        },
+        "results": {
+          ".read": "data.parent().child('seats').child(auth.uid).exists()"
+        }
+      }
+    },
+    "index": {
+      "$uid": {
+        "pin": {
+          ".write": "auth != null && auth.uid == $uid && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "auctionSize": {
+          ".write": "auth != null && auth.uid == $uid && !data.exists()",
+          ".validate": "newData.isNumber() && newData.val() >= 1"
+        },
+        "$others": {
+          ".validate": false
+        }
+      }
+    }
   }
 }
