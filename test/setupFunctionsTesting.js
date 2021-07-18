@@ -1,12 +1,11 @@
 import admin from "firebase-admin"
 import fs from "fs-extra"
 
-const projectPath = "/Users/troelsmunk/Projects/auction-draft/"
-const serviceAccountPath = projectPath + "service-account.json"
+const serviceAccountPath = "service-account.json"
 let serviceAccountJson, firebaseJson
 try {
   serviceAccountJson = fs.readJsonSync(serviceAccountPath)
-  firebaseJson = fs.readJsonSync(projectPath + "firebase.json")
+  firebaseJson = fs.readJsonSync("firebase.json")
 } catch (error) {
   console.error("Error when reading JSON: ", error)
 }
