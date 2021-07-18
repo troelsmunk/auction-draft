@@ -2,9 +2,6 @@
   "rules": {
     "auctions": {
       "$pin": {
-        "size": {
-          ".read": true
-        },
         "seats": {
           "$uid": {
             ".read": "auth != null && auth.uid == $uid"
@@ -82,11 +79,11 @@
     "index": {
       "$uid": {
         "pin": {
-          ".write": "auth != null && auth.uid == $uid && !data.exists()",
+          ".write": "auth != null && auth.uid == $uid",
           ".validate": "newData.isNumber() && newData.val() >= 0"
         },
         "auctionSize": {
-          ".write": "auth != null && auth.uid == $uid && !data.exists()",
+          ".write": "auth != null && auth.uid == $uid",
           ".validate": "newData.isNumber() && newData.val() >= 1"
         },
         "$others": {

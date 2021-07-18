@@ -60,10 +60,9 @@ describe("a Blind Auction bidder", function () {
     await adminDb.ref().remove()
   })
 
-  it("can read the size of any auction", async function () {
-    const noOneDb = initializeTestApp({ databaseName: databaseName }).database()
-    const sizeRef = noOneDb.ref("auctions/pinX/size")
-    await assertSucceeds(sizeRef.once("value"))
+  it("can't read the size of an auction", async function () {
+    const sizeRef = aliceDb.ref("auctions/pinX/size")
+    await assertFails(sizeRef.once("value"))
   })
   it("can read their own seat number", async function () {
     const seatRef = aliceDb.ref("auctions/pinX/seats/" + alice)
@@ -243,12 +242,12 @@ describe("a Blind Auction bidder", function () {
       })
     )
   })
-  it("can't overwrite an existing PIN in index", async function () {
+  it.skip("can't overwrite an existing PIN in index", async function () {
     const pinRef = aliceDb.ref(`index/${alice}/pin`)
     await assertSucceeds(pinRef.set(1234))
     await assertFails(pinRef.set(5555))
   })
-  it("can't overwrite an existing size in index", async function () {
+  it.skip("can't overwrite an existing size in index", async function () {
     const sizeRef = aliceDb.ref(`index/${alice}/auctionSize`)
     await assertSucceeds(sizeRef.set(4))
     await assertFails(sizeRef.set(5))
@@ -271,5 +270,19 @@ describe("a Blind Auction bidder", function () {
   it("can read their own readiness", async function () {
     const readyRef = aliceDb.ref(`auctions/123/readys/alice`)
     await assertSucceeds(readyRef.once("value"))
+  })
+  it("can delete their own user index PIN", async function () {
+    const pinAddr = `index/${alice}/pin`
+    const adminPinRef = adminDb.ref(pinAddr)
+    await adminPinRef.set(1)
+    const pinRef = aliceDb.ref(pinAddr)
+    await assertSucceeds(pinRef.set(null))
+  })
+  it("can delete their own user index size", async function () {
+    const pinAddr = `index/${alice}/auctionSize`
+    const adminPinRef = adminDb.ref(pinAddr)
+    await adminPinRef.set(2)
+    const pinRef = aliceDb.ref(pinAddr)
+    await assertSucceeds(pinRef.set(null))
   })
 })
