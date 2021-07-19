@@ -13,7 +13,7 @@
 <h1>Blind Auction Drafting</h1>
 <button on:click={logoutHandler}>Logout</button>
 
-<slot />
-
 <Firebase />
 <Auth />
+
+<slot />

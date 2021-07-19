@@ -1,37 +1,14 @@
 <script>
-  import { db, auth } from "$lib/stores"
-  import { ref, set, onValue } from "@firebase/database"
+  import { auth, db } from "$lib/stores"
   import { signInAnonymously } from "firebase/auth"
 
-  let talRef
-  let talFraDb = 0
-  db.subscribe((value) => {
-    console.log("db subscribed: ", value)
-    if (!value) return
-    talRef = ref(value, "tal")
-    onValue(talRef, (snap) => {
-      talFraDb = snap.val()
-    })
-  })
-  /** @type {number} */
-  let tal = 0
-  function setTal() {
-    return set(talRef, tal)
-  }
+  db.subscribe((dbValue) => {})
 
   function loginHandler() {
-    return signInAnonymously($auth)
+    signInAnonymously($auth)
   }
 </script>
 
 <button on:click={loginHandler}>Login</button>
 
 <p>Jeg kan skrive alt muligt på nettet</p>
-<form on:submit|preventDefault={setTal}>
-  <input bind:value={tal} type="number" />
-  <input type="submit" />
-</form>
-
-<p>
-  Her er et tal fra databasen: {talFraDb}
-</p>

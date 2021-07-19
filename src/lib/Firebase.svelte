@@ -22,12 +22,9 @@
   })
 
   export function initialize() {
-    console.log("Initializing Firebase")
-
     initializeApp(firebaseConfig)
 
     if (location.hostname === "localhost") {
-      console.log("Using emulators")
       useDatabaseEmulator(
         getDatabase(),
         "localhost",
