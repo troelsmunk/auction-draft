@@ -1,27 +1,30 @@
 <script>
-  import { auth, pin, uid } from "$lib/stores"
-  import { getDatabase } from "firebase/database"
+  import { auth, uid } from "$lib/stores"
   import { signInAnonymously } from "firebase/auth"
+  import Database from "$lib/Database.svelte"
+
+  let database
+  let numberOfBidders
+  let pin
 
   async function signIn() {
+    if ($uid) return
     const cred = await signInAnonymously($auth)
     uid.set(cred.user.uid)
   }
-
-  let numberOfBidders
   async function createAuctionHandler() {
     await signIn()
-    console.log(getDatabase())
-    // onValue($indexPinRef, (p) => console.log("pin", p))
-    // setPriority($indexPinRef, null)
-    // setWithPriority($indexSizeRef, numberOfBidders, null)
-    // set($indexSizeRef, numberOfBidders, null)
+    database.setIndexSize(parseInt(numberOfBidders))
   }
   async function joinAuctionHandler() {
     await signIn()
-    // set($indexPinRef, $pin)
+    database.setIndexPin(parseInt(pin))
   }
 </script>
+
+{#if $uid}
+  <Database bind:this={database} uid={$uid} />
+{/if}
 
 <form id="create-form" on:submit|preventDefault={createAuctionHandler}>
   <label for="bidder-number">Choose how many bidders: </label>
@@ -38,7 +41,7 @@
 <form id="join-form" on:submit|preventDefault={joinAuctionHandler}>
   <label for="pin">Write PIN:</label>
   <input
-    bind:value={$pin}
+    bind:value={pin}
     name="pin"
     type="text"
     inputmode="numeric"
