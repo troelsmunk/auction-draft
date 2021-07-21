@@ -18,10 +18,6 @@
   }
 
   onMount(function () {
-    initialize()
-  })
-
-  export function initialize() {
     initializeApp(firebaseConfig)
 
     if (location.hostname === "localhost") {
@@ -37,5 +33,5 @@
     }
     db.set(getDatabase())
     auth.set(getAuth())
-  }
+  })
 </script>

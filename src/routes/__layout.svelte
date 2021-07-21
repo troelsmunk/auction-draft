@@ -1,11 +1,14 @@
 <script>
   import Auth from "$lib/Auth.svelte"
   import Firebase from "$lib/Firebase.svelte"
-  import { auth } from "$lib/stores"
+  import { auth, indexPinRef, indexSizeRef, pin, uid } from "$lib/stores"
   import { signOut } from "@firebase/auth"
+  import { set } from "@firebase/database"
 
   function logoutHandler() {
-    //TODO: remove user index data
+    // set($indexPinRef, null)
+    // set($indexSizeRef, null)
+    uid.set(null)
     return signOut($auth)
   }
 </script>
@@ -15,5 +18,7 @@
 
 <Firebase />
 <Auth />
+<p>UID: {$uid}</p>
+<p>PIN: {$pin}</p>
 
 <slot />

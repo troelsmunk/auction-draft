@@ -1,13 +1,12 @@
 <script>
   import { onAuthStateChanged } from "@firebase/auth"
+  import { onMount } from "svelte"
   import { auth, uid } from "./stores"
 
-  auth.subscribe((value) => {
-    if (!value) return
-    onAuthStateChanged($auth, userHandler)
+  onMount(() => {
+    onAuthStateChanged($auth, userCallback)
   })
-
-  function userHandler(user) {
+  function userCallback(user) {
     if (user) {
       uid.set(user.uid)
     } else {
@@ -15,6 +14,3 @@
     }
   }
 </script>
-
-<p>Debugging</p>
-<p>UID: {$uid}</p>
