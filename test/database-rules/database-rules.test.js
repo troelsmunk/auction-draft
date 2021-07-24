@@ -142,22 +142,22 @@ describe("a Blind Auction bidder", function () {
     const readyRef = auctionRef.child("readys/" + bob)
     await assertFails(readyRef.set(true))
   })
-  it("can't read their own bids or index", async function () {
+  it("can't read their own bids or index auctionSize", async function () {
     const auctionRef = aliceDb.ref("auctions/pinX")
     const bidsRef = auctionRef.child("bids/" + alice)
     await assertFails(bidsRef.once("value"))
 
     const indexRef = aliceDb.ref("index/" + alice)
-    const pinRef = indexRef.child("pin")
-    await assertFails(pinRef.once("value"))
     const sizeRef = indexRef.child("auctionSize")
     await assertFails(sizeRef.once("value"))
   })
-  it("can't write another's index", async function () {
+  it("can't read or write another's index", async function () {
     const indexRef = aliceDb.ref("index/" + bob)
     const pinRef = indexRef.child("pin")
+    await assertFails(pinRef.once("value"))
     await assertFails(pinRef.set(1))
     const sizeRef = indexRef.child("auctionSize")
+    await assertFails(sizeRef.once("value"))
     await assertFails(sizeRef.set(4))
   })
   it("can't input objects, text or booleans in the index pin", async function () {
@@ -284,5 +284,9 @@ describe("a Blind Auction bidder", function () {
     await adminPinRef.set(2)
     const pinRef = aliceDb.ref(pinAddr)
     await assertSucceeds(pinRef.set(null))
+  })
+  it("can read their PIN from the index", async function () {
+    const pinRef = aliceDb.ref(`index/${alice}/pin`)
+    await assertSucceeds(pinRef.once("value"))
   })
 })

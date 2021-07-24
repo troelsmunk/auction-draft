@@ -2,7 +2,7 @@
   import { initializeApp } from "firebase/app"
   import { getDatabase, useDatabaseEmulator } from "firebase/database"
   import { getAuth, useAuthEmulator } from "firebase/auth"
-  import { auth, db } from "$lib/stores"
+  import { auth } from "$lib/stores"
   import firebaseJson from "../../firebase.json"
   import { onMount } from "svelte"
 
@@ -18,16 +18,9 @@
   }
 
   onMount(function () {
-    initialize()
-  })
-
-  export function initialize() {
-    console.log("Initializing Firebase")
-
     initializeApp(firebaseConfig)
 
     if (location.hostname === "localhost") {
-      console.log("Using emulators")
       useDatabaseEmulator(
         getDatabase(),
         "localhost",
@@ -38,7 +31,6 @@
         "http://localhost:" + firebaseJson.emulators.auth.port
       )
     }
-    db.set(getDatabase())
     auth.set(getAuth())
-  }
+  })
 </script>
