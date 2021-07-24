@@ -1,19 +1,25 @@
 <script>
-  import { getDatabase, onValue, ref, remove, set } from "@firebase/database"
+  import { getDatabase, onValue, ref, remove, set } from "firebase/database"
   import { onMount } from "svelte"
   import { pin } from "./stores"
   export let uid
   let indexPinRef, indexSizeRef
 
   onMount(() => {
+    console.log("Database onMount")
     const db = getDatabase()
     indexPinRef = ref(db, `index/${uid}/pin`)
     indexSizeRef = ref(db, `index/${uid}/auctionSize`)
-    onValue(indexPinRef, (snap) => {
-      console.log("This won't show on mount sadly...")
-      pin.set(snap.val())
-    })
   })
+
+  export function listenForPin() {
+    const unsub = onValue(indexPinRef, (snap) => {
+      if (snap.exists()) {
+        pin.set(snap.val())
+        unsub()
+      }
+    })
+  }
 
   export function clearIndex() {
     remove(indexPinRef)

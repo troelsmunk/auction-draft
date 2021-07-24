@@ -1,24 +1,25 @@
 <script>
-  import { auth, uid } from "$lib/stores"
+  import { auth, pin, uid } from "$lib/stores"
   import { signInAnonymously } from "firebase/auth"
   import Database from "$lib/Database.svelte"
 
   let database
   let numberOfBidders
-  let pin
+  let pinFromForm
 
   async function signIn() {
-    if ($uid) return
-    const cred = await signInAnonymously($auth)
-    uid.set(cred.user.uid)
+    return $uid || signInAnonymously($auth)
   }
   async function createAuctionHandler() {
     await signIn()
     database.setIndexSize(parseInt(numberOfBidders))
+    database.listenForPin()
   }
   async function joinAuctionHandler() {
     await signIn()
-    database.setIndexPin(parseInt(pin))
+    const intPin = parseInt(pinFromForm)
+    pin.set(intPin)
+    database.setIndexPin(intPin)
   }
 </script>
 
@@ -41,7 +42,7 @@
 <form id="join-form" on:submit|preventDefault={joinAuctionHandler}>
   <label for="pin">Write PIN:</label>
   <input
-    bind:value={pin}
+    bind:value={pinFromForm}
     name="pin"
     type="text"
     inputmode="numeric"

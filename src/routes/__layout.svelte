@@ -8,7 +8,6 @@
   let database
   function logoutHandler() {
     database.clearIndex()
-    uid.set(null)
     pin.set(null)
     return signOut($auth)
   }
