@@ -1,4 +1,4 @@
-import transaction from "./transaction.js"
+const transaction = require("./transaction")
 
 /**
  * Creates the bidder in the specified auction, choosing a seat and initializing the scoreboard
@@ -6,7 +6,10 @@ import transaction from "./transaction.js"
  * @param {import("@firebase/database-types").DataSnapshot} indexPinSnapshot
  * @param {import("firebase-functions").EventContext} context
  */
-export default async function createBidder(indexPinSnapshot, context) {
+exports.createBidderFunction = async function createBidder(
+  indexPinSnapshot,
+  context
+) {
   try {
     const rootRef = indexPinSnapshot.ref.root
     const uid = context.params.uid

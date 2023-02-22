@@ -1,14 +1,9 @@
-import adapter from "@sveltejs/adapter-static"
+import firebase from "svelte-adapter-firebase"
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
   kit: {
-    adapter: adapter({
-      fallback: "index.html",
-    }),
-    // hydrate the <div id="svelte"> element in src/app.html
-    target: "#svelte",
-    ssr: false,
+    adapter: firebase(),
   },
 }
 

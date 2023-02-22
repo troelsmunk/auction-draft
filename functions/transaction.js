@@ -9,7 +9,7 @@
  *    snapshot: ?import("@firebase/database-types").DataSnapshot
  * }>} A container object for the data written at the end of the transaction
  */
-export default function (reference, transactionFunction) {
+exports.transaction = function (reference, transactionFunction) {
   return reference.transaction(
     transactionFunction, // Atomically write using the provided function,
     null, // using the snapshot returned instead of a callback,
