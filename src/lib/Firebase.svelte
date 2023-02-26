@@ -10,7 +10,10 @@
   onMount(function () {
     initializeApp(firebaseConfigJson)
 
-    if (location.hostname === "localhost") {
+    if (
+      location.hostname === "localhost" ||
+      location.hostname === "127.0.0.1"
+    ) {
       connectDatabaseEmulator(
         getDatabase(),
         "localhost",
