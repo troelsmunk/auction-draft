@@ -1,7 +1,7 @@
-import setup from "./setupFunctionsTesting.js"
+const setup = require("./setupFunctionsTesting.js")
 const { adminDatabase, test } = setup
 
-export const mochaHooks = {
+module.exports = mochaHooks = {
   afterAll(done) {
     test.cleanup()
     done()

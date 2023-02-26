@@ -1,5 +1,5 @@
-import admin from "firebase-admin"
-import fs from "fs-extra"
+const admin = require("firebase-admin")
+const fs = require("fs-extra")
 
 const serviceAccountPath = "service-account.json"
 let serviceAccountJson, firebaseJson
@@ -19,7 +19,7 @@ admin.initializeApp({
 })
 const adminDatabase = admin.database()
 
-import functionsTest from "firebase-functions-test"
+const functionsTest = require("firebase-functions-test")
 
 const test = functionsTest(
   {
@@ -27,5 +27,4 @@ const test = functionsTest(
   },
   serviceAccountPath
 )
-
-export default { test, adminDatabase }
+module.exports = { test, adminDatabase }

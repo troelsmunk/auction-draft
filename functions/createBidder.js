@@ -6,10 +6,7 @@ const transaction = require("./transaction")
  * @param {import("@firebase/database-types").DataSnapshot} indexPinSnapshot
  * @param {import("firebase-functions").EventContext} context
  */
-exports.createBidderFunction = async function createBidder(
-  indexPinSnapshot,
-  context
-) {
+module.exports = async function createBidder(indexPinSnapshot, context) {
   try {
     const rootRef = indexPinSnapshot.ref.root
     const uid = context.params.uid

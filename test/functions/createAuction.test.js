@@ -1,8 +1,6 @@
-import { strict as assert } from "assert"
-import setup from "./setupFunctionsTesting.js"
-const { adminDatabase, test } = setup
-import functions from "../functions/index.js"
-const { createAuction } = functions
+const assert = require("assert/strict")
+const { adminDatabase, test } = require("./setupFunctionsTesting.js")
+const { createAuction } = require("../../functions/index.js")
 
 const alice = "alice"
 const wrappedCreateAuctionFunction = test.wrap(createAuction)

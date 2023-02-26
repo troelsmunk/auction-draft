@@ -10,7 +10,7 @@ const transaction = require("./transaction")
  * @param {import("@firebase/database-types").DataSnapshot} auctionSizeSnap
  * @param {import("firebase-functions").EventContext} context
  */
-exports.createAuctionFunction = async function transactionOnNewestPin(
+module.exports = async function transactionOnNewestPin(
   auctionSizeSnap,
   context
 ) {
