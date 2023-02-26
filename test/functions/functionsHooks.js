@@ -1,12 +1,11 @@
-const setup = require("./setupFunctionsTesting.js")
-const { adminDatabase, test } = setup
+const { adminDatabase, test } = require("./setupFunctionsTesting.js")
 
-module.exports = mochaHooks = {
-  afterAll(done) {
-    test.cleanup()
-    done()
-  },
-  beforeEach() {
-    return adminDatabase.ref().remove()
-  },
+const afterAll = function () {
+  test.cleanup()
+  return adminDatabase.ref().remove()
 }
+const beforeEach = function () {
+  return adminDatabase.ref().remove()
+}
+
+exports.mochaHooks = { afterAll, beforeEach }
