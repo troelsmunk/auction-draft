@@ -10,7 +10,7 @@
     "clean": "rimraf build",
     "cleanbuild": "rimraf build && svelte-kit build",
     "test:rules": "mocha --exit 'test/database-rules/'",
-    "test:functions": "mocha --exit 'test/functions/' --require 'test/functions/functionsHooks.js'"
+    "test:functions": "mocha --exit 'test/functions/' --require 'test/functions/mochaHooks.js'"
   },
   "watch": {
     "cleanbuild": {
