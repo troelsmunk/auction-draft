@@ -1,21 +1,16 @@
 const functions = require("firebase-functions")
 const createAuctionFunction = require("./createAuction")
 const createBidderFunction = require("./createBidder")
+const kitSsrFunction = require("./kitSSR")
 
-let kitSSRServer
 const functionsRegion = functions.region("europe-west1")
-const kitSSR = functionsRegion.https.onRequest(async (request, response) => {
-  if (!kitSSRServer) {
-    functions.logger.info("Initialising SvelteKit SSR entry")
-    kitSSRServer = require("./kitSSR/index").default
-    functions.logger.info("SvelteKit SSR entry initialised!")
-  }
-  functions.logger.info("Requested resource: " + request.originalUrl)
-  return kitSSRServer(request, response)
-})
-const db = functionsRegion.database
-const createAuction = db
+
+const kitSSR = functionsRegion.https.onRequest(kitSsrFunction)
+const createAuction = functionsRegion.database
   .ref("index/{uid}/auctionSize")
   .onCreate(createAuctionFunction)
-const createBidder = db.ref("index/{uid}/pin").onCreate(createBidderFunction)
+const createBidder = functionsRegion.database
+  .ref("index/{uid}/pin")
+  .onCreate(createBidderFunction)
+
 module.exports = { kitSSR, createAuction, createBidder }
