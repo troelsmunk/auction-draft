@@ -1,14 +1,9 @@
-import admin from "firebase-admin"
-import fs from "fs-extra"
+const admin = require("firebase-admin")
+const fs = require("fs-extra")
 
 const serviceAccountPath = "service-account.json"
-let serviceAccountJson, firebaseJson
-try {
-  serviceAccountJson = fs.readJsonSync(serviceAccountPath)
-  firebaseJson = fs.readJsonSync("firebase.json")
-} catch (error) {
-  console.error("Error when reading JSON: ", error)
-}
+const serviceAccountJson = fs.readJsonSync(serviceAccountPath)
+const firebaseJson = fs.readJsonSync("firebase.json")
 const port = firebaseJson.emulators.database.port
 const emulatorDbUrl =
   "http://localhost:" + port + "/?ns=blind-auction-draft-default-rtdb"
@@ -19,7 +14,7 @@ admin.initializeApp({
 })
 const adminDatabase = admin.database()
 
-import functionsTest from "firebase-functions-test"
+const functionsTest = require("firebase-functions-test")
 
 const test = functionsTest(
   {
@@ -27,5 +22,4 @@ const test = functionsTest(
   },
   serviceAccountPath
 )
-
-export default { test, adminDatabase }
+module.exports = { test, adminDatabase }

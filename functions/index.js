@@ -1,12 +1,16 @@
-import functions from "firebase-functions"
-const { region } = functions
-import createAuctionFunction from "./createAuction.js"
-import createBidderFunction from "./createBidder.js"
+const functions = require("firebase-functions")
+const createAuctionFunction = require("./createAuction")
+const createBidderFunction = require("./createBidder")
+const kitSsrFunction = require("./kitSSR")
 
-const db = region("europe-west1").database
-const createAuction = db
+const functionsRegion = functions.region("europe-west1")
+
+const kitSSR = functionsRegion.https.onRequest(kitSsrFunction)
+const createAuction = functionsRegion.database
   .ref("index/{uid}/auctionSize")
   .onCreate(createAuctionFunction)
-const createBidder = db.ref("index/{uid}/pin").onCreate(createBidderFunction)
+const createBidder = functionsRegion.database
+  .ref("index/{uid}/pin")
+  .onCreate(createBidderFunction)
 
-export default { createAuction, createBidder }
+module.exports = { kitSSR, createAuction, createBidder }

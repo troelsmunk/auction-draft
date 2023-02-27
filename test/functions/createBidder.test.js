@@ -1,8 +1,6 @@
-import assert from "assert/strict"
-import setup from "./setupFunctionsTesting.js"
-const { adminDatabase, test } = setup
-import functions from "../functions/index.js"
-const { createAuction, createBidder } = functions
+const assert = require("assert/strict")
+const { adminDatabase, test } = require("./setupFunctionsTesting.js")
+const { createAuction, createBidder } = require("../../functions/index.js")
 
 const wrappedCreateBidderFunction = test.wrap(createBidder)
 const wrappedCreateAuctionFunction = test.wrap(createAuction)

@@ -1,8 +1,19 @@
+# General
 .DS_Store
-node_modules
-/.svelte-kit
-/package
-/build
-*.log
-.firebase
 service-account.json
+firebase-config.json
+
+# Dependency directory
+node_modules/
+
+# Build
+/.svelte-kit
+kitSSR/
+/build
+/.firebase
+
+# Logs
+logs
+*.log
+npm-debug.log*
+

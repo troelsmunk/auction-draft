@@ -1,4 +1,4 @@
-import transaction from "./transaction.js"
+const transaction = require("./transaction")
 
 /**
  * Finds the next PIN from the newestPin
@@ -10,7 +10,10 @@ import transaction from "./transaction.js"
  * @param {import("@firebase/database-types").DataSnapshot} auctionSizeSnap
  * @param {import("firebase-functions").EventContext} context
  */
-export default async function transactionOnNewestPin(auctionSizeSnap, context) {
+module.exports = async function transactionOnNewestPin(
+  auctionSizeSnap,
+  context
+) {
   try {
     const rootRef = auctionSizeSnap.ref.root
     const indexPinRef = rootRef.child(`index/${context.params.uid}/pin`)

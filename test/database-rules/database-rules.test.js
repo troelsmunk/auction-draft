@@ -1,22 +1,21 @@
 import fs from "fs-extra"
-import unitTesting from "@firebase/rules-unit-testing"
-const {
+import {
   assertFails,
   assertSucceeds,
-  initializeAdminApp,
-  initializeTestApp,
-  loadDatabaseRules,
-} = unitTesting
+  initializeTestEnvironment,
+} from "@firebase/rules-unit-testing"
 
-let rulesJson
-try {
-  rulesJson = fs.readJsonSync("database.rules.json")
-} catch (error) {
-  console.error("Error when reading JSON: ", error)
-}
-const databaseName = "blind-auction-draft-default-rtdb"
+const testEnv = await initializeTestEnvironment({
+  projectId: "blind-auction-draft",
+  database: {
+    rules: fs.readFileSync("database.rules.json"),
+    host: "localhost",
+    port: fs.readJsonSync("firebase.json").emulators.database.port,
+  },
+})
 const alice = "alice"
 const bob = "bob"
+const aliceDb = testEnv.authenticatedContext(alice).database()
 const bidObj = {
   0: 0,
   1: 1,
@@ -35,29 +34,13 @@ const bidObj = {
   14: 1,
 }
 
-const adminApp = initializeAdminApp({ databaseName: databaseName })
-const adminDb = adminApp.database()
-
-const aliceApp = initializeTestApp({
-  databaseName: databaseName,
-  auth: { uid: alice },
-})
-const aliceDb = aliceApp.database()
-
 describe("a Blind Auction bidder", function () {
-  before(async function () {
-    await loadDatabaseRules({
-      databaseName: databaseName,
-      rules: JSON.stringify(rulesJson),
-    })
-  })
-
   beforeEach(async function () {
-    await adminDb.ref().remove()
+    await testEnv.clearDatabase()
   })
 
   after(async function () {
-    await adminDb.ref().remove()
+    await testEnv.clearDatabase()
   })
 
   it("can't read the size of an auction", async function () {
@@ -77,8 +60,12 @@ describe("a Blind Auction bidder", function () {
     await assertFails(seatRef.once("value"))
   })
   it("can read the scoreboard and results of their auction", async function () {
-    const seatRef = adminDb.ref("auctions/pinX/seats/" + alice)
-    await seatRef.set(0)
+    await testEnv.withSecurityRulesDisabled(async function (context) {
+      await context
+        .database()
+        .ref("auctions/pinX/seats/" + alice)
+        .set(0)
+    })
 
     const auctionRef = aliceDb.ref("auctions/pinX")
     const scoreboardRef = auctionRef.child("scoreboard")
@@ -87,8 +74,12 @@ describe("a Blind Auction bidder", function () {
     await assertSucceeds(resultsRef.once("value"))
   })
   it("can't read the scoreboard or results of another auction", async function () {
-    const seatRef = adminDb.ref("auctions/pinX/seats/" + alice)
-    await seatRef.set(1)
+    await testEnv.withSecurityRulesDisabled(async function (context) {
+      await context
+        .database()
+        .ref("auctions/pinX/seats/" + alice)
+        .set(1)
+    })
 
     const auctionRef = aliceDb.ref("auctions/pinY")
     const scoreboardRef = auctionRef.child("scoreboard")
@@ -273,15 +264,17 @@ describe("a Blind Auction bidder", function () {
   })
   it("can delete their own user index PIN", async function () {
     const pinAddr = `index/${alice}/pin`
-    const adminPinRef = adminDb.ref(pinAddr)
-    await adminPinRef.set(1)
+    await testEnv.withSecurityRulesDisabled(async function (context) {
+      await context.database().ref(pinAddr).set(1)
+    })
     const pinRef = aliceDb.ref(pinAddr)
     await assertSucceeds(pinRef.set(null))
   })
   it("can delete their own user index size", async function () {
     const pinAddr = `index/${alice}/auctionSize`
-    const adminPinRef = adminDb.ref(pinAddr)
-    await adminPinRef.set(2)
+    await testEnv.withSecurityRulesDisabled(async function (context) {
+      await context.database().ref(pinAddr).set(2)
+    })
     const pinRef = aliceDb.ref(pinAddr)
     await assertSucceeds(pinRef.set(null))
   })
