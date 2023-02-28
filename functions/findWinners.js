@@ -1,12 +1,11 @@
 const transaction = require("./transaction")
 
-module.exports = findWinners
 /**
  *
  * @param {import("firebase-functions").Change<import("firebase-functions").database.DataSnapshot>} readysChange
  * @param {import("firebase-functions").EventContext} context
  */
-async function findWinners(readysChange, context) {
+module.exports = async function findWinners(readysChange, context) {
   try {
     const readysRef = readysChange.after.ref
     const auctionRef = readysRef.parent
