@@ -1,3 +1,4 @@
 {
-  "name": "functions-testing"
+  "name": "functions-testing",
+  "type": "commonjs"
 }
