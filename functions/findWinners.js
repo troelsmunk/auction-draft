@@ -51,6 +51,5 @@ module.exports = async function findWinners(readysChange, context) {
     if (process.env.FUNCTIONS_EMULATOR === "false") {
       console.error(error)
     }
-    console.error(error)
   }
 }
