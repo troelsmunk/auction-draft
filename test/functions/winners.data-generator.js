@@ -1,7 +1,3 @@
-// Jeg har skrevet testene ud fra en antagelse om at funktionen ikke bruger change.before, men kun change.after
-// samt databasen som den ser ud lige før wrappet, altså resultatet af setup og real data som skal sørge for at
-// den simulerede data er repræsenteret i databasen og ikke kun i den simulerede, wrappede data
-
 const { adminDatabase, test } = require("./setupFunctionsTesting")
 const { findWinners } = require("../../functions")
 const winnerWrapped = test.wrap(findWinners)
@@ -45,6 +41,15 @@ function signUpFakeBidders(pin, ...uids) {
   ])
 }
 
+/** These test-helpers assume that the
+ * functions-under-test use:
+ *    - the relevant data in the database
+ *    - the "after"-state of the change object
+ * but not:
+ *    - the "before"-state of the change object
+ * This means "before" is not needed in
+ * test.makeChange(before, after)
+ */
 /** Call the wrapped findWinners functions with the given readys. Since this test
  * snapshot doesn't actually affect the database, the same data is written to the
  * database at the beginning of this helper. This way the function has access to
@@ -57,7 +62,7 @@ async function setDataAndCallWrappedFunction(pin, readysToBeSet) {
   await adminDatabase.ref(pathToReadys).set(readysToBeSet)
   const context = { params: { pin: pin } }
   const readysSnap = test.database.makeDataSnapshot(readysToBeSet, pathToReadys)
-  return winnerWrapped(test.makeChange(readysSnap, readysSnap), context)
+  return winnerWrapped(test.makeChange(null, readysSnap), context)
 }
 
 /**

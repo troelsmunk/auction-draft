@@ -4,16 +4,15 @@ const {
   initFakeAuction,
   setDataAndCallWrappedFunction,
   signUpFakeBidders,
-} = require("./winner.data-generator")
-
+} = require("./winners.data-generator")
 const alice = "alice"
 const bob = "bob"
 const carl = "carl"
 
-describe("the winner function, when the readys are updated", function () {
-  describe("when everyone is ready", function () {
-    describe("concerning the result", function () {
-      it("writes some sort of result for round 1 when everyone is ready in round 1", async function () {
+describe("The function determining the auction winners", function () {
+  describe("triggered by a change to readiness", function () {
+    describe("where everyone is ready", function () {
+      it("writes some sort of result for round 1", async function () {
         const pin = 1246
         const size = 2
         const round = 1
@@ -28,7 +27,7 @@ describe("the winner function, when the readys are updated", function () {
         const actual = resultSnap.exists()
         assert.equal(actual, true, `The result should exist, but didn't`)
       })
-      it("writes some sort of result to round 2 when everyone is ready in round 2", async function () {
+      it("writes some sort of result to round 2", async function () {
         const pin = 1247
         const size = 2
         const round = 2
