@@ -1,8 +1,12 @@
+import { searchForWorkspaceRoot } from "vite"
 import { sveltekit } from "@sveltejs/kit/vite"
 
 /** @type {import('vite').UserConfig} */
-const config = {
+export default {
   plugins: [sveltekit()],
+  server: {
+    fs: {
+      allow: [searchForWorkspaceRoot(process.cwd())],
+    },
+  },
 }
-
-export default config
