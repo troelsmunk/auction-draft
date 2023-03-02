@@ -1,6 +1,7 @@
 <script>
   import Auth from "$lib/Auth.svelte"
   import Firebase from "$lib/Firebase.svelte"
+  import Debugger from "$lib/Debugger.svelte"
   import { auth, pin, uid } from "$lib/stores"
   import { signOut } from "@firebase/auth"
   import Database from "$lib/Database.svelte"
@@ -21,7 +22,14 @@
   <button on:click={logoutHandler}>Logout</button>
   <Database bind:this={database} uid={$uid} />
 {/if}
-<p>UID: {$uid}</p>
-<p>PIN: {$pin}</p>
 
 <slot />
+
+<Debugger />
+
+<style>
+  ::global(*) {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  }
+</style>
