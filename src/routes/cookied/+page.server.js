@@ -35,7 +35,7 @@ export const actions = {
       seats: { [uid]: 0 },
       readies: { [uid]: -1 },
     })
-    throw redirect(303, `/${pin}/welcome`)
+    throw redirect(303, `/${pin}`)
   },
 }
 
