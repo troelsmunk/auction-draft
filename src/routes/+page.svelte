@@ -31,6 +31,8 @@
   }
 </script>
 
+<a href="/cookied"> Cookies! </a>
+
 {#if form?.success}
   <p>Successfully logged in!!! Welcome back, ${form.uid}</p>
 {/if}
@@ -49,24 +51,6 @@
 </form>
 
 <div class="main">
-  <h3>One of you, create an auction</h3>
-  <form id="create-form" method="POST" action="?/register" on:submit={signIn}>
-    <label for="bidder-number">Choose how many bidders: </label>
-    <select
-      name="bidder-number"
-      form="create-form"
-      bind:value={numberOfBidders}
-    >
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4" selected>4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-    </select>
-    <button type="submit" disabled={$loading}>Create Auction</button>
-  </form>
-
   <h3>The rest of you, join that auction:</h3>
   <form id="join-form" method="POST" action="?/login" on:submit={signIn}>
     <label for="pin">Insert PIN:</label>

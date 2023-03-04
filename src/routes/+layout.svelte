@@ -18,12 +18,13 @@
 
 <Firebase />
 <Auth />
+<slot />
+
+<a href="/"> Home </a>
 {#if $uid}
   <button on:click={logoutHandler}>Logout</button>
   <Database bind:this={database} uid={$uid} />
 {/if}
-
-<slot />
 
 <Debugger />
 
