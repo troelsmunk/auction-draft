@@ -16,8 +16,8 @@
 <h3>One of you, create an auction</h3>
 <form id="create-form" method="POST" action="?/create">
   <input hidden="true" bind:value={token} name="token" />
-  <label for="bidder-number">Choose how many bidders: </label>
-  <select name="bidder-number" form="create-form">
+  <label for="auction-size">Choose how many bidders: </label>
+  <select name="auction-size" form="create-form">
     <option value="1">1</option>
     <option value="2">2</option>
     <option value="3">3</option>
