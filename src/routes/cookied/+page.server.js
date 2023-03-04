@@ -59,12 +59,11 @@ function validateUserAndGetUid(idToken) {
  * @returns {number} The next PIN to be used
  */
 async function getNextPin() {
-  const newestPinRef = admin.database().ref("newestPin")
-  const newestPinSnap = await newestPinRef.get()
-  // TODO: use transaction
-  const pin = calculateNextPin(newestPinSnap.val())
-  await newestPinRef.set(pin)
-  return pin
+  const transactionResult = await admin
+    .database()
+    .ref("newestPin")
+    .transaction(calculateNextPin, null, false)
+  return transactionResult.snapshot.val()
 }
 
 /**
