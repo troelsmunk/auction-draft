@@ -4,14 +4,19 @@
   import Database from "$lib/Database.svelte"
 
   export let form
-  export let data
-
   let database
+  let token
   let numberOfBidders
   let pinFromForm
 
   async function signIn() {
-    return $uid || signInAnonymously($auth)
+    return (
+      $uid ||
+      signInAnonymously($auth).then(async (userCredential) => {
+        token = await userCredential.user.getIdToken(true)
+        console.log("signIn() token: " + token)
+      })
+    )
   }
   async function createAuctionHandler() {
     await signIn()
@@ -27,20 +32,25 @@
 </script>
 
 {#if form?.success}
-  <p>Successfully logged in! Welcome back, ${data}</p>
+  <p>Successfully logged in!!! Welcome back, ${form.uid}</p>
 {/if}
 
 {#if $uid}
   <Database bind:this={database} uid={$uid} />
 {/if}
+
+<form on:submit={signIn}>
+  <button type="submit">Login!</button>
+</form>
+
+<form id="some-form" method="POST" action="?/token">
+  <input hidden="true" bind:value={token} name="token" />
+  <button type="submit">Server Token Thing!</button>
+</form>
+
 <div class="main">
   <h3>One of you, create an auction</h3>
-  <form
-    id="create-form"
-    method="POST"
-    action="?/register"
-    on:submit|preventDefault={signIn}
-  >
+  <form id="create-form" method="POST" action="?/register" on:submit={signIn}>
     <label for="bidder-number">Choose how many bidders: </label>
     <select
       name="bidder-number"

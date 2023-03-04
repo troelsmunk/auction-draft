@@ -5,6 +5,7 @@ const config = {
   kit: {
     adapter: firebase(),
   },
+  extends: "./.svelte-kit/tsconfig.json",
 }
 
 export default config

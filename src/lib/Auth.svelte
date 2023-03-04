@@ -6,9 +6,11 @@
   onMount(() => {
     onAuthStateChanged($auth, userCallback)
   })
-  function userCallback(user) {
+  /** @param {import('@firebase/auth').User} user */
+  async function userCallback(user) {
     if (user) {
       uid.set(user.uid)
+      await user.getIdToken()
     } else {
       uid.set(null)
     }
