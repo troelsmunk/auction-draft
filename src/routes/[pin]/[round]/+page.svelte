@@ -21,12 +21,6 @@
 
   /** @type {import('./$types').PageData} */
   export let data
-
-  // TODO: try to go back to userIdToken, without $
-  let idTokenValue
-  userIdToken.subscribe((value) => {
-    idTokenValue = value
-  })
 </script>
 
 <a href={resultsAddress()}>Back to Results</a>
@@ -36,7 +30,7 @@
 
 <!-- Bidding headline -->
 <form id="bid-form" method="POST" action="?/submit">
-  <input hidden="true" value={idTokenValue} name="user-id-token" />
+  <input hidden="true" value={$userIdToken} name="user-id-token" />
   <input hidden="true" bind:value={bids} name="bids" />
   {#each bids as bid, i}
     <div>
