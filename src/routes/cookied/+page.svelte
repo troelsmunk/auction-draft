@@ -13,7 +13,6 @@
   })
 </script>
 
-<!-- TODO: Rename route, or combine with frontpage-->
 <!-- TODO: Implement auction-joining -->
 
 <h3>One of you, create an auction</h3>

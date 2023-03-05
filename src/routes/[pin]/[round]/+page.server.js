@@ -16,7 +16,6 @@ export const actions = {
     const formData = await event.request.formData()
     const uid = await validateUserAndGetUid(formData.get("user-id-token"))
     const auctionRef = admin.database().ref("auctions/" + event.params.pin)
-    // TODO: validate bids
     Promise.all([
       auctionRef.child("/bids/" + uid).set(formData.get("bids")),
       auctionRef.child("/readys/" + uid).set(true),
