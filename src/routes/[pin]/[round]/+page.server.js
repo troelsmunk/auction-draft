@@ -18,7 +18,7 @@ export const actions = {
     const auctionRef = admin.database().ref("auctions/" + event.params.pin)
     Promise.all([
       auctionRef.child("/bids/" + uid).set(formData.get("bids")),
-      auctionRef.child("/readys/" + uid).set(true),
+      auctionRef.child("/readys/" + uid).set(event.params.round),
     ])
     return { success: true }
   },
