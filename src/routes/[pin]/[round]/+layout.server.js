@@ -8,5 +8,8 @@ export async function load({ params }) {
     .get()
   return {
     size: auctionSize.val(),
+    scores: [190, 200, 110, 90, 100, 200],
+    pin: params.pin,
+    round: params.round,
   }
 }

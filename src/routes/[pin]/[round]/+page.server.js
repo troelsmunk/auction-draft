@@ -1,15 +1,5 @@
 import { admin, validateUserAndGetUid } from "$lib/admin.server"
 
-/** @type {import('./$types').PageLoad} */
-export function load({ params }) {
-  return {
-    post: {
-      pin: params.pin,
-      round: params.round,
-    },
-  }
-}
-
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   submit: async (event) => {

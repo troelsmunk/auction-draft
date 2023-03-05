@@ -1,5 +1,7 @@
 <script>
   import { seat, userIdToken, opener } from "$lib/stores"
+  /** @type {import('./$types').PageData} but also LayoutData*/
+  export let data
 
   /**
    * @type {number[]}
@@ -16,11 +18,8 @@
   }
 
   function resultsAddress() {
-    return `/${data.post.pin}/${parseInt(data.post.round) - 1}/results`
+    return `/${data.pin}/${parseInt(data.round) - 1}/results`
   }
-
-  /** @type {import('./$types').PageData} */
-  export let data
 </script>
 
 <a href={resultsAddress()}>Back to Results</a>
