@@ -1,14 +1,12 @@
 import { error, redirect } from "@sveltejs/kit"
-import admin from "firebase-admin"
-
-admin.initializeApp()
+import { admin, validateUserAndGetUid } from "$lib/admin.server"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
     const auctionSize = validateAndGetAuctionSize(formData.get("auction-size"))
-    const uid = await validateUserAndGetUid(formData.get("token"))
+    const uid = await validateUserAndGetUid(formData.get("user-id-token"))
     const pin = await getNextPin()
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
@@ -38,20 +36,6 @@ function validateAndGetAuctionSize(sizeFromForm) {
     throw error(400, "The size of the auction must be between 1 and 6")
   }
   return size
-}
-
-/**
- * Checks the idToken against the admin.auth service
- * @param {any} idToken The idToken sent alongside the form input from the user
- * @returns {Promise<string>} The UID of the validated user
- */
-function validateUserAndGetUid(idToken) {
-  return admin
-    .auth()
-    .verifyIdToken(idToken, false)
-    .then((decodedIdToken) => {
-      return decodedIdToken.uid
-    })
 }
 
 /**
@@ -86,6 +70,6 @@ async function setupAuctionAndBidder(auctionSize, uid, pin) {
       timestamp: Date.now(),
       scoreboard: scoreboard,
       seats: { [uid]: 0 },
-      readies: { [uid]: -1 },
+      readys: { [uid]: -1 },
     })
 }

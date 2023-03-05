@@ -1,21 +1,24 @@
 <script>
-  import { auth, uid } from "$lib/stores"
+  import { auth, userIdToken } from "$lib/stores"
   import { signInAnonymously } from "firebase/auth"
   import { onMount } from "svelte"
 
-  let token
-
   onMount(() => {
-    signInAnonymously($auth).then(async (userCredential) => {
-      token = await userCredential.user.getIdToken(true)
-      uid.set(userCredential.user.uid)
-    })
+    signInAnonymously($auth)
+  })
+
+  let idTokenValue
+  userIdToken.subscribe((value) => {
+    idTokenValue = value
   })
 </script>
 
+<!-- TODO: Rename route, or combine with frontpage-->
+<!-- TODO: Implement auction-joining -->
+
 <h3>One of you, create an auction</h3>
 <form id="create-form" method="POST" action="?/create">
-  <input hidden="true" bind:value={token} name="token" />
+  <input hidden="true" value={idTokenValue} name="user-id-token" />
   <label for="auction-size">Choose how many bidders: </label>
   <select name="auction-size" form="create-form">
     <option value="1">1</option>

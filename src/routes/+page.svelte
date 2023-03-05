@@ -13,7 +13,7 @@
     return (
       $uid ||
       signInAnonymously($auth).then(async (userCredential) => {
-        token = await userCredential.user.getIdToken(true)
+        token = await userCredential.user.getIdToken()
         console.log("signIn() token: " + token)
       })
     )

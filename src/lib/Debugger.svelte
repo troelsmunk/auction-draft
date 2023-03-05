@@ -6,6 +6,7 @@
     currentlyBidding,
     auctionSize,
     seat,
+    userIdToken,
   } from "$lib/stores"
 </script>
 
@@ -15,6 +16,10 @@
       <tr>
         <td>UID:</td>
         <td class="debug-value">{$uid}</td>
+      </tr>
+      <tr>
+        <td>userIdToken:</td>
+        <td class="debug-value">{$userIdToken}</td>
       </tr>
       <tr>
         <td>PIN:</td>

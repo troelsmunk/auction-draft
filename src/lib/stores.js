@@ -4,6 +4,8 @@ import { derived, writable } from "svelte/store"
 export const auth = writable(null)
 /** @type {import("svelte/store").Writable<string>} */
 export const uid = writable(null)
+/** @type {import("svelte/store").Writable<string>} */
+export const userIdToken = writable(null)
 /** @type {import("svelte/store").Writable<number>} */
 export const pin = writable(null)
 
