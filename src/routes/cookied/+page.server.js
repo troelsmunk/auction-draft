@@ -3,10 +3,19 @@ import { admin, validateUserAndGetUid } from "$lib/admin.server"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
+  cookie: async (event) => {
+    const formData = await event.request.formData()
+    const uid = await validateUserAndGetUid(formData.get("user-id-token"))
+    event.cookies.set("uid", uid, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 2, // say, 2 days
+    })
+    return { success: true }
+  },
   create: async (event) => {
     const formData = await event.request.formData()
     const auctionSize = validateAndGetAuctionSize(formData.get("auction-size"))
-    const uid = await validateUserAndGetUid(formData.get("user-id-token"))
+    const uid = event.cookies.get("uid")
     const pin = await getNextPin()
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
