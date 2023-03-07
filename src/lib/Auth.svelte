@@ -1,7 +1,7 @@
 <script>
   import { onAuthStateChanged } from "@firebase/auth"
   import { onMount } from "svelte"
-  import { auth, uid, userIdToken } from "./stores"
+  import { auth, uid } from "./stores"
 
   onMount(() => {
     onAuthStateChanged($auth, userCallback)
@@ -10,10 +10,14 @@
   async function userCallback(user) {
     if (user) {
       uid.set(user.uid)
-      userIdToken.set(await user.getIdToken())
+      const token = await user.getIdToken()
+      await fetch("/api/cookie", {
+        body: JSON.stringify({ token }),
+        method: "POST",
+      })
     } else {
       uid.set(null)
-      userIdToken.set(null)
+      // TODO call DELETE to remove the cookie
     }
   }
 </script>

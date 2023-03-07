@@ -1,58 +1,22 @@
 <script>
-  import { auth, pin, uid, loading } from "$lib/stores"
-  import { signInAnonymously } from "firebase/auth"
+  import { auth, uid, loading } from "$lib/stores"
+  import { signInAnonymously, signOut } from "firebase/auth"
   import Database from "$lib/Database.svelte"
 
-  export let form
   let database
-  let token
-  let numberOfBidders
   let pinFromForm
-
-  async function signIn() {
-    return (
-      $uid ||
-      signInAnonymously($auth).then(async (userCredential) => {
-        token = await userCredential.user.getIdToken()
-        console.log("signIn() token: " + token)
-      })
-    )
-  }
-  async function createAuctionHandler() {
-    await signIn()
-    database.setIndexSize(parseInt(numberOfBidders))
-    database.listenForPin()
-  }
-  async function joinAuctionHandler() {
-    await signIn()
-    const intPin = parseInt(pinFromForm)
-    pin.set(intPin)
-    database.setIndexPin(intPin)
-  }
 </script>
-
-<a href="/cookied"> Cookies! </a>
-
-{#if form?.success}
-  <p>Successfully logged in!!! Welcome back, ${form.uid}</p>
-{/if}
 
 {#if $uid}
   <Database bind:this={database} uid={$uid} />
 {/if}
 
-<form on:submit={signIn}>
-  <button type="submit">Login!</button>
-</form>
-
-<form id="some-form" method="POST" action="?/token">
-  <input hidden="true" bind:value={token} name="token" />
-  <button type="submit">Server Token Thing!</button>
-</form>
+<button on:click={signInAnonymously($auth)}>Login</button>
+<button on:click={signOut($auth)}>Logout</button>
 
 <div class="main">
   <h3>The rest of you, join that auction:</h3>
-  <form id="join-form" method="POST" action="?/login" on:submit={signIn}>
+  <form id="join-form" method="POST" action="?/login">
     <label for="pin">Insert PIN:</label>
     <input
       bind:value={pinFromForm}
