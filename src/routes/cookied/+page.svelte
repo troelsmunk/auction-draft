@@ -8,11 +8,6 @@
   })
 </script>
 
-<form id="cookie-form" method="POST" action="?/cookie">
-  <input hidden="true" value={$userIdToken} name="user-id-token" />
-  <button type="submit">Bake a cookie!</button>
-</form>
-
 <!-- TODO: Implement auction-joining -->
 
 <h3>One of you, create an auction</h3>

@@ -6,7 +6,6 @@
   let indexPinRef, indexSizeRef
 
   onMount(() => {
-    console.log("Database onMount")
     const db = getDatabase()
     indexPinRef = ref(db, `index/${uid}/pin`)
     indexSizeRef = ref(db, `index/${uid}/auctionSize`)

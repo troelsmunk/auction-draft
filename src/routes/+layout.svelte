@@ -3,15 +3,7 @@
   import Firebase from "$lib/Firebase.svelte"
   import Debugger from "$lib/Debugger.svelte"
   import { auth, pin, uid } from "$lib/stores"
-  import { signOut } from "@firebase/auth"
   import Database from "$lib/Database.svelte"
-
-  let database
-  function logoutHandler() {
-    database.clearIndex()
-    pin.set(null)
-    return signOut($auth)
-  }
 </script>
 
 <h1>Blind Auction Drafting</h1>
@@ -21,10 +13,6 @@
 <slot />
 
 <a href="/"> Home </a>
-{#if $uid}
-  <button on:click={logoutHandler}>Logout</button>
-  <Database bind:this={database} uid={$uid} />
-{/if}
 
 <Debugger />
 
