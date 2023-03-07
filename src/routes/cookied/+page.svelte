@@ -1,18 +1,10 @@
 <script>
-  import { auth, userIdToken } from "$lib/stores"
-  import { signInAnonymously } from "firebase/auth"
-  import { onMount } from "svelte"
-
-  onMount(() => {
-    signInAnonymously($auth)
-  })
 </script>
 
-<!-- TODO: Implement auction-joining -->
+<!-- TODO: Add auction-joining from elsewhere -->
 
 <h3>One of you, create an auction</h3>
 <form id="create-form" method="POST" action="?/create">
-  <input hidden="true" value={$userIdToken} name="user-id-token" />
   <label for="auction-size">Choose how many bidders: </label>
   <select name="auction-size" form="create-form">
     <option value="1">1</option>

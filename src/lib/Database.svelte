@@ -1,7 +1,6 @@
 <script>
   import { getDatabase, onValue, ref, remove, set } from "firebase/database"
   import { onMount } from "svelte"
-  import { pin } from "./stores"
   export let uid
   let indexPinRef, indexSizeRef
 

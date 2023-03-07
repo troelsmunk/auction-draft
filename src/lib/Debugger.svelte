@@ -1,13 +1,5 @@
 <script>
-  import {
-    auth,
-    pin,
-    uid,
-    currentlyBidding,
-    auctionSize,
-    seat,
-    userIdToken,
-  } from "$lib/stores"
+  import { uid, auctionSize, seat } from "$lib/stores"
 </script>
 
 <div class="debugging">
@@ -16,18 +8,6 @@
       <tr>
         <td>UID:</td>
         <td class="debug-value">{$uid}</td>
-      </tr>
-      <tr>
-        <td>userIdToken:</td>
-        <td class="debug-value">{$userIdToken}</td>
-      </tr>
-      <tr>
-        <td>PIN:</td>
-        <td class="debug-value">{$pin}</td>
-      </tr>
-      <tr>
-        <td>currentlyBidding:</td>
-        <td class="debug-value">{$currentlyBidding}</td>
       </tr>
       <tr>
         <td>auctionSize:</td>

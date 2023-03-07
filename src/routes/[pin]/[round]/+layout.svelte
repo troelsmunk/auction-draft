@@ -1,10 +1,4 @@
 <script>
-  import Auth from "$lib/Auth.svelte"
-  import Firebase from "$lib/Firebase.svelte"
-  import Debugger from "$lib/Debugger.svelte"
-  import { auth, pin, uid } from "$lib/stores"
-  import { signOut } from "@firebase/auth"
-  import Database from "$lib/Database.svelte"
   /** @type {import('./$types').LayoutData} */
   export let data
   let colors = ["purple", "yellow", "brown", "gray", "lightblue", "orange"]

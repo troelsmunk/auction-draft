@@ -1,18 +1,16 @@
 <script>
-  import { auth, uid, loading } from "$lib/stores"
-  import { signInAnonymously, signOut } from "firebase/auth"
+  import { uid } from "$lib/stores"
   import Database from "$lib/Database.svelte"
 
+  // Use form action instead
   let database
   let pinFromForm
 </script>
 
+<!-- Move to layout -->
 {#if $uid}
   <Database bind:this={database} uid={$uid} />
 {/if}
-
-<button on:click={signInAnonymously($auth)}>Login</button>
-<button on:click={signOut($auth)}>Logout</button>
 
 <div class="main">
   <h3>The rest of you, join that auction:</h3>
@@ -27,7 +25,7 @@
       required
       pattern="[0-9][0-9][0-9][0-9]"
     />
-    <button type="submit" disabled={$loading}>Join Auction</button>
+    <button type="submit">Join Auction</button>
   </form>
 </div>
 

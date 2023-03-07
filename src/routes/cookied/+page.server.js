@@ -1,12 +1,12 @@
 import { error, redirect } from "@sveltejs/kit"
-import { admin, validateUserAndGetUid } from "$lib/admin.server"
+import { admin } from "$lib/admin.server"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
     const auctionSize = validateAndGetAuctionSize(formData.get("auction-size"))
-    const uid = event.cookies.get("uid")
+    const uid = event.cookies.get("firebaseuid")
     const pin = await getNextPin()
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
@@ -55,13 +55,14 @@ async function getNextPin() {
  * @param {number} auctionSize The requested size of the auction
  * @param {string} uid The UID of the user who requested the auction
  * @param {number} pin The calculated auction PIN
+ * @returns {Promise<void>}
  */
-async function setupAuctionAndBidder(auctionSize, uid, pin) {
+function setupAuctionAndBidder(auctionSize, uid, pin) {
   const scoreboard = {}
   for (let index = 0; index < auctionSize; index++) {
     scoreboard[index] = 200
   }
-  await admin
+  return admin
     .database()
     .ref(`auctions/${pin}`)
     .update({

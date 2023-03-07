@@ -1,5 +1,4 @@
 <script>
-  import { seat, userIdToken, opener } from "$lib/stores"
   /** @type {import('./$types').PageData} but also LayoutData*/
   export let data
 
@@ -24,12 +23,9 @@
 
 <a href={resultsAddress()}>Back to Results</a>
 
-<p>You are in seat {$seat}</p>
-<p>{$opener} should open the next pack</p>
-
 <!-- Bidding headline -->
 <form id="bid-form" method="POST" action="?/submit">
-  <input hidden="true" value={$userIdToken} name="user-id-token" />
+  <input hidden="true" name="user-id-token" />
   <input hidden="true" bind:value={bids} name="bids" />
   {#each bids as bid, i}
     <div>
