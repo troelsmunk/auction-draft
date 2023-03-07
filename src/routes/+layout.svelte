@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte"
+  import { onDestroy, onMount } from "svelte"
   import Debugger from "$lib/Debugger.svelte"
   import { uid } from "$lib/stores"
   import {
@@ -15,7 +15,6 @@
   import firebaseConfigJson from "../../firebase-config.json"
 
   let auth
-  // use this onDestroy
   let authUnsub
 
   onMount(function () {
@@ -24,6 +23,7 @@
     auth = getAuth()
     authUnsub = onAuthStateChanged(auth, userCallback)
   })
+  onDestroy(authUnsub)
 
   function connectEmulatorsIfLocalhost() {
     if (
