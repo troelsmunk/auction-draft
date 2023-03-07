@@ -1,5 +1,4 @@
 import { validateUserAndGetUid } from "$lib/admin.server"
-import { redirect } from "@sveltejs/kit"
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function POST(event) {
@@ -9,7 +8,6 @@ export async function POST(event) {
     path: "/",
     maxAge: 60 * 60 * 24 * 2, // say, 2 days
   })
-  throw redirect(302, `/cookied`)
 }
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
