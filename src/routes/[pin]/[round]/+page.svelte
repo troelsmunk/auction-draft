@@ -1,6 +1,7 @@
 <script>
-  /** @type {import('./$types').PageData} but also LayoutData*/
+  /** @type {import('./$types').PageData} */
   export let data
+  // but also LayoutData
 
   /**
    * @type {number[]}

@@ -12,7 +12,7 @@ export async function POST(event) {
   throw redirect(302, `/cookied`)
 }
 
-/** @type {import('./$types').RequestHandler} */
+/** @type {import('@sveltejs/kit').RequestHandler} */
 export function DELETE() {
   // do something
 }
