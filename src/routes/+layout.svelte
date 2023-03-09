@@ -22,7 +22,7 @@
     initializeApp(firebaseConfigJson)
     connectEmulatorsIfLocalhost()
     auth = getAuth()
-    authUnsub = onAuthStateChanged(auth, userCallback)
+    authUnsub = onAuthStateChanged(auth, authChangedCallback)
   })
 
   function connectEmulatorsIfLocalhost() {
@@ -43,14 +43,15 @@
   }
 
   /** @param {import('@firebase/auth').User} user */
-  async function userCallback(user) {
+  async function authChangedCallback(user) {
     if (user) {
-      uid.set(user.uid)
       const token = await user.getIdToken()
-      await fetch("/api/cookie", {
+      const response = await fetch("/api/cookie", {
         body: JSON.stringify({ useridtoken: token }),
         method: "POST",
       })
+      const uidFromResponse = await response.json()
+      uid.set(uidFromResponse)
     } else {
       uid.set(null)
       // TODO call DELETE to remove the cookie
