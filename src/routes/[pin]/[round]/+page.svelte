@@ -1,7 +1,6 @@
 <script>
   /** @type {import('./$types').PageData} */
   export let data
-  // but also LayoutData
 
   /**
    * @type {number[]}
@@ -26,7 +25,6 @@
 
 <!-- Bidding headline -->
 <form id="bid-form" method="POST" action="?/submit">
-  <input hidden="true" name="user-id-token" />
   <input hidden="true" bind:value={bids} name="bids" />
   {#each bids as bid, i}
     <div>
