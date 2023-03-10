@@ -2,10 +2,23 @@
   /** @type {import('./$types').PageData} */
   export let data
 
-  /**
-   * @type {number[]}
-   */
-  let bids = new Array(15).fill(0)
+  let bids = {
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+    5: null,
+    6: null,
+    7: null,
+    8: null,
+    9: null,
+    10: null,
+    11: null,
+    12: null,
+    13: null,
+    14: null,
+    15: null,
+  }
 
   /**
    *
@@ -25,17 +38,11 @@
 
 <!-- Bidding headline -->
 <form id="bid-form" method="POST" action="?/submit">
-  <input hidden="true" bind:value={bids} name="bids" />
-  {#each bids as bid, i}
+  <input hidden="true" value={JSON.stringify(bids)} name="bids" />
+  {#each Object.keys(bids) as i}
     <div>
-      <label for={bidNum(i)}>{bidNum(i)}</label>
-      <input
-        id={bidNum(i)}
-        type="number"
-        bind:value={bids[i]}
-        min="0"
-        max="99"
-      />
+      <label for={i}>{i}</label>
+      <input id={i} type="number" bind:value={bids[i]} min="0" max="99" />
     </div>
   {/each}
   <button type="submit">Bid!</button>
