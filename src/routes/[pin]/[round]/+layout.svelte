@@ -1,6 +1,4 @@
 <script>
-  console.log("round/+layout <script>")
-
   /** @type {import('./$types').LayoutData} */
   export let data
   let colors = ["purple", "yellow", "brown", "gray", "lightblue", "orange"]

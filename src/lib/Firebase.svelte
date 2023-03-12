@@ -7,10 +7,7 @@
   import firebaseConfigJson from "../../firebase-config.json"
   import { onMount } from "svelte"
 
-  console.log("Firebase.svelte <script>")
-
   onMount(function () {
-    console.log("Firebase.svelte onMount")
     if (!$firebaseApp) {
       firebaseApp.set(initializeApp(firebaseConfigJson))
       connectEmulatorsIfLocalhost()

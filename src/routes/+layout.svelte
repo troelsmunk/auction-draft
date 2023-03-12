@@ -10,10 +10,7 @@
   } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
 
-  console.log("+layout <script>")
-
   onMount(function () {
-    console.log("+layout onMount")
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
   })
 
