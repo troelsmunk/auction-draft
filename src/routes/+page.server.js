@@ -13,7 +13,7 @@ export const actions = {
   },
   join: async (event) => {
     const formData = await event.request.formData()
-    const pin = formData.get("pin")
+    const pin = parseInt(formData.get("pin"))
     const uid = event.cookies.get("firebaseuid")
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
@@ -92,8 +92,8 @@ async function enrollBidderInAuction(uid, pin) {
   const pinRef = admin.database().ref(`auctions/${pin}`)
   const sizeSnap = await pinRef.child("size").once("value")
   const findSeatForUid = findSeatReducer(uid, pin, sizeSnap.val())
-  await pinRef.transaction(findSeatForUid, null, false)
-  return pinRef.child(`readys`).update({ [uid]: -1 })
+  await pinRef.child("seats").transaction(findSeatForUid, null, false)
+  return pinRef.child("readys").update({ [uid]: -1 })
 }
 
 /**

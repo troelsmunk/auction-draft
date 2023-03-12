@@ -7,9 +7,9 @@ export const actions = {
     const bids = JSON.parse(formData.get("bids"))
     const uid = event.cookies.get("firebaseuid")
     const round = parseInt(event.params.round)
-    const auctionRef = admin.database().ref("auctions/" + event.params.pin)
-    await auctionRef.child("/bids/" + uid).set(bids)
-    await auctionRef.child("/readys/" + uid).set(round)
+    const pin = parseInt(event.params.pin)
+    await admin.database().ref(`auctions/${pin}/bids/${uid}`).set(bids)
+    await admin.database().ref(`auctions/${pin}/readys/${uid}`).set(round)
     return { success: true }
   },
 }
