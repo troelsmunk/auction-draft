@@ -1,31 +1,11 @@
 <script>
-  import { firebaseApp } from "$lib/stores"
-  import { getDatabase, onValue, ref } from "firebase/database"
-  import Firebase from "$lib/Firebase.svelte"
-  import { onMount } from "svelte"
+  console.log("round/+layout <script>")
 
   /** @type {import('./$types').LayoutData} */
   export let data
   let colors = ["purple", "yellow", "brown", "gray", "lightblue", "orange"]
   colors.length = data.size
-  let currentRound
-  console.log("round/+layout <script>")
-
-  onMount(() => {
-    console.log("round/+layout onMount")
-    console.log("firebaseApp: " + $firebaseApp)
-    console.log("getDatabase(firebaseApp): " + getDatabase($firebaseApp))
-    const roundRef = ref(
-      getDatabase($firebaseApp),
-      `auctions/${data.pin}/round`
-    )
-    onValue(roundRef, (snap) => {
-      currentRound = snap.val()
-    })
-  })
 </script>
-
-<Firebase />
 
 <h3>Scoreboard</h3>
 <ul class="scoreboard">
