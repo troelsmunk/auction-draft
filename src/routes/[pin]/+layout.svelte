@@ -1,5 +1,5 @@
 <script>
-  import { firebaseApp } from "$lib/stores"
+  import { currentRound, firebaseApp } from "$lib/stores"
   import { getDatabase, onValue, ref } from "firebase/database"
   import Firebase from "$lib/Firebase.svelte"
   import { onMount } from "svelte"
@@ -9,7 +9,6 @@
 
   console.log("pin/+layout <script>")
 
-  let currentRound
   onMount(() => {
     console.log("pin/+layout onMount")
     const roundRef = ref(
@@ -17,7 +16,8 @@
       `auctions/${data.pin}/round`
     )
     onValue(roundRef, (snap) => {
-      currentRound = snap.val()
+      console.log("setting currentRound to :" + snap.val())
+      currentRound.set(snap.val())
     })
   })
 </script>

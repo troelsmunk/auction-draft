@@ -1,4 +1,6 @@
 <script>
+  import { currentRound } from "$lib/stores"
+
   /** @type {import('./$types').PageData} */
   export let data
 
@@ -20,21 +22,22 @@
     15: null,
   }
 
-  /**
-   *
-   * @param {number} i
-   * @returns {string}
-   */
-  const bidNum = function (i) {
-    return (i + 1).toString()
-  }
+  const round = parseInt(data.round)
 
-  function resultsAddress() {
-    return `/${data.pin}/${parseInt(data.round) - 1}/results`
+  function previousRoundResultsAddress() {
+    return `/${data.pin}/${round - 1}/results`
+  }
+  function currentRoundResultsAddress() {
+    return `/${data.pin}/${$currentRound}/results`
   }
 </script>
 
-<a href={resultsAddress()}>Back to Results</a>
+{#if round > 1}
+  <a href={previousRoundResultsAddress()}>Back to Results</a>
+{/if}
+{#if $currentRound > round}
+  <a href={currentRoundResultsAddress()}>New Results</a>
+{/if}
 
 <!-- Bidding headline -->
 <form id="bid-form" method="POST" action="?/submit">

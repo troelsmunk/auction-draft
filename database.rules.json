@@ -73,6 +73,9 @@
         },
         "results": {
           ".read": "data.parent().child('seats').child(auth.uid).exists()"
+        },
+        "round": {
+          ".read": "data.parent().child('seats').child(auth.uid).exists()"
         }
       }
     },
