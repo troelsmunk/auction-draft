@@ -1,13 +1,11 @@
 <script>
   /** @type {import('./$types').LayoutData} */
   export let data
-  let colors = ["purple", "yellow", "brown", "gray", "lightblue", "orange"]
-  colors.length = data.size
 </script>
 
 <h3>Scoreboard</h3>
 <ul class="scoreboard">
-  {#each colors as color, i}
+  {#each data.colors as color, i}
     <li class="scoreboard-item" style:background-color={color}>
       {#if i + 1 == data.round % data.size}
         opener

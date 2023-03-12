@@ -6,8 +6,12 @@ export async function load({ params }) {
     .database()
     .ref(`auctions/${params.pin}/size`)
     .get()
+  const size = auctionSize.val()
+  const colors = ["purple", "yellow", "brown", "gray", "lightblue", "orange"]
+  colors.length = size
   return {
-    size: auctionSize.val(),
+    size: size,
     pin: params.pin,
+    colors: colors,
   }
 }

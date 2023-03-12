@@ -12,7 +12,7 @@
 
 <h3>Results</h3>
 {#each Object.entries(JSON.parse(data.results)) as [i, card]}
-  <p style:color={card.winner}>
+  <p style:color={data.colors[card.winner]}>
     {card.bid}
   </p>
 {/each}
