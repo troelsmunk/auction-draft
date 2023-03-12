@@ -21,9 +21,15 @@
       bid: 2,
     },
   }
+
+  function nextRoundBiddingAddress() {
+    const nextRound = parseInt(data.round) + 1
+    return `/${data.pin}/${nextRound}`
+  }
 </script>
 
-<h3>This are results</h3>
+<a href={nextRoundBiddingAddress()}>Next round </a>
+<h3>Results</h3>
 
 <!-- TODO data.results instead of result -->
 {#each Object.entries(results) as [i, card]}
