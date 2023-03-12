@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte"
   import Debugger from "$lib/Debugger.svelte"
-  import { uid } from "$lib/stores"
+  import { uid, firebaseApp } from "$lib/stores"
   import {
     getAuth,
     connectAuthEmulator,
@@ -13,34 +13,14 @@
   import { getDatabase, connectDatabaseEmulator } from "firebase/database"
   import firebaseJson from "../../firebase.json"
   import firebaseConfigJson from "../../firebase-config.json"
+  import Firebase from "$lib/Firebase.svelte"
 
-  let auth
-  // use this onDestroy
-  let authUnsub
+  console.log("+layout <script>")
 
   onMount(function () {
-    initializeApp(firebaseConfigJson)
-    connectEmulatorsIfLocalhost()
-    auth = getAuth()
-    authUnsub = onAuthStateChanged(auth, authChangedCallback)
+    console.log("+layout onMount")
+    onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
   })
-
-  function connectEmulatorsIfLocalhost() {
-    if (
-      location.hostname === "localhost" ||
-      location.hostname === "127.0.0.1"
-    ) {
-      connectDatabaseEmulator(
-        getDatabase(),
-        "localhost",
-        firebaseJson.emulators.database.port
-      )
-      connectAuthEmulator(
-        getAuth(),
-        "http://localhost:" + firebaseJson.emulators.auth.port
-      )
-    }
-  }
 
   /** @param {import('@firebase/auth').User} user */
   async function authChangedCallback(user) {
@@ -61,12 +41,13 @@
 
 <h1>Blind Auction Drafting</h1>
 <a href="/"> Home </a>
-<button on:click={signInAnonymously(auth)}>Login</button>
-<button on:click={signOut(auth)}>Logout</button>
+<button on:click={signInAnonymously(getAuth($firebaseApp))}>Login</button>
+<button on:click={signOut(getAuth($firebaseApp))}>Logout</button>
 
 <slot />
 
 <Debugger />
+<Firebase />
 
 <style>
   ::global(*) {
