@@ -4,15 +4,10 @@
   import { uid, firebaseApp } from "$lib/stores"
   import {
     getAuth,
-    connectAuthEmulator,
     signInAnonymously,
     signOut,
     onAuthStateChanged,
   } from "firebase/auth"
-  import { initializeApp } from "firebase/app"
-  import { getDatabase, connectDatabaseEmulator } from "firebase/database"
-  import firebaseJson from "../../firebase.json"
-  import firebaseConfigJson from "../../firebase-config.json"
   import Firebase from "$lib/Firebase.svelte"
 
   console.log("+layout <script>")
@@ -34,7 +29,6 @@
       uid.set(uidFromResponse)
     } else {
       uid.set(null)
-      // TODO call DELETE to remove the cookie
     }
   }
 </script>
