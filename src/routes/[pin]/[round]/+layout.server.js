@@ -1,7 +1,13 @@
+import { admin } from "$lib/admin.server"
+
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params }) {
+  const scoreboardSnap = await admin
+    .database()
+    .ref(`auctions/${params.pin}/scoreboard`)
+    .get()
   return {
-    scores: [890, 200, 110, 90, 100, 200],
+    scores: scoreboardSnap.val(),
     round: params.round,
   }
 }
