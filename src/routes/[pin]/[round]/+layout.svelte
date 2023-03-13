@@ -10,6 +10,9 @@
       {#if i + 1 == data.round % data.size}
         opener
       {/if}
+      {#if i == data.seat}
+        you
+      {/if}
       {data.scores[i]}
     </li>
   {/each}

@@ -1,12 +1,17 @@
 import { admin } from "$lib/admin.server"
 
 /** @type {import('./$types').LayoutServerLoad} */
-export async function load({ params }) {
-  const auctionSize = await admin
-    .database()
-    .ref(`auctions/${params.pin}/size`)
+export async function load({ params, cookies }) {
+  const uid = cookies.get("firebaseuid")
+  const auctionRef = admin.database().ref(`auctions/${params.pin}`)
+  const seat = await auctionRef
+    .child(`seats/${uid}`)
     .get()
-  const size = auctionSize.val()
+    .then((snap) => snap.val())
+  const size = await auctionRef
+    .child("size")
+    .get()
+    .then((snap) => snap.val())
   const colors = [
     "#858D8D",
     "#8338EC",
@@ -20,5 +25,6 @@ export async function load({ params }) {
     size: size,
     pin: params.pin,
     colors: colors,
+    seat: seat,
   }
 }
