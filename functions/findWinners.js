@@ -7,14 +7,9 @@ module.exports = async function findWinners(readysChange, context) {
   const auctionRef = readysRef.parent
   const roundRef = auctionRef.child("round")
   const currentRound = await roundRef.get().then((snap) => snap.val())
-  // -----
-  // const everyoneIsReady = checkReadiness(roundRef, readysChange.after)
-  const readyChecker = readyCheckerReducer(readysChange.after)
-  const transactionResult = await roundRef.transaction(readyChecker)
-  if (!transactionResult.committed) return
-  if (!transactionResult.snapshot.exists()) return
-  // -----
-  // if (!everyoneIsReady) return
+
+  const everyoneIsReady = await checkReadiness(roundRef, readysChange.after)
+  if (!everyoneIsReady) return
 
   const bids = await auctionRef
     .child("bids")
@@ -31,7 +26,19 @@ module.exports = async function findWinners(readysChange, context) {
 }
 
 /**
- * @param {import("firebase-functions").database.DataSnapshot} readySnap
+ * @param {import("@firebase/database-types").Reference} roundRef
+ * @param {import("firebase-functions").database.DataSnapshot} readysAfterChange
+ * @returns {Promise<boolean>}
+ */
+async function checkReadiness(roundRef, readysAfterChange) {
+  const readyChecker = readyCheckerReducer(readysAfterChange)
+  return roundRef.transaction(readyChecker).then((transactionResult) => {
+    return transactionResult.committed && transactionResult.snapshot.exists()
+  })
+}
+
+/**
+ * @param {import("firebase-functions").database.RefBuilder} readySnap
  */
 function readyCheckerReducer(readySnap) {
   return function (previousRound) {
