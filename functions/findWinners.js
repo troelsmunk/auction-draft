@@ -1,53 +1,46 @@
-const transaction = require("./transaction")
-
 /**
- *
  * @param {import("firebase-functions").Change<import("firebase-functions").database.DataSnapshot>} readysChange
  * @param {import("firebase-functions").EventContext} context
  */
 module.exports = async function findWinners(readysChange, context) {
-  try {
-    const readysRef = readysChange.after.ref
-    const auctionRef = readysRef.parent
-    const roundRef = auctionRef.child("round")
-    const roundSnap = await roundRef.once("value")
-    const currentRound = roundSnap.val()
-    const sizeSnap = await auctionRef.child("size").once("value")
-    const auctionSize = sizeSnap.val()
-    const readyChecker = checkerReducer(auctionSize, currentRound)
+  const readysRef = readysChange.after.ref
+  const auctionRef = readysRef.parent
+  const roundRef = auctionRef.child("round")
+  const currentRound = await roundRef.get().then((snap) => snap.val())
+  // -----
+  // const everyoneIsReady = checkReadiness(roundRef, readysChange.after)
+  const readyChecker = readyCheckerReducer(readysChange.after)
+  const transactionResult = await roundRef.transaction(readyChecker)
+  if (!transactionResult.committed) return
+  if (!transactionResult.snapshot.exists()) return
+  // -----
+  // if (!everyoneIsReady) return
 
-    const transactionResult = await transaction(readysRef, readyChecker)
+  const bids = await auctionRef
+    .child("bids")
+    .get()
+    .then((snap) => snap.val())
 
-    if (!transactionResult.committed) return
-    /* how to rectify the situation below? 
-    when the transaction commits {}, because there are no readys, 
-    which will only happen on a dead test */
-    if (!transactionResult.snapshot.exists()) return
-
-    const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
-    const resultCardRef = resultRoundRef.child(`cards/0`)
-    let winner = currentRound % auctionSize
-    let bid = 0
-    return Promise.all([
-      roundRef.set(currentRound + 1),
-      resultCardRef.set({ winner: winner, bid: bid }),
-    ])
-  } catch (error) {
-    console.error(error)
+  for (const [uid, cards] of Object.entries(bids)) {
+    for (const [card, bid] of Object.entries(cards)) {
+      console.log(`User bid ${bid} on card ${card} with uid ${uid}`)
+    }
   }
+
+  const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
 }
 
-function checkerReducer(auctionSize, currentRound) {
-  return function (previousReadys) {
-    if (previousReadys === null) return null
-    const bidderUids = Object.keys(previousReadys)
-    if (bidderUids.length !== auctionSize) return
-    let everyoneUnready = {}
-    for (let index = 0; index < bidderUids.length; index++) {
-      const uid = bidderUids[index]
-      if (previousReadys[uid] !== currentRound) return
-      everyoneUnready[uid] = -1
-    }
-    return everyoneUnready
+/**
+ * @param {import("firebase-functions").database.DataSnapshot} readySnap
+ */
+function readyCheckerReducer(readySnap) {
+  return function (previousRound) {
+    console.log("checking readyness. previousRound: " + previousRound)
+    if (typeof previousRound != "number") return previousRound
+    const readyObject = readySnap.val()
+    const readys = Object.values(readyObject)
+    const everyoneReady = readys.every((value) => value == previousRound)
+    if (everyoneReady) return previousRound + 1
+    else return
   }
 }
