@@ -9,30 +9,27 @@ module.exports = async function findWinners(readysChange, context) {
   const currentRound = await roundRef.get().then((snap) => snap.val())
 
   const everyoneIsReady = await checkReadiness(roundRef, readysChange.after)
+  console.log("everyone is ready: " + everyoneIsReady)
   if (!everyoneIsReady) return
 
-  let winnersAndBids = {
-    1: { uid: null, bid: -1 },
-    2: { uid: null, bid: -1 },
-    3: { uid: null, bid: -1 },
-    4: { uid: null, bid: -1 },
-    5: { uid: null, bid: -1 },
-    6: { uid: null, bid: -1 },
-    7: { uid: null, bid: -1 },
-    8: { uid: null, bid: -1 },
-    9: { uid: null, bid: -1 },
-    10: { uid: null, bid: -1 },
-    11: { uid: null, bid: -1 },
-    12: { uid: null, bid: -1 },
-    13: { uid: null, bid: -1 },
-    14: { uid: null, bid: -1 },
-    15: { uid: null, bid: -1 },
-  }
   const bids = await auctionRef
     .child("bids")
     .get()
     .then((snap) => snap.val())
   const orderedBidders = Object.keys(bids)
+  console.log("ordered-ish bidders: " + orderedBidders)
+  const firstInLine = orderedBidders[0]
+  const defaultWinnerAndBid = {
+    uid: firstInLine,
+    bid: 0,
+  }
+  let winnersAndBids = {}
+  for (let i = 1; i <= 15; i++) {
+    winnersAndBids[i] = defaultWinnerAndBid
+  }
+  console.log("default winners and bids: ")
+  console.log(winnersAndBids)
+
   for (const uid of orderedBidders) {
     for (const [card, bid] of Object.entries(bids[uid])) {
       console.log(`User bid ${bid} on card ${card} with uid ${uid}`)
