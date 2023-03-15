@@ -9,7 +9,6 @@ module.exports = async function findWinners(readysChange, context) {
   const currentRound = await roundRef.get().then((snap) => snap.val())
 
   const everyoneIsReady = await checkReadiness(roundRef, readysChange.after)
-  console.log("everyone is ready: " + everyoneIsReady)
   if (!everyoneIsReady) return
 
   const bids = await auctionRef
@@ -17,12 +16,10 @@ module.exports = async function findWinners(readysChange, context) {
     .get()
     .then((snap) => snap.val())
   const orderedBidders = await sortCustom(auctionRef, currentRound)
-  console.log("orderedBidders: " + orderedBidders)
   let winnersAndBids = getDefaultWinnerAndBids(orderedBidders[0])
 
   for (const uid of orderedBidders) {
     for (const [card, bid] of Object.entries(bids[uid])) {
-      // console.log(`User bid ${bid} on card ${card} with uid ${uid}`)
       if (bid > winnersAndBids[card].bid) {
         winnersAndBids[card] = {
           uid: uid,
@@ -31,9 +28,21 @@ module.exports = async function findWinners(readysChange, context) {
       }
     }
   }
+  const scoreboardRef = auctionRef.child("scoreboard")
+  const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
+  const seats = await auctionRef
+    .child("seats")
+    .get()
+    .then((snap) => snap.val())
+  for (const winnerAndBid of Object.values(winnersAndBids)) {
+    scoreboard[seats[winnerAndBid.uid]] -= winnerAndBid.bid
+  }
 
   const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
-  return resultRoundRef.set(winnersAndBids)
+  return Promise.all([
+    resultRoundRef.set(winnersAndBids),
+    scoreboardRef.set(scoreboard),
+  ])
 }
 
 /**
@@ -73,29 +82,6 @@ function getDefaultWinnerAndBids(firstUid) {
     winnersAndBids[i] = defaultWinnerAndBids
   }
   return winnersAndBids
-}
-
-/**
- * @param {object} seats
- * @param {number} round
- * @returns {(uid: string) => number}
- */
-function priorityReducer(seats, round) {
-  const auctionSize = seats.length
-  return function (uid) {
-    return (seats[uid] + round + auctionSize) % auctionSize
-  }
-}
-
-/**
- * @param {object} seats
- * @param {object} scoreboard
- * @returns {(uid: string) => number}
- */
-function scoreReducer(seats, scoreboard) {
-  return function (uid) {
-    return scoreboard[seats[uid]]
-  }
 }
 
 /**
