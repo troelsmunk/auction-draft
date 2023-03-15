@@ -16,25 +16,14 @@ module.exports = async function findWinners(readysChange, context) {
     .child("bids")
     .get()
     .then((snap) => snap.val())
-  const orderedBidders = Object.keys(bids)
-  console.log("ordered-ish bidders: " + orderedBidders)
-  const firstInLine = orderedBidders[0]
-  const defaultWinnerAndBid = {
-    uid: firstInLine,
-    bid: 0,
-  }
-  let winnersAndBids = {}
-  for (let i = 1; i <= 15; i++) {
-    winnersAndBids[i] = defaultWinnerAndBid
-  }
-  console.log("default winners and bids: ")
-  console.log(winnersAndBids)
+  const orderedBidders = await sortCustom(auctionRef, currentRound)
+  console.log("orderedBidders: " + orderedBidders)
+  let winnersAndBids = getDefaultWinnerAndBids(orderedBidders[0])
 
   for (const uid of orderedBidders) {
     for (const [card, bid] of Object.entries(bids[uid])) {
-      console.log(`User bid ${bid} on card ${card} with uid ${uid}`)
+      // console.log(`User bid ${bid} on card ${card} with uid ${uid}`)
       if (bid > winnersAndBids[card].bid) {
-        console.log("New bid takes the lead!")
         winnersAndBids[card] = {
           uid: uid,
           bid: bid,
@@ -45,6 +34,68 @@ module.exports = async function findWinners(readysChange, context) {
 
   const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
   return resultRoundRef.set(winnersAndBids)
+}
+
+/**
+ * @param {import("@firebase/database-types").Reference} auctionRef
+ * @param {number} round
+ * @returns {Promise<string[]>}
+ */
+async function sortCustom(auctionRef, round) {
+  const seats = await auctionRef
+    .child("seats")
+    .get()
+    .then((snap) => snap.val())
+  const bidders = Object.keys(seats)
+  const size = bidders.length
+  const scoreboard = await auctionRef
+    .child("scoreboard")
+    .get()
+    .then((snap) => snap.val())
+  bidders.sort((uidA, uidB) => {
+    const prioA = (((seats[uidA] + 1 - round) % size) + size) % size
+    const prioB = (((seats[uidB] + 1 - round) % size) + size) % size
+    return prioA - prioB
+  })
+  bidders.sort((uidA, uidB) => {
+    return scoreboard[seats[uidB]] - scoreboard[seats[uidA]]
+  })
+  return bidders
+}
+
+function getDefaultWinnerAndBids(firstUid) {
+  const defaultWinnerAndBids = {
+    uid: firstUid,
+    bid: 0,
+  }
+  let winnersAndBids = {}
+  for (let i = 1; i <= 15; i++) {
+    winnersAndBids[i] = defaultWinnerAndBids
+  }
+  return winnersAndBids
+}
+
+/**
+ * @param {object} seats
+ * @param {number} round
+ * @returns {(uid: string) => number}
+ */
+function priorityReducer(seats, round) {
+  const auctionSize = seats.length
+  return function (uid) {
+    return (seats[uid] + round + auctionSize) % auctionSize
+  }
+}
+
+/**
+ * @param {object} seats
+ * @param {object} scoreboard
+ * @returns {(uid: string) => number}
+ */
+function scoreReducer(seats, scoreboard) {
+  return function (uid) {
+    return scoreboard[seats[uid]]
+  }
 }
 
 /**
