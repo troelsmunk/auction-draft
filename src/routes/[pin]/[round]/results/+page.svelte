@@ -19,10 +19,8 @@
 <h3>Results</h3>
 <div class="grid-container">
   {#each Object.entries(betterResults) as [i, card]}
-    <div class="result-wrapper" style:background-color={data.colors[card.seat]}>
-      <div class="result-inner">
-        {card.bid}
-      </div>
+    <div class="result" style:background-color={data.colors[card.seat]}>
+      {card.bid}
     </div>
   {/each}
 </div>
@@ -33,15 +31,11 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 
-  .result-wrapper {
+  .result {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100px;
-  }
-
-  .result-inner {
-    align-self: center;
-    background-color: antiquewhite;
+    font-weight: bold;
   }
 </style>
