@@ -38,11 +38,10 @@
   }
 
   .score {
-    color: black;
     font-weight: bold;
   }
 
   .you {
-    border: solid black 0.2em;
+    border: solid 0.2em;
   }
 </style>
