@@ -1,12 +1,10 @@
 <script>
   import { getDatabase, onValue, ref, remove, set } from "firebase/database"
   import { onMount } from "svelte"
-  import { pin } from "./stores"
   export let uid
   let indexPinRef, indexSizeRef
 
   onMount(() => {
-    console.log("Database onMount")
     const db = getDatabase()
     indexPinRef = ref(db, `index/${uid}/pin`)
     indexSizeRef = ref(db, `index/${uid}/auctionSize`)
