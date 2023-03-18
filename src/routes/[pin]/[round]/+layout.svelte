@@ -1,45 +1,25 @@
 <script>
+  import ScoreItem from "./ScoreItem.svelte"
   /** @type {import('./$types').LayoutData} */
   export let data
 </script>
 
-<h3>Scoreboard</h3>
-<ul class="scoreboard">
+<div class="scoreboard">
   {#each data.colors as color, i}
-    <li class="scoreboard-item" style:background-color={color}>
-      {#if i + 1 == data.round % data.size}
-        opener
-      {/if}
-      {#if i == data.seat}
-        you
-      {/if}
-      {data.scores[i]}
-    </li>
+    <ScoreItem
+      {color}
+      opener={i + 1 == data.round % data.size}
+      you={i == data.seat}
+      score={data.scores[i]}
+    />
   {/each}
-</ul>
+</div>
 
 <slot />
 
 <style>
   .scoreboard {
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-
-    padding: 0;
-    margin: 0;
-    list-style: none;
-  }
-
-  .scoreboard-item {
-    padding: 5px;
-    width: 200px;
-    height: 50px;
-    margin-top: 10px;
-    line-height: 50px;
-    color: black;
-    font-weight: bold;
-    font-size: 1em;
-    text-align: center;
+    justify-content: center;
   }
 </style>
