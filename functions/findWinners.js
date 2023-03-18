@@ -16,13 +16,17 @@ module.exports = async function findWinners(readysChange, context) {
     .get()
     .then((snap) => snap.val())
   const orderedBidders = await sortCustom(auctionRef, currentRound)
-  let winnersAndBids = getDefaultWinnerAndBids(orderedBidders[0])
+  const seats = await auctionRef
+    .child("seats")
+    .get()
+    .then((snap) => snap.val())
+  let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
 
   for (const uid of orderedBidders) {
     for (const [card, bid] of Object.entries(bids[uid])) {
       if (bid > winnersAndBids[card].bid) {
         winnersAndBids[card] = {
-          uid: uid,
+          seat: seats[uid],
           bid: bid,
         }
       }
@@ -30,12 +34,8 @@ module.exports = async function findWinners(readysChange, context) {
   }
   const scoreboardRef = auctionRef.child("scoreboard")
   const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
-  const seats = await auctionRef
-    .child("seats")
-    .get()
-    .then((snap) => snap.val())
   for (const winnerAndBid of Object.values(winnersAndBids)) {
-    scoreboard[seats[winnerAndBid.uid]] -= winnerAndBid.bid
+    scoreboard[winnerAndBid.seat] -= winnerAndBid.bid
   }
 
   const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
@@ -72,9 +72,9 @@ async function sortCustom(auctionRef, round) {
   return bidders
 }
 
-function getDefaultWinnerAndBids(firstUid) {
+function getDefaultWinnerAndBids(seat) {
   const defaultWinnerAndBids = {
-    uid: firstUid,
+    seat: seat,
     bid: 0,
   }
   let winnersAndBids = {}

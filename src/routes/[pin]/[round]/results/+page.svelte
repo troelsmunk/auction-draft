@@ -19,10 +19,7 @@
 <h3>Results</h3>
 <div class="grid-container">
   {#each Object.entries(betterResults) as [i, card]}
-    <div
-      class="result-wrapper"
-      style:background-color={data.colors[card.winner]}
-    >
+    <div class="result-wrapper" style:background-color={data.colors[card.seat]}>
       <div class="result-inner">
         {card.bid}
       </div>
