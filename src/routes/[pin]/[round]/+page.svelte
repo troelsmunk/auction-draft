@@ -41,23 +41,40 @@
 <h3>Bidding</h3>
 <form id="bid-form" method="POST" action="?/submit">
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
-  {#each Object.keys(bids) as i}
-    <div>
-      <label for={i}>{i}</label>
-      <input id={i} type="number" bind:value={bids[i]} min="0" max="99" />
-    </div>
-  {/each}
+  <div class="input-container">
+    {#each Object.keys(bids) as i}
+      <div>
+        <label for="bid-{i}">{i}</label>
+      </div>
+      <div>
+        <input
+          id="bid-{i}"
+          type="number"
+          bind:value={bids[i]}
+          min="0"
+          max="99"
+        />
+      </div>
+    {/each}
+  </div>
   <button type="submit">Bid!</button>
 </form>
 
 <style>
-  form {
+  .input-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr 3fr);
+  }
+
+  .input-container > * {
+    margin-top: 8px;
   }
 
   button {
-    align-self: end;
-    background-color: lightgreen;
+    float: right;
+  }
+
+  label {
+    text-align: center;
   }
 </style>
