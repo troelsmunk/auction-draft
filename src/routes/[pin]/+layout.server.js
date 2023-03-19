@@ -13,12 +13,12 @@ export async function load({ params, cookies }) {
     .get()
     .then((snap) => snap.val())
   const colors = [
-    "#858D8D",
-    "#8338EC",
-    "#F77F00",
-    "#FF338B",
-    "#7C472E",
-    "#F2BB05",
+    "#A0A6A6",
+    "#B98EF6",
+    "#FF931F",
+    "#FF70AE",
+    "#C27C5B",
+    "#FAC30F",
   ]
   colors.length = size
   return {
