@@ -28,6 +28,12 @@
       uid.set(null)
     }
   }
+
+  function signIn() {
+    return signOut(getAuth($firebaseApp)).then(() =>
+      signInAnonymously(getAuth($firebaseApp))
+    )
+  }
 </script>
 
 <h1>Blind Auction Drafting</h1>
@@ -41,8 +47,10 @@
   {/if}
 </p>
 
-<button on:click={signInAnonymously(getAuth($firebaseApp))}>Login</button>
-<button on:click={signOut(getAuth($firebaseApp))}>Logout</button>
+{#if !$uid}
+  <h3>Do you like cookies?</h3>
+  <button on:click={signIn}>Cookies!</button>
+{/if}
 
 <slot />
 
