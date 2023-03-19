@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte"
-  import Debugger from "$lib/Debugger.svelte"
   import { uid, firebaseApp } from "$lib/stores"
   import {
     getAuth,
@@ -37,7 +36,6 @@
 
 <slot />
 
-<Debugger />
 <Firebase />
 
 <style>
