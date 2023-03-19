@@ -8,6 +8,7 @@
     onAuthStateChanged,
   } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
+  import { page } from "$app/stores"
 
   onMount(function () {
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
@@ -30,7 +31,16 @@
 </script>
 
 <h1>Blind Auction Drafting</h1>
-<a href="/"> Home </a>
+<p>
+  <a href="/"> Home </a>
+  {#if $page.params.pin}
+    - Auction {$page.params.pin}
+  {/if}
+  {#if $page.params.round}
+    - Round {$page.params.round}
+  {/if}
+</p>
+
 <button on:click={signInAnonymously(getAuth($firebaseApp))}>Login</button>
 <button on:click={signOut(getAuth($firebaseApp))}>Logout</button>
 
