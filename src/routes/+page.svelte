@@ -33,7 +33,6 @@
       inputmode="numeric"
       placeholder="e.g.1234"
       required
-      pattern="[0-9][0-9][0-9][0-9]"
     />
     <button type="submit">Join Auction</button>
   </form>
