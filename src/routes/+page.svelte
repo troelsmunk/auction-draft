@@ -1,5 +1,12 @@
 <script>
-  import { uid } from "$lib/stores"
+  import { getAuth, signInAnonymously, signOut } from "firebase/auth"
+  import { uid, firebaseApp } from "$lib/stores"
+
+  function signIn() {
+    return signOut(getAuth($firebaseApp)).then(() =>
+      signInAnonymously(getAuth($firebaseApp))
+    )
+  }
 </script>
 
 {#if $uid}
@@ -30,4 +37,7 @@
     />
     <button type="submit">Join Auction</button>
   </form>
+{:else}
+  <h3>Do you like cookies?</h3>
+  <button on:click={signIn}>Cookies!</button>
 {/if}

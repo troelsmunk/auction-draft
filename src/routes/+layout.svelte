@@ -1,12 +1,7 @@
 <script>
   import { onMount } from "svelte"
   import { uid, firebaseApp } from "$lib/stores"
-  import {
-    getAuth,
-    signInAnonymously,
-    signOut,
-    onAuthStateChanged,
-  } from "firebase/auth"
+  import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
   import { page } from "$app/stores"
 
@@ -28,12 +23,6 @@
       uid.set(null)
     }
   }
-
-  function signIn() {
-    return signOut(getAuth($firebaseApp)).then(() =>
-      signInAnonymously(getAuth($firebaseApp))
-    )
-  }
 </script>
 
 <h1>Blind Auction Drafting</h1>
@@ -46,11 +35,6 @@
     - Round {$page.params.round}
   {/if}
 </p>
-
-{#if !$uid}
-  <h3>Do you like cookies?</h3>
-  <button on:click={signIn}>Cookies!</button>
-{/if}
 
 <slot />
 
