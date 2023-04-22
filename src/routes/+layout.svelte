@@ -1,14 +1,9 @@
 <script>
   import { onMount } from "svelte"
-  import Debugger from "$lib/Debugger.svelte"
   import { uid, firebaseApp } from "$lib/stores"
-  import {
-    getAuth,
-    signInAnonymously,
-    signOut,
-    onAuthStateChanged,
-  } from "firebase/auth"
+  import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
+  import { page } from "$app/stores"
 
   onMount(function () {
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
@@ -31,13 +26,18 @@
 </script>
 
 <h1>Blind Auction Drafting</h1>
-<a href="/"> Home </a>
-<button on:click={signInAnonymously(getAuth($firebaseApp))}>Login</button>
-<button on:click={signOut(getAuth($firebaseApp))}>Logout</button>
+<p>
+  <a href="/"> Home </a>
+  {#if $page.params.pin}
+    - Auction {$page.params.pin}
+  {/if}
+  {#if $page.params.round}
+    - Round {$page.params.round}
+  {/if}
+</p>
 
 <slot />
 
-<Debugger />
 <Firebase />
 
 <style>
