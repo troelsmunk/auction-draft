@@ -1,8 +1,9 @@
 import { admin } from "$lib/admin.server"
+import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, cookies }) {
-  const uid = cookies.get("firebaseuid")
+  const uid = cookies.get(COOKIE_NAME)
   const auctionRef = admin.database().ref(`auctions/${params.pin}`)
   const seat = await auctionRef
     .child(`seats/${uid}`)
