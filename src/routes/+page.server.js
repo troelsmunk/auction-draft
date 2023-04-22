@@ -1,12 +1,13 @@
 import { error, redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
+import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
     const auctionSize = validateAuctionSize(formData.get("auction-size"))
-    const uid = event.cookies.get("firebaseuid")
+    const uid = event.cookies.get(COOKIE_NAME)
     const pin = await getNextPin()
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
@@ -14,7 +15,7 @@ export const actions = {
   join: async (event) => {
     const formData = await event.request.formData()
     const pin = parseInt(formData.get("pin"))
-    const uid = event.cookies.get("firebaseuid")
+    const uid = event.cookies.get(COOKIE_NAME)
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
