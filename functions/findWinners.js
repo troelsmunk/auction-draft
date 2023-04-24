@@ -7,8 +7,7 @@ module.exports = async function findWinners(readysChange, context) {
     console.error("Invalid readysChange object: ", readysChange)
     return
   }
-  const readysRef = readysChange.after.ref
-  const auctionRef = readysRef.parent
+  const auctionRef = readysChange.after.ref.parent
   const roundRef = auctionRef.child("round")
   const currentRound = await roundRef.get().then((snap) => snap.val())
   if (typeof currentRound !== "number") {
