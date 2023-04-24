@@ -3,23 +3,42 @@
  * @param {import("firebase-functions").EventContext} context
  */
 module.exports = async function findWinners(readysChange, context) {
+  if (!readysChange || !readysChange.after || !readysChange.after.ref) {
+    console.error("Invalid readysChange object: ", readysChange)
+    return
+  }
   const readysRef = readysChange.after.ref
   const auctionRef = readysRef.parent
   const roundRef = auctionRef.child("round")
   const currentRound = await roundRef.get().then((snap) => snap.val())
+  if (typeof currentRound !== "number") {
+    console.error("'round' from the database is not a number: ", currentRound)
+    return
+  }
 
   const everyoneIsReady = await checkReadiness(roundRef, readysChange.after)
-  if (!everyoneIsReady) return
+  if (!everyoneIsReady) {
+    console.log("Not everyone is ready yet. Skipping winners calculation.")
+    return
+  }
 
   const bids = await auctionRef
     .child("bids")
     .get()
     .then((snap) => snap.val())
+  if (!bids) {
+    console.error("'bids' from the database is null or undefined")
+    return
+  }
   const orderedBidders = await sortCustom(auctionRef, currentRound)
   const seats = await auctionRef
     .child("seats")
     .get()
     .then((snap) => snap.val())
+  if (!seats) {
+    console.error("'seats' from the database is null or undefined")
+    return
+  }
   let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
 
   for (const uid of orderedBidders) {
@@ -34,6 +53,10 @@ module.exports = async function findWinners(readysChange, context) {
   }
   const scoreboardRef = auctionRef.child("scoreboard")
   const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
+  if (!scoreboard) {
+    console.error("'scoreboard' from the database is null or undefined")
+    return
+  }
   for (const winnerAndBid of Object.values(winnersAndBids)) {
     scoreboard[winnerAndBid.seat] -= winnerAndBid.bid
   }
@@ -42,7 +65,10 @@ module.exports = async function findWinners(readysChange, context) {
   return Promise.all([
     resultRoundRef.set(winnersAndBids),
     scoreboardRef.set(scoreboard),
-  ])
+  ]).catch((error) => {
+    console.error("Error while finding winners or writing scoreboard: ", error)
+    return
+  })
 }
 
 /**
@@ -55,12 +81,20 @@ async function sortCustom(auctionRef, round) {
     .child("seats")
     .get()
     .then((snap) => snap.val())
+  if (!seats) {
+    console.error("'seats' from the database is null or undefined")
+    return
+  }
   const bidders = Object.keys(seats)
   const size = bidders.length
   const scoreboard = await auctionRef
     .child("scoreboard")
     .get()
     .then((snap) => snap.val())
+  if (!scoreboard) {
+    console.error("'scoreboard' from the database is null or undefined")
+    return
+  }
   bidders.sort((uidA, uidB) => {
     const prioA = (((seats[uidA] + 1 - round) % size) + size) % size
     const prioB = (((seats[uidB] + 1 - round) % size) + size) % size
@@ -92,7 +126,15 @@ function getDefaultWinnerAndBids(seat) {
 async function checkReadiness(roundRef, readysAfterChange) {
   const readyChecker = readyCheckerReducer(readysAfterChange)
   return roundRef.transaction(readyChecker).then((transactionResult) => {
-    return transactionResult.committed && transactionResult.snapshot.exists()
+    if (transactionResult.committed && transactionResult.snapshot.exists()) {
+      return true
+    } else {
+      console.error(
+        "Transaction on roundRef failed with result: ",
+        transactionResult
+      )
+      return false
+    }
   })
 }
 
@@ -101,8 +143,10 @@ async function checkReadiness(roundRef, readysAfterChange) {
  */
 function readyCheckerReducer(readySnap) {
   return function (previousRound) {
-    console.log("checking readyness. previousRound: " + previousRound)
-    if (typeof previousRound != "number") return previousRound
+    if (typeof previousRound != "number") {
+      // First pass of the transaction receives an empty object
+      return previousRound
+    }
     const readyObject = readySnap.val()
     const readys = Object.values(readyObject)
     const everyoneReady = readys.every((value) => value == previousRound)
