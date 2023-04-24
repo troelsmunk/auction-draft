@@ -139,18 +139,20 @@ async function checkReadiness(roundRef, readysAfterChange) {
 }
 
 /**
- * @param {import("firebase-functions").database.RefBuilder} readySnap
+ * @param {import("firebase-functions").database.DataSnapshot} readySnap
  */
 function readyCheckerReducer(readySnap) {
+  const valuesFromReadys = Object.values(readySnap.val())
   return function (previousRound) {
     if (typeof previousRound != "number") {
       // First pass of the transaction receives an empty object
       return previousRound
     }
-    const readyObject = readySnap.val()
-    const readys = Object.values(readyObject)
-    const everyoneReady = readys.every((value) => value == previousRound)
-    if (everyoneReady) return previousRound + 1
-    else return
+    const everyoneReady = valuesFromReadys.every(
+      (value) => value === previousRound
+    )
+    if (everyoneReady) {
+      return previousRound + 1
+    } else return
   }
 }
