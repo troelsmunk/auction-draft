@@ -30,7 +30,6 @@ module.exports = async function findWinners(readysChange, context) {
       console.error("'bids' from the database is null or undefined")
       return
     }
-    const orderedBidders = await sortCustom(auctionRef, currentRound)
     const seats = await auctionRef
       .child("seats")
       .get()
@@ -39,28 +38,48 @@ module.exports = async function findWinners(readysChange, context) {
       console.error("'seats' from the database is null or undefined")
       return
     }
-    let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
-
-    for (const uid of orderedBidders) {
-      for (const [card, bid] of Object.entries(bids[uid])) {
-        if (bid > winnersAndBids[card].bid) {
-          winnersAndBids[card] = {
-            seat: seats[uid],
-            bid: bid,
-          }
-        }
-      }
-    }
     const scoreboardRef = auctionRef.child("scoreboard")
     const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
     if (!scoreboard) {
       console.error("'scoreboard' from the database is null or undefined")
       return
     }
+
+    const highscores = createBaseScores()
+    for (const [uid, seat] of Object.entries(seats)) {
+      for (const [card, bid] of Object.entries(bids[uid])) {
+        const highscoreForCard = highscores[card]
+        if (
+          highscoreForCard.bid <= bid &&
+          highscoreForCard.bank <= scoreboard[seat]
+        ) {
+          const newHighBidders = highscoreForCard.bidders
+          if (
+            highscoreForCard.bid < bid ||
+            highscoreForCard.bank < scoreboard[seat]
+          ) {
+            newHighBidders = [seat]
+          } else {
+            newHighBidders = [...seat]
+          }
+          highscoreForCard = {
+            bidders: newHighBidders,
+            bid: bid,
+          }
+        }
+      }
+    }
+    const winnersAndBids = {}
+    for (const [card, highscore] of Object.entries(highscores)) {
+      const winner = highscore.bidders[0] // TODO choose randomly
+      winnersAndBids[card] = {
+        seat: winner,
+        bid: highscore.bid,
+      }
+    }
     for (const winnerAndBid of Object.values(winnersAndBids)) {
       scoreboard[winnerAndBid.seat] -= winnerAndBid.bid
     }
-
     const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
     return Promise.all([
       resultRoundRef.set(winnersAndBids),
@@ -106,16 +125,17 @@ async function sortCustom(auctionRef, round) {
   return bidders
 }
 
-function getDefaultWinnerAndBids(seat) {
-  const defaultWinnerAndBids = {
-    seat: seat,
+function createBaseScores() {
+  const baseScore = {
+    bidders: [],
     bid: 0,
+    bank: 0,
   }
-  let winnersAndBids = {}
+  let baseScoreForEachCard = {}
   for (let i = 1; i <= 15; i++) {
-    winnersAndBids[i] = defaultWinnerAndBids
+    baseScoreForEachCard[i] = baseScore
   }
-  return winnersAndBids
+  return baseScoreForEachCard
 }
 
 /**
