@@ -4,7 +4,7 @@
  */
 module.exports = async function findWinners(readysChange, context) {
   try {
-    if (!readysChange || !readysChange.after || !readysChange.after.ref) {
+    if (!readysChange?.after?.ref?.parent) {
       console.error("Invalid readysChange object: ", readysChange)
       return
     }
@@ -22,6 +22,7 @@ module.exports = async function findWinners(readysChange, context) {
       return
     }
 
+    /** @type {Array<import("../src/lib/constants").SingleBid>} */
     const bids = await auctionRef
       .child("bids")
       .get()
@@ -48,12 +49,12 @@ module.exports = async function findWinners(readysChange, context) {
     const highscores = createBaseScores()
     for (const [uid, seat] of Object.entries(seats)) {
       for (const [card, bid] of Object.entries(bids[uid])) {
-        const highscoreForCard = highscores[card]
+        let highscoreForCard = highscores[card]
         if (
           highscoreForCard.bid <= bid &&
           highscoreForCard.bank <= scoreboard[seat]
         ) {
-          const newHighBidders = highscoreForCard.bidders
+          let newHighBidders = highscoreForCard.bidders
           if (
             highscoreForCard.bid < bid ||
             highscoreForCard.bank < scoreboard[seat]
@@ -62,14 +63,14 @@ module.exports = async function findWinners(readysChange, context) {
           } else {
             newHighBidders = [...seat]
           }
-          highscoreForCard = {
+          highscores[card] = {
             bidders: newHighBidders,
             bid: bid,
           }
         }
       }
     }
-    const winnersAndBids = {}
+    let winnersAndBids = {}
     for (const [card, highscore] of Object.entries(highscores)) {
       const winner = highscore.bidders[0] // TODO choose randomly
       winnersAndBids[card] = {
