@@ -4,7 +4,7 @@
  */
 module.exports = async function findWinners(readysChange, context) {
   try {
-    if (!readysChange || !readysChange.after || !readysChange.after.ref) {
+    if (!readysChange?.after?.ref?.parent) {
       console.error("Invalid readysChange object: ", readysChange)
       return
     }
@@ -83,7 +83,7 @@ async function sortCustom(auctionRef, round) {
     .then((snap) => snap.val())
   if (!seats) {
     console.error("'seats' from the database is null or undefined")
-    return
+    return []
   }
   const bidders = Object.keys(seats)
   const size = bidders.length
@@ -93,7 +93,7 @@ async function sortCustom(auctionRef, round) {
     .then((snap) => snap.val())
   if (!scoreboard) {
     console.error("'scoreboard' from the database is null or undefined")
-    return
+    return []
   }
   bidders.sort((uidA, uidB) => {
     const prioA = (((seats[uidA] + 1 - round) % size) + size) % size
@@ -126,26 +126,33 @@ function getDefaultWinnerAndBids(seat) {
 async function checkReadiness(roundRef, readysAfterChange) {
   const readyChecker = readyCheckerReducer(readysAfterChange)
   return roundRef.transaction(readyChecker).then((transactionResult) => {
-    if (transactionResult.committed && transactionResult.snapshot.exists()) {
-      return true
-    } else {
-      console.error(
-        "Transaction on roundRef failed with result: ",
-        transactionResult
-      )
-      return false
+    if (transactionResult.committed) {
+      if (transactionResult.snapshot.exists()) {
+        return true
+      } else {
+        console.error(
+          "Transaction on roundRef failed with result: ",
+          transactionResult
+        )
+      }
     }
+    return false
   })
 }
 
 /**
- * @param {import("firebase-functions").database.DataSnapshot} readySnap
+ * Returns a reduced function for use in transactions on the round-reference.
+ * @param {import("firebase-functions").database.DataSnapshot} readySnap The current readys, used to reduce the function
  */
 function readyCheckerReducer(readySnap) {
   const valuesFromReadys = Object.values(readySnap.val())
+  /**
+   * The reduced function to be used in a transaction-call
+   * @param {any} previousRound The current value at the round-reference - or nothing on the first pass
+   * @returns {any} the next round to write in the database - or nothing if input is not valid
+   */
   return function (previousRound) {
     if (typeof previousRound != "number") {
-      // First pass of the transaction receives an empty object
       return previousRound
     }
     const everyoneReady = valuesFromReadys.every(
