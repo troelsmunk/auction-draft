@@ -7,7 +7,7 @@ export async function load({ params, cookies }) {
   const pin = params.pin
   if (!uid || !pin) {
     console.error(
-      "Error: Invalid data. uid from cookie: %s, pin from params: %s",
+      "Error BlAuDr: Invalid data. uid from cookie: %s, pin from params: %s",
       uid,
       pin
     )
@@ -23,7 +23,7 @@ export async function load({ params, cookies }) {
     .then((snap) => snap.val())
   if (typeof seat !== "number" || !size) {
     console.error(
-      "Error: Invalid data. seat from database: %s, size from database: %s",
+      "Error BlAuDr: Invalid data. seat from database: %s, size from database: %s",
       seat,
       size
     )

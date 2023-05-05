@@ -1,21 +1,29 @@
 import { admin } from "$lib/admin.server"
-import { error } from "@sveltejs/kit"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params }) {
-  if (!params || !params.round || !params.pin) {
-    throw error(500, "params didn't hold round and pin: " + params)
+  const pin = params?.pin
+  const round = params?.round
+  if (!round || !pin) {
+    console.error(
+      "Error BlAuDr: Invalid data. params didn't hold round and pin: %s",
+      params
+    )
+    return
   }
   const scoreboard = await admin
     .database()
-    .ref(`auctions/${params.pin}/scoreboard`)
+    .ref(`auctions/${pin}/scoreboard`)
     .get()
     .then((snap) => snap.val())
-  if (!scoreboard || Object.keys(scoreboard).length < 1) {
-    throw error(500, "Invalid scoreboard from database: " + scoreboard)
+  if (!scoreboard || Object.keys(scoreboard).length === 0) {
+    console.error(
+      "Error BlAuDr: Invalid scoreboard from database: %s",
+      scoreboard
+    )
   }
   return {
     scores: scoreboard,
-    round: params.round,
+    round: round,
   }
 }

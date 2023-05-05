@@ -11,7 +11,7 @@ export const actions = {
     const pin = parseInt(event.params.pin)
     if (!bids || !uid || !round || !pin) {
       console.error(
-        "Error: Invalid data. formData: %s, bids from formData: %s, uid from cookie: %s, " +
+        "Error BlAuDr: Invalid data. formData: %s, bids from formData: %s, uid from cookie: %s, " +
           "round from params: %s, pin from params: %s",
         formData,
         bids,
