@@ -4,7 +4,15 @@ import { COOKIE_NAME } from "$lib/constants"
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, cookies }) {
   const uid = cookies.get(COOKIE_NAME)
-  const auctionRef = admin.database().ref(`auctions/${params.pin}`)
+  const pin = params.pin
+  if (!uid || !pin) {
+    console.error(
+      "Error: Invalid data. uid from cookie: %s, pin from params: %s",
+      uid,
+      pin
+    )
+  }
+  const auctionRef = admin.database().ref(`auctions/${pin}`)
   const seat = await auctionRef
     .child(`seats/${uid}`)
     .get()
@@ -13,6 +21,13 @@ export async function load({ params, cookies }) {
     .child("size")
     .get()
     .then((snap) => snap.val())
+  if (typeof seat !== "number" || !size) {
+    console.error(
+      "Error: Invalid data. seat from database: %s, size from database: %s",
+      seat,
+      size
+    )
+  }
   const colors = [
     "#A0A6A6",
     "#B98EF6",
@@ -24,7 +39,7 @@ export async function load({ params, cookies }) {
   colors.length = size
   return {
     size: size,
-    pin: params.pin,
+    pin: pin,
     colors: colors,
     seat: seat,
   }
