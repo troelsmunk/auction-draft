@@ -5,6 +5,14 @@ import { COOKIE_NAME } from "$lib/constants"
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export async function POST(event) {
   const requestBody = await event.request.json()
+  if (!requestBody?.useridtoken) {
+    console.error(
+      "Error BlAuDr: Invalid data. requestBody: %s, useridtoken: %s",
+      requestBody,
+      requestBody.useridtoken
+    )
+    return
+  }
   const uid = await validateUserAndGetUid(requestBody.useridtoken)
   event.cookies.set(COOKIE_NAME, uid, {
     path: "/",
