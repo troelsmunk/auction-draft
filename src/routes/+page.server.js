@@ -6,9 +6,27 @@ import { COOKIE_NAME } from "$lib/constants"
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
+    if (!formData?.get("auction-size")) {
+      console.error(
+        "Error BlAuDr: Invalid data. formData: %s, auction-size: %s",
+        formData,
+        formData.get("auction-size")
+      )
+      return
+    }
     const auctionSize = validateAuctionSize(formData.get("auction-size"))
     const uid = event.cookies.get(COOKIE_NAME)
     const pin = await getNextPin()
+    if (!auctionSize || !uid || !pin) {
+      console.error(
+        "Error BlAuDr: Invalid data. auctionSize from formData: %s, " +
+          "uid from cookie: %s, calculated pin: %s",
+        auctionSize,
+        uid,
+        pin
+      )
+      return
+    }
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
@@ -16,13 +34,22 @@ export const actions = {
     const formData = await event.request.formData()
     const pin = parseInt(formData.get("pin"))
     const uid = event.cookies.get(COOKIE_NAME)
+    if (!uid || !pin) {
+      console.error(
+        "Error BlAuDr: Invalid data. uid from cookie: %s, pin from formData: %s",
+        uid,
+        pin
+      )
+      return
+    }
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
 }
 
 /**
- * Calculates the next PIN from the a previous PIN
+ * Calculates the next PIN from the previous PIN
+ * Done using the prime 9973 and its primitive root 11
  * @param {any} previousPin The previous PIN which the calculation is based upon
  * @returns {number} The next PIN to be used in the transaction
  */
@@ -48,14 +75,14 @@ function validateAuctionSize(sizeFromForm) {
 
 /**
  * Calculates the next PIN to be used from the currently newest PIN
- * @returns {number} The next PIN to be used
+ * @returns {Promise<number>} The next PIN to be used
  */
 async function getNextPin() {
-  const transactionResult = await admin
+  return admin
     .database()
     .ref("newestPin")
     .transaction(calculateNextPin, null, false)
-  return transactionResult.snapshot.val()
+    .then((result) => result.snapshot.val())
 }
 
 /**
@@ -90,11 +117,30 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
  * @returns {Promise<void>}
  */
 async function enrollBidderInAuction(uid, pin) {
-  const pinRef = admin.database().ref(`auctions/${pin}`)
-  const sizeSnap = await pinRef.child("size").once("value")
-  const findSeatForUid = findSeatReducer(uid, pin, sizeSnap.val())
-  await pinRef.child("seats").transaction(findSeatForUid, null, false)
-  return pinRef.child("readys").update({ [uid]: -1 })
+  const auctionRef = admin.database().ref(`auctions/${pin}`)
+  const size = await auctionRef
+    .child("size")
+    .once("value")
+    .then((snap) => snap.val())
+  if (!size) {
+    console.error("Error BlAuDr: Invalid data. size from database: %s", size)
+    return
+  }
+  const findSeatForUid = findSeatReducer(uid, pin, size)
+  const transactionResult = await auctionRef
+    .child("seats")
+    .transaction(findSeatForUid, null, false)
+  if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
+    console.error(
+      "Error BlAuDr: Transaction on seats failed. transaction: %s, " +
+        "committed: %s, snapshot: %s",
+      transactionResult,
+      transactionResult.committed,
+      transactionResult.snapshot.val()
+    )
+    return
+  }
+  return auctionRef.child("readys").update({ [uid]: -1 })
 }
 
 /**
