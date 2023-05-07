@@ -4,15 +4,15 @@
  */
 module.exports = async function findWinners(readysChange, context) {
   try {
-    if (!readysChange?.after?.ref?.parent) {
-      console.error("Invalid readysChange object: ", readysChange)
+    const auctionRef = readysChange.after.ref.parent
+    if (!auctionRef) {
+      console.error("Invalid readysChange object: %s", readysChange)
       return
     }
-    const auctionRef = readysChange.after.ref.parent
     const roundRef = auctionRef.child("round")
-    const currentRound = await roundRef.get().then((snap) => snap.val())
-    if (typeof currentRound !== "number") {
-      console.error("'round' from the database is not a number: ", currentRound)
+    const round = await roundRef.get().then((snap) => snap.val())
+    if (typeof round !== "number") {
+      console.error("'round' from the database is not a number: %s", round)
       return
     }
 
@@ -30,7 +30,7 @@ module.exports = async function findWinners(readysChange, context) {
       console.error("'bids' from the database is null or undefined")
       return
     }
-    const orderedBidders = await sortCustom(auctionRef, currentRound)
+    const orderedBidders = await sortCustom(auctionRef, round)
     const seats = await auctionRef
       .child("seats")
       .get()
@@ -61,7 +61,7 @@ module.exports = async function findWinners(readysChange, context) {
       scoreboard[winnerAndBid.seat] -= winnerAndBid.bid
     }
 
-    const resultRoundRef = auctionRef.child(`results/rounds/${currentRound}`)
+    const resultRoundRef = auctionRef.child(`results/rounds/${round}`)
     return Promise.all([
       resultRoundRef.set(winnersAndBids),
       scoreboardRef.set(scoreboard),
