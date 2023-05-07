@@ -18,9 +18,7 @@ export async function load({ params, cookies }) {
     .get()
     .then((snap) => snap.val())
   logIfFalsy(size, "size from database")
-  if (typeof seat !== "number") {
-    console.error("Error BlAuDr: Invalid data. seat from database: %s", seat)
-  }
+  logIfFalsy(typeof seat === "number", "seat from database: " + seat)
   const colors = [
     "#A0A6A6",
     "#B98EF6",
