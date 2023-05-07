@@ -149,7 +149,7 @@ function readyCheckerReducer(readySnap) {
   /**
    * The reduced function to be used in a transaction-call
    * @param {any} previousRound The current value at the round-reference - or nothing on the first pass
-   * @returns {any} the next round to write in the database - or nothing if input is not valid
+   * @returns {any} The next round to write in the database - or nothing if input is not valid
    */
   return function (previousRound) {
     if (typeof previousRound != "number") {
