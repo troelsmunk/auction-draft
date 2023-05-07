@@ -17,15 +17,13 @@
   async function authChangedCallback(user) {
     if (user && !$uid) {
       const token = await user.getIdToken()
-      isInvalid(token, "user.getIdToken()")
-      const response = await fetch("/api/cookie", {
+      isInvalid(token, "user Firebase ID-token")
+      const uidFromCookieApi = await fetch("/api/cookie", {
         body: JSON.stringify({ useridtoken: token }),
         method: "POST",
-      })
-      const uidFromResponse = await response.json()
-      isInvalid(response, "cookie response")
-      isInvalid(uidFromResponse, "uid from cookie")
-      uid.set(uidFromResponse)
+      }).then((response) => response?.json())
+      isInvalid(uidFromCookieApi, "UID from cookie API")
+      uid.set(uidFromCookieApi)
     } else {
       uid.set(null)
     }
