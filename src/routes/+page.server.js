@@ -1,28 +1,37 @@
-import { error, redirect } from "@sveltejs/kit"
+import { redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
+import { logIfFalsy } from "$lib/validation"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
-    const auctionSize = validateAuctionSize(formData.get("auction-size"))
+    if (logIfFalsy(formData, "formData")) return
+    const auctionSize = parseInt(formData.get("auction-size"))
+    if (logIfFalsy(auctionSize, "auctionSize from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
+    if (logIfFalsy(uid, "uid from cookie")) return
     const pin = await getNextPin()
+    if (logIfFalsy(pin, "calculated pin")) return
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
     const formData = await event.request.formData()
+    if (logIfFalsy(formData, "formData")) return
     const pin = parseInt(formData.get("pin"))
+    if (logIfFalsy(pin, "pin from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
+    if (logIfFalsy(uid, "uid from cookie")) return
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
 }
 
 /**
- * Calculates the next PIN from the a previous PIN
+ * Calculates the next PIN from the previous PIN
+ * Done using the prime 9973 and its primitive root 11
  * @param {any} previousPin The previous PIN which the calculation is based upon
  * @returns {number} The next PIN to be used in the transaction
  */
@@ -34,28 +43,15 @@ function calculateNextPin(previousPin) {
 }
 
 /**
- * Checks that the given size is a number in the allowed interval.
- * @param {any} sizeFromForm The size input from the user
- * @returns {number} The validated size of the auction
- */
-function validateAuctionSize(sizeFromForm) {
-  const size = parseInt(sizeFromForm)
-  if (size == null || size < 1 || size > 6) {
-    throw error(400, "The size of the auction must be between 1 and 6")
-  }
-  return size
-}
-
-/**
  * Calculates the next PIN to be used from the currently newest PIN
- * @returns {number} The next PIN to be used
+ * @returns {Promise<number>} The next PIN to be used
  */
 async function getNextPin() {
-  const transactionResult = await admin
+  return admin
     .database()
     .ref("newestPin")
     .transaction(calculateNextPin, null, false)
-  return transactionResult.snapshot.val()
+    .then((result) => result.snapshot.val())
 }
 
 /**
@@ -90,11 +86,21 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
  * @returns {Promise<void>}
  */
 async function enrollBidderInAuction(uid, pin) {
-  const pinRef = admin.database().ref(`auctions/${pin}`)
-  const sizeSnap = await pinRef.child("size").once("value")
-  const findSeatForUid = findSeatReducer(uid, pin, sizeSnap.val())
-  await pinRef.child("seats").transaction(findSeatForUid, null, false)
-  return pinRef.child("readys").update({ [uid]: -1 })
+  const auctionRef = admin.database().ref(`auctions/${pin}`)
+  const size = await auctionRef
+    .child("size")
+    .once("value")
+    .then((snap) => snap.val())
+  if (logIfFalsy(size, "size from database")) return
+  const findSeatForUid = findSeatReducer(uid, pin, size)
+  const transactionResult = await auctionRef
+    .child("seats")
+    .transaction(findSeatForUid, null, false)
+  if (logIfFalsy(transactionResult, "transactionResult")) return
+  if (logIfFalsy(transactionResult.committed, "transaction committed")) return
+  if (logIfFalsy(transactionResult.snapshot.exists(), "transaction snap"))
+    return
+  return auctionRef.child("readys").update({ [uid]: -1 })
 }
 
 /**
