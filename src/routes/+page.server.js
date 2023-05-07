@@ -1,47 +1,29 @@
-import { error, redirect } from "@sveltejs/kit"
+import { redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
+import { isInvalid } from "$lib/validation"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
-    if (!formData?.get("auction-size")) {
-      console.error(
-        "Error BlAuDr: Invalid data. formData: %s, auction-size: %s",
-        formData,
-        formData.get("auction-size")
-      )
-      return
-    }
-    const auctionSize = validateAuctionSize(formData.get("auction-size"))
+    if (isInvalid(formData, "formData")) return
+    const auctionSize = parseInt(formData.get("auction-size"))
+    if (isInvalid(auctionSize, "auctionSize from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
+    if (isInvalid(uid, "uid from cookie")) return
     const pin = await getNextPin()
-    if (!auctionSize || !uid || !pin) {
-      console.error(
-        "Error BlAuDr: Invalid data. auctionSize from formData: %s, " +
-          "uid from cookie: %s, calculated pin: %s",
-        auctionSize,
-        uid,
-        pin
-      )
-      return
-    }
+    if (isInvalid(pin, "calculated pin")) return
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
     const formData = await event.request.formData()
+    if (isInvalid(formData, "formData")) return
     const pin = parseInt(formData.get("pin"))
+    if (isInvalid(pin, "pin from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (!uid || !pin) {
-      console.error(
-        "Error BlAuDr: Invalid data. uid from cookie: %s, pin from formData: %s",
-        uid,
-        pin
-      )
-      return
-    }
+    if (isInvalid(uid, "uid from cookie")) return
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
@@ -58,19 +40,6 @@ function calculateNextPin(previousPin) {
     return (previousPin * 11) % 9973
   }
   return 1
-}
-
-/**
- * Checks that the given size is a number in the allowed interval.
- * @param {any} sizeFromForm The size input from the user
- * @returns {number} The validated size of the auction
- */
-function validateAuctionSize(sizeFromForm) {
-  const size = parseInt(sizeFromForm)
-  if (size == null || size < 1 || size > 6) {
-    throw error(400, "The size of the auction must be between 1 and 6")
-  }
-  return size
 }
 
 /**
@@ -122,24 +91,14 @@ async function enrollBidderInAuction(uid, pin) {
     .child("size")
     .once("value")
     .then((snap) => snap.val())
-  if (!size) {
-    console.error("Error BlAuDr: Invalid data. size from database: %s", size)
-    return
-  }
+  if (isInvalid(size, "size from database")) return
   const findSeatForUid = findSeatReducer(uid, pin, size)
   const transactionResult = await auctionRef
     .child("seats")
     .transaction(findSeatForUid, null, false)
-  if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
-    console.error(
-      "Error BlAuDr: Transaction on seats failed. transaction: %s, " +
-        "committed: %s, snapshot: %s",
-      transactionResult,
-      transactionResult.committed,
-      transactionResult.snapshot.val()
-    )
-    return
-  }
+  if (isInvalid(transactionResult, "transactionResult")) return
+  if (isInvalid(transactionResult.committed, "transaction committed")) return
+  if (isInvalid(transactionResult.snapshot.exists(), "transaction snap")) return
   return auctionRef.child("readys").update({ [uid]: -1 })
 }
 

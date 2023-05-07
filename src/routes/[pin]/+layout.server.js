@@ -1,17 +1,13 @@
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
+import { isInvalid } from "$lib/validation"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, cookies }) {
   const uid = cookies.get(COOKIE_NAME)
   const pin = params.pin
-  if (!uid || !pin) {
-    console.error(
-      "Error BlAuDr: Invalid data. uid from cookie: %s, pin from params: %s",
-      uid,
-      pin
-    )
-  }
+  isInvalid(uid, "uid from cookie")
+  isInvalid(pin, "pin from params")
   const auctionRef = admin.database().ref(`auctions/${pin}`)
   const seat = await auctionRef
     .child(`seats/${uid}`)
@@ -21,12 +17,9 @@ export async function load({ params, cookies }) {
     .child("size")
     .get()
     .then((snap) => snap.val())
-  if (typeof seat !== "number" || !size) {
-    console.error(
-      "Error BlAuDr: Invalid data. seat from database: %s, size from database: %s",
-      seat,
-      size
-    )
+  isInvalid(size, "size from database")
+  if (typeof seat !== "number") {
+    console.error("Error BlAuDr: Invalid data. seat from database: %s", seat)
   }
   const colors = [
     "#A0A6A6",
