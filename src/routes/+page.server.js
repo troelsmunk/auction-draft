@@ -1,29 +1,29 @@
 import { redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
-import { isInvalid } from "$lib/validation"
+import { logIfFalsy } from "$lib/validation"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
     const formData = await event.request.formData()
-    if (isInvalid(formData, "formData")) return
+    if (logIfFalsy(formData, "formData")) return
     const auctionSize = parseInt(formData.get("auction-size"))
-    if (isInvalid(auctionSize, "auctionSize from formData")) return
+    if (logIfFalsy(auctionSize, "auctionSize from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (isInvalid(uid, "uid from cookie")) return
+    if (logIfFalsy(uid, "uid from cookie")) return
     const pin = await getNextPin()
-    if (isInvalid(pin, "calculated pin")) return
+    if (logIfFalsy(pin, "calculated pin")) return
     await setupAuctionAndBidder(auctionSize, uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
     const formData = await event.request.formData()
-    if (isInvalid(formData, "formData")) return
+    if (logIfFalsy(formData, "formData")) return
     const pin = parseInt(formData.get("pin"))
-    if (isInvalid(pin, "pin from formData")) return
+    if (logIfFalsy(pin, "pin from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (isInvalid(uid, "uid from cookie")) return
+    if (logIfFalsy(uid, "uid from cookie")) return
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
@@ -91,14 +91,15 @@ async function enrollBidderInAuction(uid, pin) {
     .child("size")
     .once("value")
     .then((snap) => snap.val())
-  if (isInvalid(size, "size from database")) return
+  if (logIfFalsy(size, "size from database")) return
   const findSeatForUid = findSeatReducer(uid, pin, size)
   const transactionResult = await auctionRef
     .child("seats")
     .transaction(findSeatForUid, null, false)
-  if (isInvalid(transactionResult, "transactionResult")) return
-  if (isInvalid(transactionResult.committed, "transaction committed")) return
-  if (isInvalid(transactionResult.snapshot.exists(), "transaction snap")) return
+  if (logIfFalsy(transactionResult, "transactionResult")) return
+  if (logIfFalsy(transactionResult.committed, "transaction committed")) return
+  if (logIfFalsy(transactionResult.snapshot.exists(), "transaction snap"))
+    return
   return auctionRef.child("readys").update({ [uid]: -1 })
 }
 

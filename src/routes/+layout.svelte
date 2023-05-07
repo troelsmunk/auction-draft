@@ -4,7 +4,7 @@
   import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
   import { page } from "$app/stores"
-  import { isInvalid } from "$lib/validation"
+  import { logIfFalsy } from "$lib/validation"
 
   const pin = $page.params.pin
   const round = $page.params.round
@@ -17,12 +17,12 @@
   async function authChangedCallback(user) {
     if (user && !$uid) {
       const token = await user.getIdToken()
-      isInvalid(token, "user Firebase ID-token")
+      logIfFalsy(token, "user Firebase ID-token")
       const uidFromCookieApi = await fetch("/api/cookie", {
         body: JSON.stringify({ useridtoken: token }),
         method: "POST",
       }).then((response) => response?.json())
-      isInvalid(uidFromCookieApi, "UID from cookie API")
+      logIfFalsy(uidFromCookieApi, "UID from cookie API")
       uid.set(uidFromCookieApi)
     } else {
       uid.set(null)

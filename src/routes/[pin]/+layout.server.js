@@ -1,13 +1,13 @@
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
-import { isInvalid } from "$lib/validation"
+import { logIfFalsy } from "$lib/validation"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, cookies }) {
   const uid = cookies.get(COOKIE_NAME)
   const pin = params.pin
-  isInvalid(uid, "uid from cookie")
-  isInvalid(pin, "pin from params")
+  logIfFalsy(uid, "uid from cookie")
+  logIfFalsy(pin, "pin from params")
   const auctionRef = admin.database().ref(`auctions/${pin}`)
   const seat = await auctionRef
     .child(`seats/${uid}`)
@@ -17,7 +17,7 @@ export async function load({ params, cookies }) {
     .child("size")
     .get()
     .then((snap) => snap.val())
-  isInvalid(size, "size from database")
+  logIfFalsy(size, "size from database")
   if (typeof seat !== "number") {
     console.error("Error BlAuDr: Invalid data. seat from database: %s", seat)
   }

@@ -1,12 +1,13 @@
 /**
- * Validate that the data is as expected
+ * Check if the data is falsy and write to log if so
  * @param {Object} object the object to validate
  * @param {string} description description of the object
- * @returns {boolean} true if the data is falsy, zero number or empty object
+ * @returns {boolean} true if the data is falsy
  */
-export function isInvalid(object, description) {
-  if (!object || object === 0 || Object.keys(object).length === 0) {
-    console.error("Error BlAuDr: Invalid data. %s: %s", description, object)
+export function logIfFalsy(object, description) {
+  if (!object) {
+    console.error("Error BlAuDr: Invalid data. %s: ", description)
+    console.error(object)
     return true
   }
   return false
