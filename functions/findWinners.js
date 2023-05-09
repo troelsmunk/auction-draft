@@ -6,28 +6,27 @@ module.exports = async function findWinners(readysChange, context) {
   try {
     const auctionRef = readysChange.after.ref.parent
     if (!auctionRef) {
-      console.error("Invalid readysChange object: %s", readysChange)
+      console.error("Error BlAuDr: readysChange doesn't have a auctionRef: ")
+      console.error(readysChange)
       return
     }
     const roundRef = auctionRef.child("round")
     const round = await roundRef.get().then((snap) => snap.val())
     if (typeof round !== "number") {
-      console.error("'round' from the database is not a number: %s", round)
+      console.error("Error BlAuDr: database/round is not a number: ")
+      console.error(round)
       return
     }
 
     const everyoneIsReady = await checkReadiness(roundRef, readysChange.after)
-    if (!everyoneIsReady) {
-      console.log("Not everyone is ready yet. Skipping winners calculation.")
-      return
-    }
+    if (!everyoneIsReady) return
 
     const bids = await auctionRef
       .child("bids")
       .get()
       .then((snap) => snap.val())
     if (!bids) {
-      console.error("'bids' from the database is null or undefined")
+      console.error("Error BlAuDr: database/bids is null or undefined")
       return
     }
     const orderedBidders = await sortCustom(auctionRef, round)
@@ -36,7 +35,7 @@ module.exports = async function findWinners(readysChange, context) {
       .get()
       .then((snap) => snap.val())
     if (!seats) {
-      console.error("'seats' from the database is null or undefined")
+      console.error("Error BlAuDr: database/seats is null or undefined")
       return
     }
     let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
@@ -54,7 +53,7 @@ module.exports = async function findWinners(readysChange, context) {
     const scoreboardRef = auctionRef.child("scoreboard")
     const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
     if (!scoreboard) {
-      console.error("'scoreboard' from the database is null or undefined")
+      console.error("Error BlAuDr: database/scoreboard is null or undefined")
       return
     }
     for (const winnerAndBid of Object.values(winnersAndBids)) {
@@ -67,7 +66,7 @@ module.exports = async function findWinners(readysChange, context) {
       scoreboardRef.set(scoreboard),
     ])
   } catch (error) {
-    console.error("Error while finding winners or writing scoreboard: ", error)
+    console.error("Error BlAuDr in findWinners: ", error)
   }
 }
 
@@ -82,7 +81,7 @@ async function sortCustom(auctionRef, round) {
     .get()
     .then((snap) => snap.val())
   if (!seats) {
-    console.error("'seats' from the database is null or undefined")
+    console.error("Error BlAuDr: database/seats is null or undefined")
     return []
   }
   const bidders = Object.keys(seats)
@@ -92,7 +91,7 @@ async function sortCustom(auctionRef, round) {
     .get()
     .then((snap) => snap.val())
   if (!scoreboard) {
-    console.error("'scoreboard' from the database is null or undefined")
+    console.error("Error BlAuDr: database/scoreboard is null or undefined")
     return []
   }
   bidders.sort((uidA, uidB) => {
@@ -131,7 +130,7 @@ async function checkReadiness(roundRef, readysAfterChange) {
         return true
       } else {
         console.error(
-          "Transaction on roundRef failed with result: ",
+          "Error BlAuDr: Transaction on roundRef failed: ",
           transactionResult
         )
       }
