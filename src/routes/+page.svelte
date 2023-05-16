@@ -2,6 +2,8 @@
   import { getAuth, signInAnonymously, signOut } from "firebase/auth"
   import { uid, firebaseApp } from "$lib/stores"
 
+  export let form
+
   function signIn() {
     return signOut(getAuth($firebaseApp)).then(() =>
       signInAnonymously(getAuth($firebaseApp))
@@ -25,6 +27,9 @@
   </form>
 
   <h3>The rest of you, join that auction:</h3>
+  {#if form?.error}
+    <p class="error">{form.error}</p>
+  {/if}
   <form id="join-form" method="POST" action="?/join">
     <label for="pin">Insert PIN:</label>
     <input
@@ -33,6 +38,7 @@
       inputmode="numeric"
       placeholder="e.g.1234"
       required
+      value={form?.pin ?? ""}
     />
     <button type="submit">Join Auction</button>
   </form>
@@ -40,3 +46,9 @@
   <h3>Do you like cookies?</h3>
   <button on:click={signIn}>Cookies!</button>
 {/if}
+
+<style>
+  .error {
+    color: red;
+  }
+</style>

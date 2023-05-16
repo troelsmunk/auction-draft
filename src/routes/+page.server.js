@@ -1,4 +1,4 @@
-import { redirect } from "@sveltejs/kit"
+import { fail, redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
 import { logIfFalsy } from "$lib/validation"
@@ -18,12 +18,33 @@ export const actions = {
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
-    const formData = await event.request.formData()
-    if (logIfFalsy(formData, "formData")) return
-    const pin = parseInt(formData.get("pin"))
-    if (logIfFalsy(pin, "pin from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (logIfFalsy(uid, "uid from cookie")) return
+    if (!uid) {
+      fail(400, {
+        error: "Please log in",
+      })
+    }
+    const data = await event.request.formData()
+    const pin = parseInt(data?.get("pin"))
+    const auctionSize = await admin
+      .database()
+      .ref(`auctions/${pin}/size`)
+      .get()
+      .then((snap) => snap.val())
+    const enrolledUids = await admin
+      .database()
+      .ref(`auctions/${pin}/seats`)
+      .get()
+      .then((snap) => (snap.val() ? Object.keys(snap.val()) : []))
+    if (!auctionSize || auctionSize <= enrolledUids.length) {
+      return fail(422, {
+        pin: pin,
+        error: "You cannot join this auction. Please verify the PIN.",
+      })
+    }
+    if (!enrolledUids.includes(uid)) {
+      throw redirect(303, `/${pin}/1`)
+    }
     await enrollBidderInAuction(uid, pin)
     throw redirect(303, `/${pin}/1`)
   },
