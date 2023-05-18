@@ -8,15 +8,19 @@ export const actions = {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
       fail(400, {
-        error: "Please log in",
+        create: {
+          error: "Please log in",
+        },
       })
     }
     const data = await event.request.formData()
     const auctionSize = parseInt(data?.get("auction-size"))
     if (auctionSize < 1 || auctionSize > 6) {
       fail(400, {
-        auctionSize: data?.get("auction-size"),
-        error: "The auction size should be a number between 1 and 6",
+        create: {
+          auctionSize: data?.get("auction-size"),
+          error: "The auction size should be a number between 1 and 6",
+        },
       })
     }
     let pin
@@ -25,9 +29,11 @@ export const actions = {
       await setupAuctionAndBidder(auctionSize, uid, pin)
     } catch (error) {
       return fail(500, {
-        pin: pin,
-        auctionSize: auctionSize,
-        error: "Enrollment into the auction failed. Please verify the PIN.",
+        create: {
+          pin: pin,
+          auctionSize: auctionSize,
+          error: "Enrollment into the auction failed. Please verify the PIN.",
+        },
       })
     }
     throw redirect(303, `/${pin}/1`)
@@ -36,23 +42,29 @@ export const actions = {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
       fail(400, {
-        error: "Please log in",
+        join: {
+          error: "Please log in",
+        },
       })
     }
     const data = await event.request.formData()
     const pin = parseInt(data?.get("pin"))
     if (!pin) {
       fail(400, {
-        pin: data?.get("pin"),
-        error: "Please verify the PIN",
+        join: {
+          pin: data?.get("pin"),
+          error: "Please verify the PIN",
+        },
       })
     }
     try {
       await enrollBidderInAuction(uid, pin)
     } catch (error) {
       return fail(500, {
-        pin: pin,
-        error: "Enrollment into the auction failed. Please verify the PIN.",
+        join: {
+          pin: pin,
+          error: "Enrollment into the auction failed. Please verify the PIN.",
+        },
       })
     }
     throw redirect(303, `/${pin}/1`)

@@ -13,8 +13,8 @@
 
 {#if $uid}
   <h3>One of you, create an auction</h3>
-  {#if form?.error}
-    <p class="error">{form.error}</p>
+  {#if form?.create?.error}
+    <p class="error">{form.create.error}</p>
   {/if}
   <form id="create-form" method="POST" action="?/create">
     <label for="auction-size">Choose how many bidders: </label>
@@ -30,8 +30,8 @@
   </form>
 
   <h3>The rest of you, join that auction:</h3>
-  {#if form?.error}
-    <p class="error">{form.error}</p>
+  {#if form?.join?.error}
+    <p class="error">{form.join.error}</p>
   {/if}
   <form id="join-form" method="POST" action="?/join">
     <label for="pin">Insert PIN:</label>
@@ -41,7 +41,7 @@
       inputmode="numeric"
       placeholder="e.g.1234"
       required
-      value={form?.pin ?? ""}
+      value={form?.join?.pin ?? ""}
     />
     <button type="submit">Join Auction</button>
   </form>
