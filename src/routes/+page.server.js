@@ -7,7 +7,7 @@ export const actions = {
   create: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      fail(400, {
+      fail(401, {
         create: {
           error: "Please log in",
         },
@@ -41,7 +41,7 @@ export const actions = {
   join: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      fail(400, {
+      fail(401, {
         join: {
           error: "Please log in",
         },
