@@ -32,7 +32,7 @@ export const actions = {
         create: {
           pin: pin,
           auctionSize: auctionSize,
-          error: "Enrollment into the auction failed. Please verify the PIN.",
+          error: "Creation of the auction failed. Please try again.",
         },
       })
     }
