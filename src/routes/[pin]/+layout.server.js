@@ -1,24 +1,28 @@
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
-import { logIfFalsy } from "$lib/validation"
+import { error } from "@sveltejs/kit"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params, cookies }) {
   const uid = cookies.get(COOKIE_NAME)
-  logIfFalsy(uid, "uid from cookie")
-  const pin = params.pin
-  logIfFalsy(pin, "pin from params")
-  const auctionRef = admin.database().ref(`auctions/${pin}`)
+  if (!uid) {
+    throw error(401, "Please log in")
+  }
+  const auctionRef = admin.database().ref(`auctions/${params.pin}`)
   const seat = await auctionRef
     .child(`seats/${uid}`)
     .get()
     .then((snap) => snap.val())
-  logIfFalsy(typeof seat === "number", "seat from database: " + seat)
+  if (typeof seat !== "number") {
+    throw error(403, "You are not enrolled in this auction")
+  }
   const size = await auctionRef
     .child("size")
     .get()
     .then((snap) => snap.val())
-  logIfFalsy(size, "size from database")
+  if (!size) {
+    throw error(500, "The auction has no size")
+  }
   const colors = [
     "#A0A6A6",
     "#B98EF6",
@@ -30,7 +34,7 @@ export async function load({ params, cookies }) {
   colors.length = size
   return {
     size: size,
-    pin: pin,
+    pin: params.pin,
     colors: colors,
     seat: seat,
   }
