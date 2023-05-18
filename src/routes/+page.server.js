@@ -1,20 +1,35 @@
 import { error, fail, redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
-import { logIfFalsy } from "$lib/validation"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
-    const formData = await event.request.formData()
-    if (logIfFalsy(formData, "formData")) return
-    const auctionSize = parseInt(formData.get("auction-size"))
-    if (logIfFalsy(auctionSize, "auctionSize from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (logIfFalsy(uid, "uid from cookie")) return
-    const pin = await getNextPin()
-    if (logIfFalsy(pin, "calculated pin")) return
-    await setupAuctionAndBidder(auctionSize, uid, pin)
+    if (!uid) {
+      fail(400, {
+        error: "Please log in",
+      })
+    }
+    const data = await event.request.formData()
+    const auctionSize = parseInt(data?.get("auction-size"))
+    if (auctionSize < 1 || auctionSize > 6) {
+      fail(400, {
+        auctionSize: data?.get("auction-size"),
+        error: "The auction size should be a number between 1 and 6",
+      })
+    }
+    let pin
+    try {
+      pin = await getNextPin()
+      await setupAuctionAndBidder(auctionSize, uid, pin)
+    } catch (error) {
+      return fail(500, {
+        pin: pin,
+        auctionSize: auctionSize,
+        error: "Enrollment into the auction failed. Please verify the PIN.",
+      })
+    }
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
@@ -33,7 +48,7 @@ export const actions = {
       })
     }
     try {
-      enrollBidderInAuction(uid, pin)
+      await enrollBidderInAuction(uid, pin)
     } catch (error) {
       return fail(500, {
         pin: pin,
@@ -98,7 +113,7 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
  * Enrolls a bidder into an auction in the database
  * @param {string} uid The UID of the bidder that requested to join
  * @param {number} pin The PIN of the auction
- * @returns {void}
+ * @returns {Promise<void>}
  */
 async function enrollBidderInAuction(uid, pin) {
   const auctionRef = admin.database().ref(`auctions/${pin}`)
@@ -116,7 +131,7 @@ async function enrollBidderInAuction(uid, pin) {
   if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
     throw error(500, "Transaction failed")
   }
-  await auctionRef.child("readys").update({ [uid]: -1 })
+  return auctionRef.child("readys").update({ [uid]: -1 })
 }
 
 /**

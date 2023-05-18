@@ -13,6 +13,9 @@
 
 {#if $uid}
   <h3>One of you, create an auction</h3>
+  {#if form?.error}
+    <p class="error">{form.error}</p>
+  {/if}
   <form id="create-form" method="POST" action="?/create">
     <label for="auction-size">Choose how many bidders: </label>
     <select name="auction-size" form="create-form">
