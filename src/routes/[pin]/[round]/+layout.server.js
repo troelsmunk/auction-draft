@@ -1,4 +1,5 @@
 import { admin } from "$lib/admin.server"
+import { error } from "@sveltejs/kit"
 
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params }) {
