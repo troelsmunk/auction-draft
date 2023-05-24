@@ -3,6 +3,7 @@
 
   /** @type {import('./$types').PageData} */
   export let data
+  export let form
 
   let bids = {
     1: null,
@@ -60,6 +61,14 @@
   <button type="submit">Bid!</button>
 </form>
 
+{#if form?.success === true}
+  Bid received
+{:else if form && !form.success}
+  <div class="error">
+    Bid denied: {form.error}
+  </div>
+{/if}
+
 <style>
   .input-container {
     display: grid;
@@ -76,5 +85,9 @@
 
   label {
     text-align: center;
+  }
+
+  .error {
+    color: red;
   }
 </style>

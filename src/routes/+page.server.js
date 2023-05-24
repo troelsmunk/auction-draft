@@ -7,7 +7,7 @@ export const actions = {
   create: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      fail(401, {
+     return fail(401, {
         create: {
           error: "Please log in",
         },
@@ -16,7 +16,7 @@ export const actions = {
     const data = await event.request.formData()
     const auctionSize = parseInt(data?.get("auction-size"))
     if (auctionSize < 1 || auctionSize > 6) {
-      fail(400, {
+      return fail(400, {
         create: {
           auctionSize: data?.get("auction-size"),
           error: "The auction size should be a number between 1 and 6",
@@ -41,7 +41,7 @@ export const actions = {
   join: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      fail(401, {
+      return fail(401, {
         join: {
           error: "Please log in",
         },
@@ -50,7 +50,7 @@ export const actions = {
     const data = await event.request.formData()
     const pin = parseInt(data?.get("pin"))
     if (!pin) {
-      fail(400, {
+      return fail(400, {
         join: {
           pin: data?.get("pin"),
           error: "Please verify the PIN",
