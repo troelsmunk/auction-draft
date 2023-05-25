@@ -3,14 +3,12 @@
   import { getDatabase, onValue, ref } from "firebase/database"
   import Firebase from "$lib/Firebase.svelte"
   import { onMount } from "svelte"
-
-  /** @type {import('./$types').LayoutData} */
-  export let data
+  import { page } from "$app/stores"
 
   onMount(() => {
     const roundRef = ref(
       getDatabase($firebaseApp),
-      `auctions/${data.pin}/round`
+      `auctions/${$page.params.pin}/round`
     )
     onValue(roundRef, (snap) => {
       currentRound.set(snap.val())

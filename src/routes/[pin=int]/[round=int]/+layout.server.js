@@ -13,6 +13,5 @@ export async function load({ params }) {
   }
   return {
     scores: scoreboard,
-    round: params?.round,
   }
 }

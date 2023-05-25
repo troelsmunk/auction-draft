@@ -1,4 +1,5 @@
 <script>
+  import { page } from "$app/stores"
   /** @type {import('./$types').PageData} */
   export let data
 
@@ -9,8 +10,8 @@
   }
 
   function nextRoundBiddingAddress() {
-    const nextRound = parseInt(data.round) + 1
-    return `/${data.pin}/${nextRound}`
+    const nextRound = parseInt($page.params.round) + 1
+    return `/${$page.params.pin}/${nextRound}`
   }
 </script>
 

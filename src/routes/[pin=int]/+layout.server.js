@@ -34,7 +34,6 @@ export async function load({ params, cookies }) {
   colors.length = size
   return {
     size: size,
-    pin: params.pin,
     colors: colors,
     seat: seat,
   }
