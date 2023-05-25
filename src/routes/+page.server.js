@@ -1,30 +1,72 @@
-import { redirect } from "@sveltejs/kit"
+import { error, fail, redirect } from "@sveltejs/kit"
 import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
-import { logIfFalsy } from "$lib/validation"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
-    const formData = await event.request.formData()
-    if (logIfFalsy(formData, "formData")) return
-    const auctionSize = parseInt(formData.get("auction-size"))
-    if (logIfFalsy(auctionSize, "auctionSize from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (logIfFalsy(uid, "uid from cookie")) return
-    const pin = await getNextPin()
-    if (logIfFalsy(pin, "calculated pin")) return
-    await setupAuctionAndBidder(auctionSize, uid, pin)
+    if (!uid) {
+     return fail(401, {
+        create: {
+          error: "Please log in",
+        },
+      })
+    }
+    const data = await event.request.formData()
+    const auctionSize = parseInt(data?.get("auction-size"))
+    if (auctionSize < 1 || auctionSize > 6) {
+      return fail(400, {
+        create: {
+          auctionSize: data?.get("auction-size"),
+          error: "The auction size should be a number between 1 and 6",
+        },
+      })
+    }
+    let pin
+    try {
+      pin = await getNextPin()
+      await setupAuctionAndBidder(auctionSize, uid, pin)
+    } catch (error) {
+      return fail(500, {
+        create: {
+          pin: pin,
+          auctionSize: auctionSize,
+          error: "Creation of the auction failed. Please try again.",
+        },
+      })
+    }
     throw redirect(303, `/${pin}/1`)
   },
   join: async (event) => {
-    const formData = await event.request.formData()
-    if (logIfFalsy(formData, "formData")) return
-    const pin = parseInt(formData.get("pin"))
-    if (logIfFalsy(pin, "pin from formData")) return
     const uid = event.cookies.get(COOKIE_NAME)
-    if (logIfFalsy(uid, "uid from cookie")) return
-    await enrollBidderInAuction(uid, pin)
+    if (!uid) {
+      return fail(401, {
+        join: {
+          error: "Please log in",
+        },
+      })
+    }
+    const data = await event.request.formData()
+    const pin = parseInt(data?.get("pin"))
+    if (!pin) {
+      return fail(400, {
+        join: {
+          pin: data?.get("pin"),
+          error: "Please verify the PIN",
+        },
+      })
+    }
+    try {
+      await enrollBidderInAuction(uid, pin)
+    } catch (error) {
+      return fail(500, {
+        join: {
+          pin: pin,
+          error: "Enrollment into the auction failed. Please verify the PIN.",
+        },
+      })
+    }
     throw redirect(303, `/${pin}/1`)
   },
 }
@@ -82,24 +124,25 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
 /**
  * Enrolls a bidder into an auction in the database
  * @param {string} uid The UID of the bidder that requested to join
- * @param {number} pin The PIN of the auction to join
+ * @param {number} pin The PIN of the auction
  * @returns {Promise<void>}
  */
 async function enrollBidderInAuction(uid, pin) {
   const auctionRef = admin.database().ref(`auctions/${pin}`)
-  const size = await auctionRef
-    .child("size")
-    .once("value")
+  const auctionSize = await auctionRef
+    .child(`size`)
+    .get()
     .then((snap) => snap.val())
-  if (logIfFalsy(size, "size from database")) return
-  const findSeatForUid = findSeatReducer(uid, pin, size)
+  if (!auctionSize) {
+    throw error(500, "Auction size doesn't exist")
+  }
+  const findSeatForUid = findSeatReducer(uid, pin, auctionSize)
   const transactionResult = await auctionRef
     .child("seats")
     .transaction(findSeatForUid, null, false)
-  if (logIfFalsy(transactionResult, "transactionResult")) return
-  if (logIfFalsy(transactionResult.committed, "transaction committed")) return
-  if (logIfFalsy(transactionResult.snapshot.exists(), "transaction snap"))
-    return
+  if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
+    throw error(500, "Transaction failed")
+  }
   return auctionRef.child("readys").update({ [uid]: -1 })
 }
 
@@ -116,7 +159,7 @@ function findSeatReducer(uid, pin, auctionSize) {
       return { [uid]: pin % auctionSize }
     }
     if (Object.keys(seatsData).includes(uid)) {
-      return
+      return seatsData
     }
     let availableSeats = new Array()
     const takenSeats = Object.values(seatsData)

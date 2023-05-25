@@ -1,8 +1,10 @@
 <script>
   import { currentRound } from "$lib/stores"
+  import { enhance } from "$app/forms"
 
   /** @type {import('./$types').PageData} */
   export let data
+  export let form
 
   let bids = {
     1: null,
@@ -39,7 +41,16 @@
 {/if}
 
 <h3>Bidding</h3>
-<form id="bid-form" method="POST" action="?/submit">
+<form
+  id="bid-form"
+  method="POST"
+  action="?/submit"
+  use:enhance={() => {
+    return async ({ update }) => {
+      await update({ reset: false })
+    }
+  }}
+>
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each Object.keys(bids) as i}
@@ -60,6 +71,14 @@
   <button type="submit">Bid!</button>
 </form>
 
+{#if form?.success === true}
+  Bid received
+{:else if form && !form.success}
+  <div class="error">
+    Bid denied: {form.error}
+  </div>
+{/if}
+
 <style>
   .input-container {
     display: grid;
@@ -76,5 +95,9 @@
 
   label {
     text-align: center;
+  }
+
+  .error {
+    color: red;
   }
 </style>

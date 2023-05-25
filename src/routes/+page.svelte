@@ -2,6 +2,8 @@
   import { getAuth, signInAnonymously, signOut } from "firebase/auth"
   import { uid, firebaseApp } from "$lib/stores"
 
+  export let form
+
   function signIn() {
     return signOut(getAuth($firebaseApp)).then(() =>
       signInAnonymously(getAuth($firebaseApp))
@@ -11,6 +13,9 @@
 
 {#if $uid}
   <h3>One of you, create an auction</h3>
+  {#if form?.create?.error}
+    <p class="error">{form.create.error}</p>
+  {/if}
   <form id="create-form" method="POST" action="?/create">
     <label for="auction-size">Choose how many bidders: </label>
     <select name="auction-size" form="create-form">
@@ -25,6 +30,9 @@
   </form>
 
   <h3>The rest of you, join that auction:</h3>
+  {#if form?.join?.error}
+    <p class="error">{form.join.error}</p>
+  {/if}
   <form id="join-form" method="POST" action="?/join">
     <label for="pin">Insert PIN:</label>
     <input
@@ -33,6 +41,7 @@
       inputmode="numeric"
       placeholder="e.g.1234"
       required
+      value={form?.join?.pin ?? ""}
     />
     <button type="submit">Join Auction</button>
   </form>
@@ -40,3 +49,9 @@
   <h3>Do you like cookies?</h3>
   <button on:click={signIn}>Cookies!</button>
 {/if}
+
+<style>
+  .error {
+    color: red;
+  }
+</style>
