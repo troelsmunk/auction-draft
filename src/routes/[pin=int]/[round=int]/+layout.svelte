@@ -1,5 +1,6 @@
 <script>
   import ScoreItem from "./ScoreItem.svelte"
+  import { page } from "$app/stores"
   /** @type {import('./$types').LayoutData} */
   export let data
 </script>
@@ -11,7 +12,7 @@
     {#each data.colors as color, i}
       <ScoreItem
         {color}
-        opener={i + 1 == data.round % data.size}
+        opener={i + 1 == $page.params.round % data.size}
         you={i == data.seat}
         score={data.scores[i]}
       />

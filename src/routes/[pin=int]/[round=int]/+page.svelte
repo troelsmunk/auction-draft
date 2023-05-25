@@ -1,9 +1,8 @@
 <script>
   import { currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
+  import { page } from "$app/stores"
 
-  /** @type {import('./$types').PageData} */
-  export let data
   export let form
 
   let bids = {
@@ -24,13 +23,13 @@
     15: null,
   }
 
-  const round = parseInt(data.round)
+  const round = parseInt($page.params.round)
 
   function previousRoundResultsAddress() {
-    return `/${data.pin}/${round - 1}/results`
+    return `/${$page.params.pin}/${round - 1}/results`
   }
   function currentRoundResultsAddress() {
-    return `/${data.pin}/${$currentRound - 1}/results`
+    return `/${$page.params.pin}/${$currentRound - 1}/results`
   }
 </script>
 
