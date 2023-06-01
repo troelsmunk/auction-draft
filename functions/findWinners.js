@@ -41,14 +41,16 @@ module.exports = async function findWinners(readysChange, context) {
     let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
 
     for (const uid of orderedBidders) {
-      for (const [card, bid] of Object.entries(bids[uid])) {
+      /** @type {[number]} */
+      const bidsFromBidder = bids[uid]
+      bidsFromBidder.forEach((bid, card) => {
         if (bid > winnersAndBids[card].bid) {
           winnersAndBids[card] = {
             seat: seats[uid],
             bid: bid,
           }
         }
-      }
+      })
     }
     const scoreboardRef = auctionRef.child("scoreboard")
     const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
@@ -111,7 +113,7 @@ function getDefaultWinnerAndBids(seat) {
     bid: 0,
   }
   let winnersAndBids = {}
-  for (let i = 1; i <= 15; i++) {
+  for (let i = 0; i <= 14; i++) {
     winnersAndBids[i] = defaultWinnerAndBids
   }
   return winnersAndBids

@@ -5,23 +5,23 @@
 
   export let form
 
-  let bids = {
-    1: null,
-    2: null,
-    3: null,
-    4: null,
-    5: null,
-    6: null,
-    7: null,
-    8: null,
-    9: null,
-    10: null,
-    11: null,
-    12: null,
-    13: null,
-    14: null,
-    15: null,
-  }
+  let bids = [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]
 
   const round = parseInt($page.params.round)
 
@@ -52,15 +52,15 @@
 >
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each Object.keys(bids) as i}
+    {#each bids as bid, i}
       <div>
-        <label for="bid-{i}">{i}</label>
+        <label for="bid-{i + 1}">{i + 1}</label>
       </div>
       <div>
         <input
-          id="bid-{i}"
+          id="bid-{i + 1}"
           type="number"
-          bind:value={bids[i]}
+          bind:value={bid}
           min="0"
           max="99"
         />
