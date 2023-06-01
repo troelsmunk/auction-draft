@@ -23,7 +23,6 @@ export const actions = {
         bids: bids,
       })
     }
-    let sum = 0
     let bidsForDatabase
     try {
       bidsForDatabase = bids.map((bid) => {
@@ -34,7 +33,6 @@ export const actions = {
         if (bid < 0) {
           throw error(400, "The bids can't be negative.")
         }
-        sum += bid
         return bid
       })
     } catch (error) {
@@ -43,6 +41,7 @@ export const actions = {
         bids: bids,
       })
     }
+    const sumOfBids = bidsForDatabase.reduce((sum, value) => sum + value)
     const seat = await admin
       .database()
       .ref(`auctions/${pin}/seats/${uid}`)
@@ -53,7 +52,7 @@ export const actions = {
       .ref(`auctions/${pin}/scoreboard/${seat}`)
       .get()
       .then((snap) => snap.val())
-    if (scoreboard < sum) {
+    if (scoreboard < sumOfBids) {
       return fail(400, {
         error: "Insufficient funds",
         bids: bids,
