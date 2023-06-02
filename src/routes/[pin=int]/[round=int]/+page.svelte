@@ -5,23 +5,8 @@
 
   export let form
 
-  let bids = [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-  ]
+  let bids = Array(15)
+  bids.fill(null)
 
   const round = parseInt($page.params.round)
 
