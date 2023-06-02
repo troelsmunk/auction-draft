@@ -15,7 +15,7 @@
 
 <h3>Results</h3>
 <div class="grid-container">
-  {#each Object.entries(results) as card}
+  {#each Object.values(results) as card}
     <div class="result" style:background-color={data.colors[card.seat]}>
       {card.bid}
     </div>
