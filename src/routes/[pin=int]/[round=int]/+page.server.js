@@ -40,14 +40,13 @@ export const actions = {
       })
     }
     const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
-    const seat = await admin
-      .database()
-      .ref(`auctions/${pin}/seats/${uid}`)
+    const auctionRef = admin.database().ref(`auctions/${pin}`)
+    const seat = await auctionRef
+      .child(`seats/${uid}`)
       .get()
       .then((snap) => snap.val())
-    const scoreboard = await admin
-      .database()
-      .ref(`auctions/${pin}/scoreboard/${seat}`)
+    const scoreboard = await auctionRef
+      .child(`scoreboard/${seat}`)
       .get()
       .then((snap) => snap.val())
     if (scoreboard < sumOfBids) {
@@ -56,8 +55,8 @@ export const actions = {
         bids: bids,
       })
     }
-    await admin.database().ref(`auctions/${pin}/bids/${uid}`).set(filteredBids)
-    await admin.database().ref(`auctions/${pin}/readys/${uid}`).set(round)
+    await auctionRef.child(`bids/${uid}`).set(filteredBids)
+    await auctionRef.child(`readys/${uid}`).set(round)
     return { success: true }
   },
 }
