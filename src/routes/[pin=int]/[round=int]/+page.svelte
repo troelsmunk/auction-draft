@@ -4,9 +4,13 @@
   import { page } from "$app/stores"
 
   export let form
+  export let data
 
   let bids = Array(15)
   bids.fill(null)
+  $: sumOfBids = bids.reduce((sum, value) => sum + value)
+  const bankSum = data.scores[data.seat]
+  $: spendingRatio = sumOfBids / bankSum
 
   const round = parseInt($page.params.round)
 
@@ -22,6 +26,15 @@
   <a href={currentRoundResultsAddress()}>New Results</a>
 {:else if round > 1}
   <a href={previousRoundResultsAddress()}>Back to Results</a>
+{/if}
+
+{#if sumOfBids}
+  <p
+    class:expensive={spendingRatio > 0.8}
+    class:over-budget={spendingRatio > 1}
+  >
+    {sumOfBids} / {bankSum}
+  </p>
 {/if}
 
 <h3>Bidding</h3>
@@ -82,6 +95,14 @@
   }
 
   .error {
+    color: red;
+  }
+
+  .expensive {
+    color: orange;
+  }
+
+  .over-budget {
     color: red;
   }
 </style>
