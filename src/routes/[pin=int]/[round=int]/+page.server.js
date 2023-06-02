@@ -23,25 +23,23 @@ export const actions = {
         bids: bids,
       })
     }
-    let bidsForDatabase
-    try {
-      bidsForDatabase = bids.map((bid) => {
-        if (bid === null) return 0
-        if (typeof bid !== "number") {
-          throw error(400, "The bids should be numbers.")
-        }
-        if (bid < 0) {
-          throw error(400, "The bids can't be negative.")
-        }
-        return bid
-      })
-    } catch (error) {
-      return fail(error.status, {
-        error: error.body,
+    const filteredBids = bids.map((bid) => {
+      if (!bid) return 0
+      return bid
+    })
+    if (filteredBids.some((bid) => typeof bid !== "number")) {
+      return fail(400, {
+        error: "The bids should be numbers",
         bids: bids,
       })
     }
-    const sumOfBids = bidsForDatabase.reduce((sum, value) => sum + value)
+    if (filteredBids.some((bid) => bid < 0)) {
+      return fail(400, {
+        error: "The bids can't be negative",
+        bids: bids,
+      })
+    }
+    const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
     const seat = await admin
       .database()
       .ref(`auctions/${pin}/seats/${uid}`)
@@ -58,10 +56,7 @@ export const actions = {
         bids: bids,
       })
     }
-    await admin
-      .database()
-      .ref(`auctions/${pin}/bids/${uid}`)
-      .set(bidsForDatabase)
+    await admin.database().ref(`auctions/${pin}/bids/${uid}`).set(filteredBids)
     await admin.database().ref(`auctions/${pin}/readys/${uid}`).set(round)
     return { success: true }
   },
