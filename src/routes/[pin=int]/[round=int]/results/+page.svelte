@@ -11,7 +11,9 @@
   }
 </script>
 
-<a href={nextRoundBiddingAddress()}>Next round </a>
+<div class="container">
+  <a class="next-link" href={nextRoundBiddingAddress()}>Next round </a>
+</div>
 
 <h3>Results</h3>
 <div class="grid-container">
@@ -34,5 +36,13 @@
     justify-content: center;
     height: 100px;
     font-weight: bold;
+  }
+
+  .container {
+    display: grid;
+  }
+
+  .next-link {
+    justify-self: right;
   }
 </style>
