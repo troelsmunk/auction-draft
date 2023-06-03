@@ -22,20 +22,27 @@
   }
 </script>
 
-{#if $currentRound > round}
-  <a href={currentRoundResultsAddress()}>New Results</a>
-{:else if round > 1}
-  <a href={previousRoundResultsAddress()}>Back to Results</a>
-{/if}
-
-{#if sumOfBids}
-  <p
+<div class="navigation-container">
+  <div class="previous-link">
+    {#if round > 1 && round >= $currentRound}
+      <a href={previousRoundResultsAddress()}>Previous Results</a>
+    {/if}
+  </div>
+  <div
+    class="spending-ratio"
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
-    {sumOfBids} / {bankSum}
-  </p>
-{/if}
+    {#if sumOfBids}
+      {sumOfBids} / {bankSum}
+    {/if}
+  </div>
+  <div class="next-link">
+    {#if $currentRound > round}
+      <a href={currentRoundResultsAddress()}>New Results</a>
+    {/if}
+  </div>
+</div>
 
 <h3>Bidding</h3>
 <form
@@ -77,6 +84,21 @@
 {/if}
 
 <style>
+  .navigation-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .previous-link {
+    justify-self: left;
+  }
+  .spending-ratio {
+    justify-self: center;
+  }
+  .next-link {
+    justify-self: right;
+  }
+
   .input-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr 3fr);
