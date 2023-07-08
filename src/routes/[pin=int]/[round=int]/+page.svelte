@@ -124,7 +124,7 @@
     color: orange;
   }
 
-  .over-budget {
+  .expensive.over-budget {
     color: red;
   }
 </style>
