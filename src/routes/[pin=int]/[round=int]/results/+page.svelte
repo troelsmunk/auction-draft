@@ -3,11 +3,7 @@
   /** @type {import('./$types').PageData} */
   export let data
 
-  let resultsFromLoad = JSON.parse(data.results)
-  let betterResults = {} // fix automatic addition of zero-field
-  for (let i = 1; i <= 15; i++) {
-    betterResults[i] = resultsFromLoad[i]
-  }
+  let results = JSON.parse(data.results)
 
   function nextRoundBiddingAddress() {
     const nextRound = parseInt($page.params.round) + 1
@@ -15,11 +11,13 @@
   }
 </script>
 
-<a href={nextRoundBiddingAddress()}>Next round </a>
+<div class="container">
+  <a class="next-link" href={nextRoundBiddingAddress()}>Next round </a>
+</div>
 
 <h3>Results</h3>
 <div class="grid-container">
-  {#each Object.entries(betterResults) as [i, card]}
+  {#each Object.values(results) as card}
     <div class="result" style:background-color={data.colors[card.seat]}>
       {card.bid}
     </div>
@@ -38,5 +36,13 @@
     justify-content: center;
     height: 100px;
     font-weight: bold;
+  }
+
+  .container {
+    display: grid;
+  }
+
+  .next-link {
+    justify-self: right;
   }
 </style>

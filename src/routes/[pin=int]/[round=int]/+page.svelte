@@ -4,24 +4,13 @@
   import { page } from "$app/stores"
 
   export let form
+  export let data
 
-  let bids = {
-    1: null,
-    2: null,
-    3: null,
-    4: null,
-    5: null,
-    6: null,
-    7: null,
-    8: null,
-    9: null,
-    10: null,
-    11: null,
-    12: null,
-    13: null,
-    14: null,
-    15: null,
-  }
+  let bids = Array(15)
+  bids.fill(null)
+  $: sumOfBids = bids.reduce((sum, value) => sum + value)
+  const bankSum = data.scores[data.seat]
+  $: spendingRatio = sumOfBids / bankSum
 
   const round = parseInt($page.params.round)
 
@@ -33,11 +22,27 @@
   }
 </script>
 
-{#if $currentRound > round}
-  <a href={currentRoundResultsAddress()}>New Results</a>
-{:else if round > 1}
-  <a href={previousRoundResultsAddress()}>Back to Results</a>
-{/if}
+<div class="navigation-container">
+  <div class="previous-link">
+    {#if round > 1 && round >= $currentRound}
+      <a href={previousRoundResultsAddress()}>Previous Results</a>
+    {/if}
+  </div>
+  <div
+    class="spending-ratio"
+    class:expensive={spendingRatio > 0.8}
+    class:over-budget={spendingRatio > 1}
+  >
+    {#if sumOfBids}
+      {sumOfBids} / {bankSum}
+    {/if}
+  </div>
+  <div class="next-link">
+    {#if $currentRound > round}
+      <a href={currentRoundResultsAddress()}>New Results</a>
+    {/if}
+  </div>
+</div>
 
 <h3>Bidding</h3>
 <form
@@ -52,15 +57,15 @@
 >
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each Object.keys(bids) as i}
+    {#each bids as bid, i}
       <div>
-        <label for="bid-{i}">{i}</label>
+        <label for="bid-{i + 1}">{i + 1}</label>
       </div>
       <div>
         <input
-          id="bid-{i}"
+          id="bid-{i + 1}"
           type="number"
-          bind:value={bids[i]}
+          bind:value={bid}
           min="0"
           max="99"
         />
@@ -79,6 +84,21 @@
 {/if}
 
 <style>
+  .navigation-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .previous-link {
+    justify-self: left;
+  }
+  .spending-ratio {
+    justify-self: center;
+  }
+  .next-link {
+    justify-self: right;
+  }
+
   .input-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr 3fr);
@@ -97,6 +117,14 @@
   }
 
   .error {
+    color: red;
+  }
+
+  .expensive {
+    color: orange;
+  }
+
+  .expensive.over-budget {
     color: red;
   }
 </style>

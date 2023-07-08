@@ -10,23 +10,53 @@ export const actions = {
       throw error(401, "Please log in")
     }
     const formData = await event.request.formData()
+    /** @type {Array<number|null>} bids */
     const bids = JSON.parse(formData?.get("bids"))
     const round = parseInt(event.params.round)
     const pin = event.params.pin
     if (!round) {
       throw error(500, "The round is not a number")
     }
-    const numericBids = Object.values(bids).filter(
-      (bid) => typeof bid === "number"
-    )
-    if (numericBids.length === 0) {
+    if (bids.length != 15) {
       return fail(400, {
-        error: "The bids should contain numbers.",
+        error: "Wrong number of bids",
         bids: bids,
       })
     }
-    await admin.database().ref(`auctions/${pin}/bids/${uid}`).set(bids)
-    await admin.database().ref(`auctions/${pin}/readys/${uid}`).set(round)
+    const filteredBids = bids.map((bid) => {
+      if (!bid) return 0
+      return bid
+    })
+    if (filteredBids.some((bid) => typeof bid !== "number")) {
+      return fail(400, {
+        error: "The bids should be numbers",
+        bids: bids,
+      })
+    }
+    if (filteredBids.some((bid) => bid < 0)) {
+      return fail(400, {
+        error: "The bids can't be negative",
+        bids: bids,
+      })
+    }
+    const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
+    const auctionRef = admin.database().ref(`auctions/${pin}`)
+    const seat = await auctionRef
+      .child(`seats/${uid}`)
+      .get()
+      .then((snap) => snap.val())
+    const scoreboard = await auctionRef
+      .child(`scoreboard/${seat}`)
+      .get()
+      .then((snap) => snap.val())
+    if (scoreboard < sumOfBids) {
+      return fail(400, {
+        error: "Insufficient funds",
+        bids: bids,
+      })
+    }
+    await auctionRef.child(`bids/${uid}`).set(filteredBids)
+    await auctionRef.child(`readys/${uid}`).set(round)
     return { success: true }
   },
 }
