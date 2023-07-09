@@ -83,7 +83,6 @@ describe("The function determining the auction winners", function () {
         const actual = resultSnap.exists()
         assert.equal(actual, false, `The result shouldn't exist, but did`)
       })
-      it("doesn't change the scoreboard after round 0")
     })
   })
 })
