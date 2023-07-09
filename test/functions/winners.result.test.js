@@ -262,7 +262,48 @@ describe("The function determining the auction winners", function () {
           `Alice should have ${expectedScore} left on the scoreboard, but there was ${result}`
         )
       })
-      it("subtracts winning bids from the score")
+      it("subtracts winning bids from the score", async function () {
+        const pin = 1262
+        const size = 2
+        const round = 1
+        const firstCard = 0
+        const secondCard = 1
+        const thirdCard = 2
+        const aliceSeat = 0
+        const bobSeat = 1
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        await setScore(pin, bobSeat, 197)
+        const twelveZeroes = Array(12).fill(0)
+        let aliceBid = [2, 14, 10].concat(twelveZeroes)
+        let bobBid = [1, 18, 1].concat(twelveZeroes)
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        const expectedAliceScore =
+          200 - aliceBid[firstCard] - aliceBid[thirdCard]
+        const expectedBobScore = 197 - bobBid[secondCard]
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const scoreboardRef = adminDatabase.ref(`auctions/${pin}/scoreboard/`)
+        const actualAliceScore = await scoreboardRef
+          .child(`${aliceSeat}`)
+          .get()
+          .then((snap) => snap.val())
+        const actualBobScore = await scoreboardRef
+          .child(`${bobSeat}`)
+          .get()
+          .then((snap) => snap.val())
+        assert.equal(
+          actualAliceScore,
+          expectedAliceScore,
+          `Alice should have ${expectedAliceScore} left on the scoreboard, but there was ${actualAliceScore}`
+        )
+        assert.equal(
+          actualBobScore,
+          expectedBobScore,
+          `Bob should have ${expectedBobScore} left on the scoreboard, but there was ${actualBobScore}`
+        )
+      })
     })
   })
 })
