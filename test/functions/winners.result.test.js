@@ -238,6 +238,31 @@ describe("The function determining the auction winners", function () {
       })
       it("chooses the highest priority if bids and wealth are tied")
       it("chooses the highest priority only among the richest, tied bidders")
+      it("subtracts a winning bid from the score", async function () {
+        const pin = 1261
+        const size = 2
+        const round = 11
+        const card = 0
+        const aliceSeat = 0
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        const fourteenZeroes = Array(14).fill(0)
+        let aliceBid = [23].concat(fourteenZeroes)
+        const expectedScore = 200 - aliceBid[card]
+        await setBid(pin, alice, aliceBid)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const result = await adminDatabase
+          .ref(`auctions/${pin}/scoreboard/${aliceSeat}`)
+          .get()
+          .then((snap) => snap.val())
+        assert.equal(
+          result,
+          expectedScore,
+          `Alice should have ${expectedScore} left on the scoreboard, but there was ${result}`
+        )
+      })
+      it("subtracts winning bids from the score")
     })
   })
 })
