@@ -30,26 +30,6 @@ describe("The function determining the auction winners", function () {
           `The round should be ${round}, but it was ${actualRound}`
         )
       })
-      it.skip("doesn't set Alice as unready when she is ready for round 1 and Bob is not", async function () {
-        const pin = 1235
-        const size = 2
-        const round = 1
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob)
-        const aliceReady = { alice: round, bob: -1 }
-        await setDataAndCallWrappedFunction(pin, aliceReady)
-
-        const aliceReadyRef = adminDatabase.ref(
-          `auctions/${pin}/readys/${alice}`
-        )
-        const aliceReadySnap = await aliceReadyRef.once("value")
-        const actual = aliceReadySnap.val()
-        assert.equal(
-          actual,
-          round,
-          `Alice should have readiness ${round}, but had ${actual}`
-        )
-      })
       it("doesn't change the round when Alice is ready for round 2, but Bob is ready for round 1", async function () {
         const pin = 1237
         const size = 2
@@ -104,24 +84,6 @@ describe("The function determining the auction winners", function () {
         assert.equal(actual, false, `The result shouldn't exist, but did`)
       })
       it("doesn't change the scoreboard after round 0")
-      it.skip("doesn't change the round when Alice is ready, but Bob is not", async function () {
-        const pin = 1240
-        const size = 2
-        const round = 1
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob)
-        const everyoneReady = { alice: round, bob: -1 }
-        await setDataAndCallWrappedFunction(pin, everyoneReady)
-
-        const roundRef = adminDatabase.ref(`auctions/${pin}/round`)
-        const roundSnap = await roundRef.once("value")
-        const actual = roundSnap.val()
-        assert.equal(
-          actual,
-          round,
-          `The round should have been ${round}, but was ${actual}`
-        )
-      })
     })
   })
 })
