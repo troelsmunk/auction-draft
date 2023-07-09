@@ -5,6 +5,7 @@ const {
   setDataAndCallWrappedFunction,
   signUpFakeBidders,
   setBid,
+  setScore,
 } = require("./winners.data-generator")
 const alice = "alice"
 const bob = "bob"
@@ -20,9 +21,9 @@ describe("The function determining the auction winners", function () {
         const card = 0
         await initFakeAuction(pin, size, round)
         await signUpFakeBidders(pin, alice, bob)
-        const thirteenZeroes = Array(13).fill(0)
-        let aliceBid = [3, 2].concat(thirteenZeroes)
-        let bobBid = [1, 4].concat(thirteenZeroes)
+        const fourteenZeroes = Array(14).fill(0)
+        let aliceBid = [3].concat(fourteenZeroes)
+        let bobBid = [1].concat(fourteenZeroes)
         const expectedWinningBid = aliceBid[card]
         await setBid(pin, alice, aliceBid)
         await setBid(pin, bob, bobBid)
@@ -102,7 +103,7 @@ describe("The function determining the auction winners", function () {
         )
       })
       it("can choose different winners for different rounds", async function () {
-        const pin = 1256
+        const pin = 1257
         const size = 2
         const round = 13
         const nextRound = 14
@@ -161,7 +162,41 @@ describe("The function determining the auction winners", function () {
           `The winning bid in round ${nextRound} should be ${nextRoundWinningBid}, but was ${actualWinningBidNextRound}`
         )
       })
-      it("chooses the richest bidder if the bids are tied")
+      it("chooses the richest bidder if the bids are tied", async function () {
+        const pin = 1258
+        const size = 2
+        const round = 4
+        const card = 0
+        const aliceSeat = 0
+        const bobSeat = 1
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        await setScore(pin, bobSeat, 190)
+        const fourteenZeroes = Array(14).fill(0)
+        let aliceBid = [21].concat(fourteenZeroes)
+        let bobBid = [21].concat(fourteenZeroes)
+        const expectedWinningBid = aliceBid[card]
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const result = await adminDatabase
+          .ref(`auctions/${pin}/results/rounds/${round}/${card}`)
+          .get()
+          .then((snap) => snap.val())
+        const actualWinnerSeat = result["seat"]
+        const actualBid = result["bid"]
+        assert.equal(
+          actualWinnerSeat,
+          aliceSeat,
+          `The winner for card ${card} should be ${aliceSeat}, but was ${actualWinnerSeat}`
+        )
+        assert.equal(
+          actualBid,
+          expectedWinningBid,
+          `The winning bid for card ${card} should be ${expectedWinningBid}, but was ${actualBid}`
+        )
+      })
       it("chooses the richest bidder only among the tied bidders")
       it("chooses the highest priority if bids and wealth are tied")
       it("chooses the highest priority only among the richest, tied bidders")

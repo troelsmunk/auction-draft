@@ -81,9 +81,21 @@ async function setBid(pin, uid, bid) {
   return bidRef.set(bid)
 }
 
+/**
+ *
+ * @param {number} pin
+ * @param {number} seat
+ * @param {number} score
+ */
+async function setScore(pin, seat, score) {
+  const scoreboardRef = adminDatabase.ref(`auctions/${pin}/scoreboard/${seat}`)
+  return scoreboardRef.set(score)
+}
+
 module.exports = {
   initFakeAuction,
   signUpFakeBidders,
   setDataAndCallWrappedFunction,
   setBid,
+  setScore,
 }
