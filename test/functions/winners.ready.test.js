@@ -101,7 +101,7 @@ describe("The function determining the auction winners", function () {
         const actual = resultSnap.exists()
         assert.equal(actual, true, `The result should exist, but didn't`)
       })
-      it("finds som result for the first card", async function () {
+      it("finds some result for the first card", async function () {
         const pin = 1248
         const size = 2
         const round = 2
