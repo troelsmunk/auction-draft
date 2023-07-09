@@ -197,7 +197,45 @@ describe("The function determining the auction winners", function () {
           `The winning bid for card ${card} should be ${expectedWinningBid}, but was ${actualBid}`
         )
       })
-      it("chooses the richest bidder only among the tied bidders")
+      it("chooses the richest bidder only among the tied bidders", async function () {
+        const pin = 1259
+        const size = 3
+        const round = 7
+        const card = 0
+        const aliceSeat = 0
+        const bobSeat = 1
+        const carlSeat = 2
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob, carl)
+        await setScore(pin, aliceSeat, 190)
+        await setScore(pin, bobSeat, 180)
+        const fourteenZeroes = Array(14).fill(0)
+        let aliceBid = [15].concat(fourteenZeroes)
+        let bobBid = [15].concat(fourteenZeroes)
+        let carlBid = [2].concat(fourteenZeroes)
+        const expectedWinningBid = aliceBid[card]
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        await setBid(pin, carl, carlBid)
+        const everyoneReady = { alice: round, bob: round, carl: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const result = await adminDatabase
+          .ref(`auctions/${pin}/results/rounds/${round}/${card}`)
+          .get()
+          .then((snap) => snap.val())
+        const actualWinnerSeat = result["seat"]
+        const actualBid = result["bid"]
+        assert.equal(
+          actualWinnerSeat,
+          aliceSeat,
+          `The winner for card ${card} should be ${aliceSeat}, but was ${actualWinnerSeat}`
+        )
+        assert.equal(
+          actualBid,
+          expectedWinningBid,
+          `The winning bid for card ${card} should be ${expectedWinningBid}, but was ${actualBid}`
+        )
+      })
       it("chooses the highest priority if bids and wealth are tied")
       it("chooses the highest priority only among the richest, tied bidders")
     })
