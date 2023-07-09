@@ -12,7 +12,7 @@ const carl = "carl"
 describe("The function determining the auction winners", function () {
   describe("triggered by a change to readiness", function () {
     describe("where everyone is ready with zero-bids", function () {
-      it("leaves the readiness in place when all are ready", async function () {
+      it("leaves the readiness in place", async function () {
         const pin = 1242
         const size = 2
         const round = 2
