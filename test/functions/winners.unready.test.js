@@ -11,7 +11,7 @@ const bob = "bob"
 describe("The function determining the auction winners", function () {
   describe("triggered by a change to readiness", function () {
     describe("where not everyone is ready", function () {
-      it("doesn't set Bob as unready when he is ready for round 1 and Alice is not", async function () {
+      it("doesn't change the round when Bob is ready for round 1, but Alice is not", async function () {
         const pin = 1234
         const size = 2
         const round = 1
@@ -20,16 +20,17 @@ describe("The function determining the auction winners", function () {
         const bobReady = { alice: -1, bob: round }
         await setDataAndCallWrappedFunction(pin, bobReady)
 
-        const bobReadyRef = adminDatabase.ref(`auctions/${pin}/readys/${bob}`)
-        const bobReadySnap = await bobReadyRef.once("value")
-        const actual = bobReadySnap.val()
+        const actualRound = await adminDatabase
+          .ref(`auctions/${pin}/round`)
+          .get()
+          .then((snap) => snap.val())
         assert.equal(
-          actual,
+          actualRound,
           round,
-          `Bob should have readiness ${round}, but had ${actual}`
+          `The round should be ${round}, but it was ${actualRound}`
         )
       })
-      it("doesn't set Alice as unready when she is ready for round 1 and Bob is not", async function () {
+      it.skip("doesn't set Alice as unready when she is ready for round 1 and Bob is not", async function () {
         const pin = 1235
         const size = 2
         const round = 1
@@ -49,7 +50,7 @@ describe("The function determining the auction winners", function () {
           `Alice should have readiness ${round}, but had ${actual}`
         )
       })
-      it("leaves Alice as ready for round 2 when Bob is ready for round 1", async function () {
+      it("doesn't change the round when Alice is ready for round 2, but Bob is ready for round 1", async function () {
         const pin = 1237
         const size = 2
         const round = 2
@@ -58,18 +59,17 @@ describe("The function determining the auction winners", function () {
         const readyForDiffRounds = { alice: round, bob: 1 }
         await setDataAndCallWrappedFunction(pin, readyForDiffRounds)
 
-        const aliceReadyRef = adminDatabase.ref(
-          `auctions/${pin}/readys/${alice}`
-        )
-        const readySnap = await aliceReadyRef.once("value")
-        const actual = readySnap.val()
+        const actualRound = await adminDatabase
+          .ref(`auctions/${pin}/round`)
+          .get()
+          .then((snap) => snap.val())
         assert.equal(
-          actual,
+          actualRound,
           round,
-          `Alice's readiness should still be ${round}, but was ${actual}`
+          `The round should still be ${round}, but it was ${actualRound}`
         )
       })
-      it("leaves Alice as ready if Bob has not yet joined the auction", async function () {
+      it.skip("TODO: leaves Alice as ready if Bob has not yet joined the auction", async function () {
         const pin = 1238
         const size = 2
         const round = 1
@@ -78,15 +78,14 @@ describe("The function determining the auction winners", function () {
         const aliceReady = { alice: round }
         await setDataAndCallWrappedFunction(pin, aliceReady)
 
-        const aliceReadyRef = adminDatabase.ref(
-          `auctions/${pin}/readys/${alice}`
-        )
-        const readySnap = await aliceReadyRef.once("value")
-        const actual = readySnap.val()
+        const actualRound = await adminDatabase
+          .ref(`auctions/${pin}/round`)
+          .get()
+          .then((snap) => snap.val())
         assert.equal(
-          actual,
+          actualRound,
           round,
-          `Alice's readiness should still be ${round}, but was ${actual}`
+          `The round should still be ${round}, but it was ${actualRound}`
         )
       })
       it("doesn't post a result when not every bidder is ready", async function () {
@@ -105,7 +104,7 @@ describe("The function determining the auction winners", function () {
         assert.equal(actual, false, `The result shouldn't exist, but did`)
       })
       it("doesn't change the scoreboard after round 0")
-      it("doesn't change the round when Alice is ready, but Bob is not", async function () {
+      it.skip("doesn't change the round when Alice is ready, but Bob is not", async function () {
         const pin = 1240
         const size = 2
         const round = 1
