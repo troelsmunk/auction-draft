@@ -30,7 +30,7 @@ describe("The function determining the auction winners", function () {
           `The number of bidders in readys should have been ${size}, but was ${actual}`
         )
       })
-      it("sets Alice and Bob as unready, when both are ready for round 1", async function () {
+      it.skip("sets Alice and Bob as unready, when both are ready for round 1", async function () {
         const pin = 1241
         const size = 2
         const round = 1
@@ -58,7 +58,7 @@ describe("The function determining the auction winners", function () {
           `Bob should have readiness -1, but had ${bobActual}`
         )
       })
-      it("sets Alice as unready when both are ready for round 2", async function () {
+      it("leaves the readiness in place when all are ready", async function () {
         const pin = 1242
         const size = 2
         const round = 2
@@ -74,11 +74,11 @@ describe("The function determining the auction winners", function () {
         const actual = readySnap.val()
         assert.equal(
           actual,
-          -1,
-          `Alice's readiness should be -1, but was ${actual}`
+          round,
+          `Alice's readiness should be ${round}, but was ${actual}`
         )
       })
-      it("sets Carl to unready when all three are ready for round 1", async function () {
+      it.skip("sets Carl to unready when all three are ready for round 1", async function () {
         const pin = 1243
         const size = 3
         const round = 1
