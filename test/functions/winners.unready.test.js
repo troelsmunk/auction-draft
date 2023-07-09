@@ -20,14 +20,14 @@ describe("The function determining the auction winners", function () {
         const bobReady = { alice: -1, bob: round }
         await setDataAndCallWrappedFunction(pin, bobReady)
 
-        const actualRound = await adminDatabase
+        const actual = await adminDatabase
           .ref(`auctions/${pin}/round`)
           .get()
           .then((snap) => snap.val())
         assert.equal(
-          actualRound,
+          actual,
           round,
-          `The round should be ${round}, but it was ${actualRound}`
+          `The round should be ${round}, but it was ${actual}`
         )
       })
       it("doesn't change the round when Alice is ready for round 2, but Bob is ready for round 1", async function () {
@@ -39,14 +39,14 @@ describe("The function determining the auction winners", function () {
         const readyForDiffRounds = { alice: round, bob: 1 }
         await setDataAndCallWrappedFunction(pin, readyForDiffRounds)
 
-        const actualRound = await adminDatabase
+        const actual = await adminDatabase
           .ref(`auctions/${pin}/round`)
           .get()
           .then((snap) => snap.val())
         assert.equal(
-          actualRound,
+          actual,
           round,
-          `The round should still be ${round}, but it was ${actualRound}`
+          `The round should still be ${round}, but it was ${actual}`
         )
       })
       it.skip("TODO: leaves Alice as ready if Bob has not yet joined the auction", async function () {
@@ -58,14 +58,14 @@ describe("The function determining the auction winners", function () {
         const aliceReady = { alice: round }
         await setDataAndCallWrappedFunction(pin, aliceReady)
 
-        const actualRound = await adminDatabase
+        const actual = await adminDatabase
           .ref(`auctions/${pin}/round`)
           .get()
           .then((snap) => snap.val())
         assert.equal(
-          actualRound,
+          actual,
           round,
-          `The round should still be ${round}, but it was ${actualRound}`
+          `The round should still be ${round}, but it was ${actual}`
         )
       })
       it("doesn't post a result when not every bidder is ready", async function () {
