@@ -71,8 +71,8 @@ module.exports = async function findWinners(readysChange, context) {
     }
     let winnersAndBids = {}
     currentLeaderBoard.forEach((leader, card) => {
-      // TODO get random seat
-      const winner = leader.highBidders[0]
+      const luckyNumber = Math.floor(Math.random() * leader.highBidders.length)
+      const winner = leader.highBidders[luckyNumber]
       scoreboard[winner] -= leader.highBid
       winnersAndBids[card] = {
         seat: winner,
