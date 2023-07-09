@@ -17,6 +17,7 @@ function initFakeAuction(pin, size, round) {
 
 /** Fake a set of bidders in a given auction.
  * The bidders are set as unready, with 200 points and seated in the order listed
+ * Also bids are set as zeroes
  * @param {number} pin
  * @param {string[]} uids
  */
