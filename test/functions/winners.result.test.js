@@ -81,6 +81,90 @@ describe("The function determining the auction winners", function () {
           `The result should have branches under card 0, but didn't`
         )
       })
+      it("chooses bidder 0 over 1 for card 0 in round 0 with no bids", async function () {
+        const pin = 1250
+        const size = 2
+        const round = 1
+        const card = 0
+        const expectedWinner = 0
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const resultRef = adminDatabase.ref(
+          `auctions/${pin}/results/rounds/${round}/${card}`
+        )
+        const winnerSnap = await resultRef.child(`seat`).once("value")
+        const actualWinner = winnerSnap.val()
+        assert.equal(
+          actualWinner,
+          expectedWinner,
+          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
+        )
+      })
+      it("chooses bidder 1 over 0 for card 0 in round 1 with no bids", async function () {
+        const pin = 1251
+        const size = 2
+        const round = 2
+        const card = 0
+        const expectedWinner = 1
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const resultRef = adminDatabase.ref(
+          `auctions/${pin}/results/rounds/${round}/${card}`
+        )
+        const winnerSnap = await resultRef.child(`seat`).once("value")
+        const actualWinner = winnerSnap.val()
+        assert.equal(
+          actualWinner,
+          expectedWinner,
+          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
+        )
+      })
+      it("chooses bidder 1 over 0 for card 0 in round 3 with no bids", async function () {
+        const pin = 1252
+        const size = 2
+        const round = 4
+        const card = 0
+        const expectedWinner = 1
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const resultRef = adminDatabase.ref(
+          `auctions/${pin}/results/rounds/${round}/${card}`
+        )
+        const winnerSnap = await resultRef.child(`seat`).once("value")
+        const actualWinner = winnerSnap.val()
+        assert.equal(
+          actualWinner,
+          expectedWinner,
+          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
+        )
+      })
+      it("chooses bidder 0 over 1,2 for card 0 in round 3 with no bids", async function () {
+        const pin = 1253
+        const size = 3
+        const round = 4
+        const card = 0
+        const expectedWinner = 0
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob, carl)
+        const everyoneReady = { alice: round, bob: round, carl: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const resultRef = adminDatabase.ref(
+          `auctions/${pin}/results/rounds/${round}/${card}`
+        )
+        const winnerSnap = await resultRef.child(`seat`).once("value")
+        const actualWinner = winnerSnap.val()
+        assert.equal(
+          actualWinner,
+          expectedWinner,
+          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
+        )
+      })
       it("chooses bidder 0 over 1 for card 0 in round 1 when bidder 0 did bid")
       it("chooses bidder 1 over 0 for card 0 in round 2 when bidder 1 did bid")
 
@@ -88,7 +172,7 @@ describe("The function determining the auction winners", function () {
       it("finds 0 to be best bid for card 0 with no bids", async function () {
         const pin = 1254
         const size = 2
-        const round = 0
+        const round = 1
         const card = 0
         const expectedWinningBid = 0
         await initFakeAuction(pin, size, round)
