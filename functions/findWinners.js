@@ -29,7 +29,6 @@ module.exports = async function findWinners(readysChange, context) {
       console.error("Error BlAuDr: database/bids is null or undefined")
       return
     }
-    const orderedBidders = await sortCustom(auctionRef, round)
     const seats = await auctionRef
       .child("seats")
       .get()
@@ -38,33 +37,51 @@ module.exports = async function findWinners(readysChange, context) {
       console.error("Error BlAuDr: database/seats is null or undefined")
       return
     }
-    let winnersAndBids = getDefaultWinnerAndBids(seats[orderedBidders[0]])
-
-    for (const uid of orderedBidders) {
-      /** @type {[number]} */
-      const bidsFromBidder = bids[uid]
-      bidsFromBidder.forEach((bid, card) => {
-        if (bid > winnersAndBids[card].bid) {
-          winnersAndBids[card] = {
-            seat: seats[uid],
-            bid: bid,
-          }
-        }
-      })
-    }
     const scoreboardRef = auctionRef.child("scoreboard")
+    /** @type {number[]} */
     const scoreboard = await scoreboardRef.get().then((snap) => snap.val())
     if (!scoreboard) {
       console.error("Error BlAuDr: database/scoreboard is null or undefined")
       return
     }
-    for (const winnerAndBid of Object.values(winnersAndBids)) {
-      scoreboard[winnerAndBid.seat] -= winnerAndBid.bid
-    }
+    let currentLeaderBoard = createDefaultLeaderBoard()
 
+    for (const [uid, seat] of Object.entries(seats)) {
+      const score = scoreboard[seat]
+      /** @type {[number]} */
+      const bidsFromBidder = bids[uid]
+      bidsFromBidder.forEach((bid, card) => {
+        const leader = currentLeaderBoard[card]
+        if (bid >= leader.highBid) {
+          if (bid > leader.highBid || score > leader.bankSum) {
+            currentLeaderBoard[card] = {
+              highBidders: [seat],
+              highBid: bid,
+              bankSum: score,
+            }
+          } else if (score == leader.bankSum) {
+            currentLeaderBoard[card] = {
+              highBidders: [...leader.highBidders, seat],
+              highBid: bid,
+              bankSum: score,
+            }
+          }
+        }
+      })
+    }
+    let winnersAndBids = {}
+    currentLeaderBoard.forEach((leader, card) => {
+      // TODO get random seat
+      const winner = leader.highBidders[0]
+      scoreboard[winner] -= leader.highBid
+      winnersAndBids[card] = {
+        seat: winner,
+        bid: leader.highBid,
+      }
+    })
     const resultRoundRef = auctionRef.child(`results/rounds/${round}`)
     return Promise.all([
-      resultRoundRef.set(winnersAndBids),
+      resultRoundRef.set(currentLeaderBoard),
       scoreboardRef.set(scoreboard),
     ])
   } catch (error) {
@@ -107,16 +124,26 @@ async function sortCustom(auctionRef, round) {
   return bidders
 }
 
-function getDefaultWinnerAndBids(seat) {
-  const defaultWinnerAndBids = {
-    seat: seat,
-    bid: 0,
+/**
+ * Auction leader board for a card
+ * @typedef {Object} Leader
+ * @property {number[]} highBidders - The list of bidders that are in the lead
+ * @property {number} highBid - The bid that was given by the lead bidders
+ * @property {number} bankSum - The amount each lead bidder had at their disposal
+ */
+
+/**
+ * Set the default leader board - a leader for each card
+ * @returns {Leader[]}
+ */
+function createDefaultLeaderBoard() {
+  /** @type {Leader} */
+  const defaultLeader = {
+    highBidders: [],
+    highBid: 0,
+    bankSum: 0,
   }
-  let winnersAndBids = {}
-  for (let i = 0; i <= 14; i++) {
-    winnersAndBids[i] = defaultWinnerAndBids
-  }
-  return winnersAndBids
+  return Array(15).fill(defaultLeader)
 }
 
 /**
