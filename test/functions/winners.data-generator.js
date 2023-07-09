@@ -74,7 +74,7 @@ async function setDataAndCallWrappedFunction(pin, readysToBeSet) {
  *
  * @param {number} pin
  * @param {string} uid
- * @param {[number]} bid
+ * @param {number[]} bid
  */
 async function setBid(pin, uid, bid) {
   const bidRef = adminDatabase.ref(`auctions/${pin}/bids/${uid}`)
