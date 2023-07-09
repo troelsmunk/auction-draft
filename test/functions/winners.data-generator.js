@@ -70,8 +70,7 @@ async function setDataAndCallWrappedFunction(pin, readysToBeSet) {
   return winnerWrapped(test.makeChange(readysSnap, readysSnap), context)
 }
 
-/**
- *
+/** Set bids for a bidder
  * @param {number} pin
  * @param {string} uid
  * @param {number[]} bid
@@ -81,8 +80,7 @@ async function setBid(pin, uid, bid) {
   return bidRef.set(bid)
 }
 
-/**
- *
+/** Set a value on the scoreboard for a bidder
  * @param {number} pin
  * @param {number} seat
  * @param {number} score
