@@ -30,15 +30,13 @@ function signUpFakeBidders(pin, ...uids) {
   let seats = {}
   let scoreboard = {}
   let bids = {}
-  const zeros = new Array(15).fill(0)
-  // TODO uids.forEach()
-  for (let index = 0; index < uids.length; index++) {
-    const uid = uids[index]
+  const zeroBids = new Array(15).fill(0)
+  uids.forEach((uid, index) => {
     noOneReady[uid] = -1
     seats[uid] = index
     scoreboard[index] = 200
-    bids[uid] = zeros
-  }
+    bids[uid] = zeroBids
+  })
   return Promise.all([
     seatsRef.set(seats),
     readysRef.set(noOneReady),
