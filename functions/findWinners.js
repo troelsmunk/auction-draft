@@ -81,7 +81,7 @@ module.exports = async function findWinners(readysChange, context) {
     })
     const resultRoundRef = auctionRef.child(`results/rounds/${round}`)
     return Promise.all([
-      resultRoundRef.set(currentLeaderBoard),
+      resultRoundRef.set(winnersAndBids),
       scoreboardRef.set(scoreboard),
     ])
   } catch (error) {
