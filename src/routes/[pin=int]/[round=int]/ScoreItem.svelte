@@ -1,6 +1,5 @@
 <script>
   export let color = "green"
-  export let opener = false
   export let you = false
   export let score = false
 </script>
@@ -14,11 +13,7 @@
   <div class="score">
     {score}
   </div>
-  <div>
-    {#if opener}
-      Opener
-    {/if}
-  </div>
+  <div />
 </div>
 
 <style>
