@@ -267,8 +267,6 @@ describe("The function determining the auction winners", function () {
           `The winner for card ${card} should not be ${aliceSeat}, but it was: ${actualWinnerSeat}`
         )
       })
-      it("chooses the highest priority if bids and wealth are tied")
-      it("chooses the highest priority only among the richest, tied bidders")
       it("subtracts a winning bid from the score", async function () {
         const pin = 1261
         const size = 2

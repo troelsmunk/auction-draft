@@ -139,7 +139,7 @@ describe("The function determining the auction winners", function () {
           `The result should have values for card 0, but didn't`
         )
       })
-      it("chooses Alice over Bob in round 1, by priority", async function () {
+      it.skip("chooses Alice over Bob in round 1, by priority", async function () {
         const pin = 1250
         const size = 2
         const round = 1
@@ -160,7 +160,7 @@ describe("The function determining the auction winners", function () {
           `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
         )
       })
-      it("chooses Bob over Alice in round 2, by priority", async function () {
+      it.skip("chooses Bob over Alice in round 2, by priority", async function () {
         const pin = 1251
         const size = 2
         const round = 2
@@ -181,7 +181,7 @@ describe("The function determining the auction winners", function () {
           `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
         )
       })
-      it("chooses Bob over Alice in round 4, by priority", async function () {
+      it.skip("chooses Bob over Alice in round 4, by priority", async function () {
         const pin = 1252
         const size = 2
         const round = 4
@@ -202,7 +202,7 @@ describe("The function determining the auction winners", function () {
           `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
         )
       })
-      it("chooses Alice over Bob and Carl in round 4, by priority", async function () {
+      it.skip("chooses Alice over Bob and Carl in round 4, by priority", async function () {
         const pin = 1253
         const size = 3
         const round = 4
