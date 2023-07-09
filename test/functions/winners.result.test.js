@@ -204,7 +204,6 @@ describe("The function determining the auction winners", function () {
         const card = 0
         const aliceSeat = 0
         const bobSeat = 1
-        const carlSeat = 2
         await initFakeAuction(pin, size, round)
         await signUpFakeBidders(pin, alice, bob, carl)
         await setScore(pin, aliceSeat, 190)
@@ -234,6 +233,38 @@ describe("The function determining the auction winners", function () {
           actualBid,
           expectedWinningBid,
           `The winning bid for card ${card} should be ${expectedWinningBid}, but was ${actualBid}`
+        )
+      })
+      it("doesn't choose one of the non-richest bidders among the tied bidders", async function () {
+        const pin = 1260
+        const size = 3
+        const round = 4
+        const card = 0
+        const aliceSeat = 0
+        const bobSeat = 1
+        const carlSeat = 2
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob, carl)
+        await setScore(pin, aliceSeat, 170)
+        await setScore(pin, bobSeat, 180)
+        await setScore(pin, carlSeat, 180)
+        const fourteenZeroes = Array(14).fill(0)
+        let bobBid = [15].concat(fourteenZeroes)
+        let aliceBid = [15].concat(fourteenZeroes)
+        let carlBid = [15].concat(fourteenZeroes)
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        await setBid(pin, carl, carlBid)
+        const everyoneReady = { alice: round, bob: round, carl: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        const actualWinnerSeat = await adminDatabase
+          .ref(`auctions/${pin}/results/rounds/${round}/${card}/seat`)
+          .get()
+          .then((snap) => snap.val())
+        assert.notEqual(
+          actualWinnerSeat,
+          aliceSeat,
+          `The winner for card ${card} should not be ${aliceSeat}, but it was: ${actualWinnerSeat}`
         )
       })
       it("chooses the highest priority if bids and wealth are tied")
