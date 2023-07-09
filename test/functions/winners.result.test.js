@@ -101,7 +101,66 @@ describe("The function determining the auction winners", function () {
           `The winning bid for card ${secondCard} should be ${secondWinningBid}, but was ${actualWinningBidForSecondCard}`
         )
       })
-      it("can choose different winners for different rounds")
+      it("can choose different winners for different rounds", async function () {
+        const pin = 1256
+        const size = 2
+        const round = 13
+        const nextRound = 14
+        const firstCard = 0
+        const aliceSeat = 0
+        const bobSeat = 1
+        await initFakeAuction(pin, size, round)
+        await signUpFakeBidders(pin, alice, bob)
+        const fourteenZeroes = Array(14).fill(0)
+        let aliceBid = [4].concat(fourteenZeroes)
+        let bobBid = [2].concat(fourteenZeroes)
+        const firstRoundWinningBid = aliceBid[firstCard]
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        const everyoneReady = { alice: round, bob: round }
+        await setDataAndCallWrappedFunction(pin, everyoneReady)
+        aliceBid = [3].concat(fourteenZeroes)
+        bobBid = [5].concat(fourteenZeroes)
+        const nextRoundWinningBid = bobBid[firstCard]
+        await setBid(pin, alice, aliceBid)
+        await setBid(pin, bob, bobBid)
+        const everyoneReadyForNextRound = { alice: nextRound, bob: nextRound }
+        await setDataAndCallWrappedFunction(pin, everyoneReadyForNextRound)
+
+        const resultFirstRound = await adminDatabase
+          .ref(`auctions/${pin}/results/rounds/${round}/${firstCard}`)
+          .get()
+          .then((snap) => snap.val())
+        const actualWinningBidFirstRound = resultFirstRound["bid"]
+        const actualWinnerFirstRound = resultFirstRound["seat"]
+        const resultNextRound = await adminDatabase
+          .ref(`auctions/${pin}/results/rounds/${nextRound}/${firstCard}`)
+          .get()
+          .then((snap) => snap.val())
+        const actualWinningBidNextRound = resultNextRound["bid"]
+        const actualWinnerNextRound = resultNextRound["seat"]
+
+        assert.equal(
+          actualWinnerFirstRound,
+          aliceSeat,
+          `The winner in round ${round} should be ${aliceSeat}, but was ${actualWinnerFirstRound}`
+        )
+        assert.equal(
+          actualWinningBidFirstRound,
+          firstRoundWinningBid,
+          `The winning bid in round ${round} should be ${firstRoundWinningBid}, but was ${actualWinningBidFirstRound}`
+        )
+        assert.equal(
+          actualWinnerNextRound,
+          bobSeat,
+          `The winner in round ${nextRound} should be ${bobSeat}, but was ${actualWinnerNextRound}`
+        )
+        assert.equal(
+          actualWinningBidNextRound,
+          nextRoundWinningBid,
+          `The winning bid in round ${nextRound} should be ${nextRoundWinningBid}, but was ${actualWinningBidNextRound}`
+        )
+      })
       it("chooses the richest bidder if the bids are tied")
       it("chooses the richest bidder only among the tied bidders")
       it("chooses the highest priority if bids and wealth are tied")
