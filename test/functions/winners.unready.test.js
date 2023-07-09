@@ -49,7 +49,7 @@ describe("The function determining the auction winners", function () {
           `The round should still be ${round}, but it was ${actual}`
         )
       })
-      it.skip("TODO: leaves Alice as ready if Bob has not yet joined the auction", async function () {
+      it.skip("leaves Alice as ready if Bob has not yet joined the auction", async function () {
         const pin = 1238
         const size = 2
         const round = 1
