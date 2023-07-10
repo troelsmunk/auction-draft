@@ -2,6 +2,7 @@
   import { currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
   import { page } from "$app/stores"
+  import KeyboardBidItem from "./KeyboardBidItem.svelte"
 
   export let form
   export let data
@@ -58,18 +59,7 @@
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each bids as bid, i}
-      <div>
-        <label for="bid-{i + 1}">{i + 1}</label>
-      </div>
-      <div>
-        <input
-          id="bid-{i + 1}"
-          type="number"
-          bind:value={bid}
-          min="0"
-          max="99"
-        />
-      </div>
+      <KeyboardBidItem bind:bid {i} />
     {/each}
   </div>
   <button type="submit">Bid!</button>
@@ -104,16 +94,8 @@
     grid-template-columns: repeat(4, 1fr 3fr);
   }
 
-  .input-container > * {
-    margin-top: 8px;
-  }
-
   button {
     float: right;
-  }
-
-  label {
-    text-align: center;
   }
 
   .error {
