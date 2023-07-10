@@ -3,9 +3,12 @@
   import { enhance } from "$app/forms"
   import { page } from "$app/stores"
   import KeyboardBidItem from "./KeyboardBidItem.svelte"
+  import BidButtons from "./BidButtons.svelte"
 
   export let form
   export let data
+
+  let inputByButtons = true
 
   let bids = Array(15)
   bids.fill(null)
@@ -59,7 +62,11 @@
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each bids as bid, i}
-      <KeyboardBidItem bind:bid {i} />
+      {#if inputByButtons}
+        <BidButtons bind:bid />
+      {:else}
+        <KeyboardBidItem bind:bid {i} />
+      {/if}
     {/each}
   </div>
   <button type="submit">Bid!</button>
