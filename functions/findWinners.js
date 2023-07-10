@@ -120,6 +120,9 @@ function readyCheckerReducer(readySnap) {
 
 /**
  * Generate the list of potential winners for the round and their bids
+ * @param {Object} seats
+ * @param {number[]} scoreboard
+ * @param {Object} bids
  * @returns {Leader[]}
  */
 function generateLeaderBoard(seats, scoreboard, bids) {
@@ -132,7 +135,7 @@ function generateLeaderBoard(seats, scoreboard, bids) {
   let leaderBoard = Array(15).fill(defaultLeader)
   for (const [uid, seat] of Object.entries(seats)) {
     const score = scoreboard[seat]
-    /** @type {[number]} */
+    /** @type {number[]} */
     const bidsFromBidder = bids[uid]
     bidsFromBidder.forEach((bid, card) => {
       const leader = leaderBoard[card]
