@@ -91,7 +91,7 @@
 
   .input-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr 3fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   button {
