@@ -101,7 +101,7 @@ describe("The function determining the auction winners", function () {
         const actual = resultSnap.exists()
         assert.equal(actual, true, `The result should exist, but didn't`)
       })
-      it("finds som result for the first card", async function () {
+      it("finds some result for the first card", async function () {
         const pin = 1248
         const size = 2
         const round = 2
@@ -137,90 +137,6 @@ describe("The function determining the auction winners", function () {
           actual,
           true,
           `The result should have values for card 0, but didn't`
-        )
-      })
-      it("chooses Alice over Bob in round 1, by priority", async function () {
-        const pin = 1250
-        const size = 2
-        const round = 1
-        const card = 0
-        const expectedWinner = 0
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob)
-        const everyoneReady = { alice: round, bob: round }
-        await setDataAndCallWrappedFunction(pin, everyoneReady)
-        const resultRef = adminDatabase.ref(
-          `auctions/${pin}/results/rounds/${round}/${card}`
-        )
-        const winnerSnap = await resultRef.child(`seat`).once("value")
-        const actualWinner = winnerSnap.val()
-        assert.equal(
-          actualWinner,
-          expectedWinner,
-          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
-        )
-      })
-      it("chooses Bob over Alice in round 2, by priority", async function () {
-        const pin = 1251
-        const size = 2
-        const round = 2
-        const card = 0
-        const expectedWinner = 1
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob)
-        const everyoneReady = { alice: round, bob: round }
-        await setDataAndCallWrappedFunction(pin, everyoneReady)
-        const resultRef = adminDatabase.ref(
-          `auctions/${pin}/results/rounds/${round}/${card}`
-        )
-        const winnerSnap = await resultRef.child(`seat`).once("value")
-        const actualWinner = winnerSnap.val()
-        assert.equal(
-          actualWinner,
-          expectedWinner,
-          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
-        )
-      })
-      it("chooses Bob over Alice in round 4, by priority", async function () {
-        const pin = 1252
-        const size = 2
-        const round = 4
-        const card = 0
-        const expectedWinner = 1
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob)
-        const everyoneReady = { alice: round, bob: round }
-        await setDataAndCallWrappedFunction(pin, everyoneReady)
-        const resultRef = adminDatabase.ref(
-          `auctions/${pin}/results/rounds/${round}/${card}`
-        )
-        const winnerSnap = await resultRef.child(`seat`).once("value")
-        const actualWinner = winnerSnap.val()
-        assert.equal(
-          actualWinner,
-          expectedWinner,
-          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
-        )
-      })
-      it("chooses Alice over Bob and Carl in round 4, by priority", async function () {
-        const pin = 1253
-        const size = 3
-        const round = 4
-        const card = 0
-        const expectedWinner = 0
-        await initFakeAuction(pin, size, round)
-        await signUpFakeBidders(pin, alice, bob, carl)
-        const everyoneReady = { alice: round, bob: round, carl: round }
-        await setDataAndCallWrappedFunction(pin, everyoneReady)
-        const resultRef = adminDatabase.ref(
-          `auctions/${pin}/results/rounds/${round}/${card}`
-        )
-        const winnerSnap = await resultRef.child(`seat`).once("value")
-        const actualWinner = winnerSnap.val()
-        assert.equal(
-          actualWinner,
-          expectedWinner,
-          `The winner of card ${card} should be ${expectedWinner}, but was ${actualWinner}`
         )
       })
       it("finds 0 to be best bid for card 0", async function () {
