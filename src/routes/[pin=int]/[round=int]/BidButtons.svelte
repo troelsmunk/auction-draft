@@ -14,7 +14,6 @@
 <style>
   .outer {
     margin: 5px;
-    /* allow bid and buttons in the same space */
     display: grid;
     grid-template-rows: repeat(4, 1fr);
     grid-template-columns: repeat(5, 1fr);
@@ -26,7 +25,6 @@
     text-align: left;
     border: none;
     opacity: 0.5;
-    /* faded out */
   }
 
   button.plus-five {
@@ -44,6 +42,5 @@
     font-size: xx-large;
     text-align: center;
     align-self: center;
-    /* text a little to the right */
   }
 </style>
