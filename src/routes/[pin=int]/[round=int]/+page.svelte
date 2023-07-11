@@ -34,12 +34,11 @@
   </div>
   <div
     class="spending-ratio"
+    class:hidden={!sumOfBids}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
-    {#if sumOfBids}
-      {sumOfBids} / {bankSum}
-    {/if}
+    {sumOfBids} / {bankSum}
   </div>
   <div class="next-link">
     {#if $currentRound > round}
@@ -91,6 +90,9 @@
   }
   .spending-ratio {
     justify-self: center;
+  }
+  .hidden {
+    opacity: 0;
   }
   .next-link {
     justify-self: right;
