@@ -21,9 +21,9 @@
 
 <style>
   .outer {
-    margin: 5px;
+    margin: 0.3px;
     display: grid;
-    grid-template-rows: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1.5em);
     grid-template-columns: repeat(5, 1fr);
   }
 
