@@ -6,7 +6,7 @@
   }
 </script>
 
-<div class="outer">
+<div class="container">
   <span class="bid">
     {#if bid}
       {bid}
@@ -20,7 +20,7 @@
 </div>
 
 <style>
-  .outer {
+  .container {
     margin: 0.3px;
     display: grid;
     grid-template-rows: repeat(4, 1.5em);
