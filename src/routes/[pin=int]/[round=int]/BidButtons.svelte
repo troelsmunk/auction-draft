@@ -3,39 +3,45 @@
 </script>
 
 <div class="outer">
-  <div class="buttons">
-    <button class="small" on:click|preventDefault={() => (bid += 5)}>+5</button>
-    <button on:click|preventDefault={() => bid++}>+</button>
-    <button class="small" on:click|preventDefault={() => bid--}>-</button>
-  </div>
   <span class="bid">{bid}</span>
+  <button class="plus-five" on:click|preventDefault={() => (bid += 5)}
+    >+5</button
+  >
+  <button class="plus-one" on:click|preventDefault={() => bid++}>+</button>
+  <button class="minus-one" on:click|preventDefault={() => bid--}>-</button>
 </div>
 
 <style>
   .outer {
     margin: 5px;
     /* allow bid and buttons in the same space */
-  }
-
-  .buttons {
     display: grid;
-    grid-template-rows: 1fr 2fr 1fr;
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
   }
 
   button {
     text-align: left;
-    border-left: none;
-    border-right: none;
+    border: none;
+    opacity: 0.5;
     /* faded out */
   }
 
-  button.small {
-    border: none;
+  button.plus-five {
+    grid-area: 1 / 1 / 2 / 2;
+  }
+  button.plus-one {
+    grid-area: 2 / 1 / 4 / 2;
+  }
+  button.minus-one {
+    grid-area: 4 / 1 / 5 / 2;
   }
 
   .bid {
-    grid-row: 1 / 4;
-    font-size: larger;
+    grid-area: 1 / 1 / 5 / 2;
+    font-size: xx-large;
     /* text a little to the right */
   }
 </style>
