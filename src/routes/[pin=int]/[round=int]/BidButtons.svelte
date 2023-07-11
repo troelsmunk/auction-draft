@@ -1,14 +1,22 @@
 <script>
   export let bid = false
+
+  function subtract() {
+    if (bid > 0) bid--
+  }
 </script>
 
 <div class="outer">
-  <span class="bid">{bid}</span>
+  <span class="bid">
+    {#if bid}
+      {bid}
+    {/if}
+  </span>
   <button class="plus-five" on:click|preventDefault={() => (bid += 5)}
     >+5</button
   >
   <button class="plus-one" on:click|preventDefault={() => bid++}>+</button>
-  <button class="minus-one" on:click|preventDefault={() => bid--}>-</button>
+  <button class="minus-one" on:click|preventDefault={subtract}>-</button>
 </div>
 
 <style>
