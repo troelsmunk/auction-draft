@@ -17,8 +17,6 @@
     display: grid;
     grid-template-rows: repeat(4, 1fr);
     grid-template-columns: repeat(5, 1fr);
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
   }
 
   button {
