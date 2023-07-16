@@ -8,7 +8,7 @@
 
 <div class="container">
   <span class="bid">
-    {#if bid}
+    {#if bid != null}
       {bid}
     {/if}
   </span>
@@ -21,7 +21,9 @@
 
 <style>
   .container {
-    margin: 0.3px;
+    margin: 0.3em;
+    border: 1px darkgray solid;
+    border-radius: 0.5em;
     display: grid;
     grid-template-rows: repeat(4, 1.5em);
     grid-template-columns: repeat(5, 1fr);
@@ -30,7 +32,7 @@
   button {
     text-align: left;
     border: none;
-    opacity: 0.5;
+    background: linear-gradient(to right, lightgrey, transparent);
   }
 
   button.plus-five {
