@@ -49,13 +49,13 @@
   </div>
 </div>
 
-<span>
+<div>
   <label for="input-type">Input Type</label>
   <select id="input-type" bind:value={inputType}>
     <option value={buttons}>Buttons</option>
     <option value={keyboard}>Keyboard</option>
   </select>
-</span>
+</div>
 
 <h3>Bidding</h3>
 <form
