@@ -36,12 +36,18 @@
   }
 
   button.plus-five {
+    font-size: small;
     grid-area: 1 / 1 / 2 / 6;
   }
   button.plus-one {
+    font-size: large;
+    border-width: 2px 0px;
+    border-style: solid;
+    border-image: linear-gradient(to right, darkgray, transparent) 6;
     grid-area: 2 / 1 / 4 / 6;
   }
   button.minus-one {
+    font-size: large;
     grid-area: 4 / 1 / 5 / 6;
   }
 
