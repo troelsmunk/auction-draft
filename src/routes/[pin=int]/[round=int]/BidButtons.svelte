@@ -12,42 +12,63 @@
       {bid}
     {/if}
   </span>
-  <button class="plus-five" on:click|preventDefault={() => (bid += 5)}
-    >+5</button
-  >
-  <button class="plus-one" on:click|preventDefault={() => bid++}>+</button>
-  <button class="minus-one" on:click|preventDefault={subtract}>-</button>
+  <label for="plus-five" class="plus-five">+5</label>
+  <label for="plus-one" class="plus-one">+</label>
+  <label for="minus-one" class="minus-one">-</label>
+  <button
+    id="plus-five"
+    class="plus-five"
+    on:click|preventDefault={() => (bid += 5)}
+  />
+  <button
+    id="plus-one"
+    class="plus-one"
+    on:click|preventDefault={() => bid++}
+  />
+  <button id="minus-one" class="minus-one" on:click|preventDefault={subtract} />
 </div>
 
 <style>
   .container {
     margin: 0.3em;
     border: 1px darkgray solid;
-    border-radius: 0.5em;
     display: grid;
     grid-template-rows: repeat(4, 1.5em);
     grid-template-columns: repeat(5, 1fr);
   }
 
   button {
-    text-align: left;
     border: none;
     background: linear-gradient(to right, lightgrey, transparent);
   }
 
-  button.plus-five {
+  label {
+    text-align: center;
+  }
+
+  label.plus-five {
     font-size: small;
+    grid-area: 1 / 1 / 2 / 3;
+  }
+  label.plus-one {
+    font-size: large;
+    grid-area: 2 / 1 / 4 / 3;
+    align-self: center;
+  }
+  label.minus-one {
+    font-size: large;
+    grid-area: 4 / 1 / 5 / 3;
+  }
+  button.plus-five {
     grid-area: 1 / 1 / 2 / 6;
   }
   button.plus-one {
-    font-size: large;
     border-width: 2px 0px;
     border-style: solid;
     border-image: linear-gradient(to right, darkgray, transparent) 6;
     grid-area: 2 / 1 / 4 / 6;
   }
   button.minus-one {
-    font-size: large;
     grid-area: 4 / 1 / 5 / 6;
   }
 
