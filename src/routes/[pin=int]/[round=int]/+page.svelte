@@ -8,7 +8,9 @@
   export let form
   export let data
 
-  let inputByButtons = true
+  let inputType = keyboard
+  const buttons = "buttons"
+  const keyboard = "keyboard"
 
   let bids = Array(15)
   bids.fill(null)
@@ -47,6 +49,14 @@
   </div>
 </div>
 
+<span>
+  <label for="input-type">Input Type</label>
+  <select id="input-type" bind:value={inputType}>
+    <option value={buttons}>Buttons</option>
+    <option value={keyboard}>Keyboard</option>
+  </select>
+</span>
+
 <h3>Bidding</h3>
 <form
   id="bid-form"
@@ -61,7 +71,7 @@
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each bids as bid, i}
-      {#if inputByButtons}
+      {#if inputType == buttons}
         <BidButtons bind:bid />
       {:else}
         <KeyboardBidItem bind:bid {i} />
