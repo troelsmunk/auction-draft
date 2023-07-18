@@ -83,6 +83,10 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 
+  h3 {
+    margin: 0.25em;
+  }
+
   .previous-link {
     justify-self: left;
   }
