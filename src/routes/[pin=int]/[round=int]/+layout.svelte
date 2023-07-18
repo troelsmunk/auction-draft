@@ -20,5 +20,6 @@
   .scoreboard {
     display: flex;
     justify-content: center;
+    margin: 0.5em 0;
   }
 </style>
