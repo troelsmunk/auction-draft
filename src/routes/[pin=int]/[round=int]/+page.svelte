@@ -1,16 +1,13 @@
 <script>
-  import { currentRound } from "$lib/stores"
+  import { currentRound, inputMethod } from "$lib/stores"
   import { enhance } from "$app/forms"
   import { page } from "$app/stores"
   import KeyboardBidItem from "./KeyboardBidItem.svelte"
   import BidButtons from "./BidButtons.svelte"
+  import { INPUT_BY_BUTTONS, INPUT_BY_KEYBOARD } from "$lib/constants"
 
   export let form
   export let data
-
-  let inputType = keyboard
-  const buttons = "buttons"
-  const keyboard = "keyboard"
 
   let bids = Array(15)
   bids.fill(null)
@@ -51,9 +48,9 @@
 
 <div>
   <label for="input-type">Input Type</label>
-  <select id="input-type" bind:value={inputType}>
-    <option value={buttons}>Buttons</option>
-    <option value={keyboard}>Keyboard</option>
+  <select id="input-type" bind:value={$inputMethod}>
+    <option value={INPUT_BY_BUTTONS}>Buttons</option>
+    <option value={INPUT_BY_KEYBOARD}>Keyboard</option>
   </select>
 </div>
 
@@ -71,7 +68,7 @@
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each bids as bid, i}
-      {#if inputType == buttons}
+      {#if $inputMethod == INPUT_BY_BUTTONS}
         <BidButtons bind:bid />
       {:else}
         <KeyboardBidItem bind:bid {i} />
