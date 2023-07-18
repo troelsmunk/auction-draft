@@ -1,5 +1,4 @@
 import { derived, writable } from "svelte/store"
-import { INPUT_BY_KEYBOARD } from "./constants"
 import { page } from "$app/stores"
 
 /** @type {import("svelte/store").Writable<string>} */
@@ -12,5 +11,5 @@ export const currentRound = writable(0)
 export const pin = derived(page, ($page) => $page.params.pin)
 /** @type {import("svelte/store").Writable<number>} */
 export const round = derived(page, ($page) => $page.params.round)
-/** @type {import("svelte/store").Writable<string>} */
-export const inputMethod = writable(INPUT_BY_KEYBOARD)
+/** @type {import("svelte/store").Writable<boolean>} */
+export const bidByButtons = writable(false)

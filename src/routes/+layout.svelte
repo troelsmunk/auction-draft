@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte"
-  import { uid, firebaseApp, pin, round } from "$lib/stores"
+  import { uid, firebaseApp, pin, round, bidByButtons } from "$lib/stores"
   import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
   import { logIfFalsy } from "$lib/validation"
@@ -36,6 +36,8 @@
       - Round {$round}
     {/if}
   </p>
+  <label for="bid-method">Buttons!</label>
+  <input id="bid-method" type="checkbox" bind:checked={$bidByButtons} />
 {:else}
   <h1>Blind Auction Drafting</h1>
 {/if}
