@@ -58,11 +58,11 @@
 >
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each bids as bid, i}
+    {#each bids as bidValue, i}
       {#if $bidByButtons}
-        <BidButtons bind:bid />
+        <BidButtons bind:bidValue {i} />
       {:else}
-        <KeyboardBidItem bind:bid {i} />
+        <KeyboardBidItem bind:bidValue {i} />
       {/if}
     {/each}
   </div>

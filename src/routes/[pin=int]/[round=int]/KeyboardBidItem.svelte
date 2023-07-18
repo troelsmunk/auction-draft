@@ -1,5 +1,5 @@
 <script>
-  export let bid = false
+  export let bidValue = false
   export let i = false
 </script>
 
@@ -8,7 +8,13 @@
     <label for="bid-{i + 1}">{i + 1}</label>
   </div>
   <div>
-    <input id="bid-{i + 1}" type="number" bind:value={bid} min="0" max="99" />
+    <input
+      id="bid-{i + 1}"
+      type="number"
+      bind:value={bidValue}
+      min="0"
+      max="99"
+    />
   </div>
 </div>
 
