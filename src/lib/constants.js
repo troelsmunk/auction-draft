@@ -4,3 +4,5 @@ export const COOKIE_NAME = "__session"
 export const INPUT_BY_BUTTONS = "buttons"
 /** @type {string} */
 export const INPUT_BY_KEYBOARD = "keyboard"
+/** @type {string} */
+export const LOADING = "loading"

@@ -1,13 +1,10 @@
 <script>
   import { onMount } from "svelte"
-  import { uid, firebaseApp } from "$lib/stores"
+  import { uid, firebaseApp, pin, round } from "$lib/stores"
   import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
-  import { page } from "$app/stores"
   import { logIfFalsy } from "$lib/validation"
-
-  const pin = $page.params.pin
-  const round = $page.params.round
+  import { LOADING } from "$lib/constants"
 
   onMount(function () {
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
@@ -16,6 +13,7 @@
   /** @param {import('@firebase/auth').User} user */
   async function authChangedCallback(user) {
     if (user && !$uid) {
+      uid.set(LOADING)
       const token = await user.getIdToken()
       logIfFalsy(token, "user Firebase ID-token")
       const uidFromCookieApi = await fetch("/api/cookie", {
@@ -30,16 +28,17 @@
   }
 </script>
 
-<h1>Blind Auction Drafting</h1>
-<p>
-  <a href="/"> Home </a>
-  {#if pin}
-    - Auction {pin}
-    {#if round}
-      - Round {round}
+{#if $pin}
+  <p>
+    <a href="/"> Home </a>
+    - Auction {$pin}
+    {#if $round}
+      - Round {$round}
     {/if}
-  {/if}
-</p>
+  </p>
+{:else}
+  <h1>Blind Auction Drafting</h1>
+{/if}
 
 <slot />
 
