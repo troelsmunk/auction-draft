@@ -2,8 +2,20 @@
   export let bidValue = false
   export let i
 
-  function subtract() {
-    if (bidValue > 0) bidValue--
+  function plusFive(iValue) {
+    if (iValue == i) {
+      bidValue += 5
+    }
+  }
+  function plusOne(iValue) {
+    if (iValue == i) {
+      bidValue++
+    }
+  }
+  function minusOne(iValue) {
+    if (iValue == i && bidValue > 0) {
+      bidValue--
+    }
   }
 </script>
 
@@ -19,17 +31,17 @@
   <button
     id="plus-five-{i}"
     class="plus-five"
-    on:click|preventDefault={() => (bidValue += 5)}
+    on:click|preventDefault={() => plusFive(i)}
   />
   <button
     id="plus-one-{i}"
     class="plus-one"
-    on:click|preventDefault={() => bidValue++}
+    on:click|preventDefault={() => plusOne(i)}
   />
   <button
     id="minus-one-{i}"
     class="minus-one"
-    on:click|preventDefault={subtract}
+    on:click|preventDefault={minusOne(i)}
   />
 </div>
 
