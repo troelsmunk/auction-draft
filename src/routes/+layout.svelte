@@ -1,13 +1,9 @@
 <script>
   import { onMount } from "svelte"
-  import { uid, firebaseApp } from "$lib/stores"
+  import { uid, firebaseApp, pin, round } from "$lib/stores"
   import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
-  import { page } from "$app/stores"
   import { logIfFalsy } from "$lib/validation"
-
-  const pin = $page.params.pin
-  const round = $page.params.round
 
   onMount(function () {
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
@@ -30,16 +26,17 @@
   }
 </script>
 
-<h1>Blind Auction Drafting</h1>
-<p>
-  <a href="/"> Home </a>
-  {#if pin}
-    - Auction {pin}
-    {#if round}
-      - Round {round}
+{#if $pin}
+  <p>
+    <a href="/"> Home </a>
+    - Auction {$pin}
+    {#if $round}
+      - Round {$round}
     {/if}
-  {/if}
-</p>
+  </p>
+{:else}
+  <h1>Blind Auction Drafting</h1>
+{/if}
 
 <slot />
 
