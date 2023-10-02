@@ -1,13 +1,10 @@
 <script>
   import { onMount } from "svelte"
-  import { uid, firebaseApp } from "$lib/stores"
+  import { uid, firebaseApp, pin, round, bidByButtons } from "$lib/stores"
   import { getAuth, onAuthStateChanged } from "firebase/auth"
   import Firebase from "$lib/Firebase.svelte"
-  import { page } from "$app/stores"
   import { logIfFalsy } from "$lib/validation"
-
-  const pin = $page.params.pin
-  const round = $page.params.round
+  import { LOADING } from "$lib/constants"
 
   onMount(function () {
     onAuthStateChanged(getAuth($firebaseApp), authChangedCallback)
@@ -16,6 +13,7 @@
   /** @param {import('@firebase/auth').User} user */
   async function authChangedCallback(user) {
     if (user && !$uid) {
+      uid.set(LOADING)
       const token = await user.getIdToken()
       logIfFalsy(token, "user Firebase ID-token")
       const uidFromCookieApi = await fetch("/api/cookie", {
@@ -30,16 +28,23 @@
   }
 </script>
 
-<h1>Blind Auction Drafting</h1>
-<p>
-  <a href="/"> Home </a>
-  {#if pin}
-    - Auction {pin}
-    {#if round}
-      - Round {round}
-    {/if}
-  {/if}
-</p>
+{#if $pin}
+  <div class="header-container">
+    <div class="breadcrumb">
+      <a href="/"> Home </a>
+      - Auction {$pin}
+      {#if $round}
+        - Round {$round}
+      {/if}
+    </div>
+    <div class="feature-toggle">
+      <label for="bid-method">Buttons!</label>
+      <input id="bid-method" type="checkbox" bind:checked={$bidByButtons} />
+    </div>
+  </div>
+{:else}
+  <h1>Blind Auction Drafting</h1>
+{/if}
 
 <slot />
 
@@ -49,5 +54,13 @@
   ::global(*) {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  }
+
+  .header-container {
+    display: grid;
+    grid-template-columns: auto auto;
+  }
+  .feature-toggle {
+    justify-self: right;
   }
 </style>

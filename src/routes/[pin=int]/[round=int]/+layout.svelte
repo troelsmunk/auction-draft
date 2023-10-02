@@ -1,6 +1,5 @@
 <script>
   import ScoreItem from "./ScoreItem.svelte"
-  import { page } from "$app/stores"
   /** @type {import('./$types').LayoutData} */
   export let data
 </script>
@@ -10,12 +9,7 @@
 {:else}
   <div class="scoreboard">
     {#each data.colors as color, i}
-      <ScoreItem
-        {color}
-        opener={i + 1 == $page.params.round % data.size}
-        you={i == data.seat}
-        score={data.scores[i]}
-      />
+      <ScoreItem {color} you={i == data.seat} score={data.scores[i]} />
     {/each}
   </div>
 
@@ -26,5 +20,6 @@
   .scoreboard {
     display: flex;
     justify-content: center;
+    margin: 0.5em 0;
   }
 </style>

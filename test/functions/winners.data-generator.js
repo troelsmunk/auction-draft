@@ -2,7 +2,7 @@ const { adminDatabase, test } = require("./setupFunctionsTesting")
 const { findWinners } = require("../../functions")
 const winnerWrapped = test.wrap(findWinners)
 
-/** Mimic the createAuction function by setting size and round for an auction
+/** Fake an auction by setting size and round
  * with a given PIN
  * @param {number} pin
  * @param {number} size
@@ -15,8 +15,9 @@ function initFakeAuction(pin, size, round) {
   return Promise.all([sizeRef.set(size), roundRef.set(round)])
 }
 
-/** Mimic the createBidder function by adding the bidders to the given auction.
+/** Fake a set of bidders in a given auction.
  * The bidders are set as unready, with 200 points and seated in the order listed
+ * Also bids are set as zeroes
  * @param {number} pin
  * @param {string[]} uids
  */
@@ -25,19 +26,23 @@ function signUpFakeBidders(pin, ...uids) {
   const seatsRef = auctionRef.child("seats")
   const readysRef = auctionRef.child("readys")
   const scoreboardRef = auctionRef.child("scoreboard")
+  const bidsRef = auctionRef.child("bids")
   let noOneReady = {}
   let seats = {}
   let scoreboard = {}
-  for (let index = 0; index < uids.length; index++) {
-    const uid = uids[index]
+  let bids = {}
+  const zeroBids = new Array(15).fill(0)
+  uids.forEach((uid, index) => {
     noOneReady[uid] = -1
     seats[uid] = index
     scoreboard[index] = 200
-  }
+    bids[uid] = zeroBids
+  })
   return Promise.all([
     seatsRef.set(seats),
     readysRef.set(noOneReady),
     scoreboardRef.set(scoreboard),
+    bidsRef.set(bids),
   ])
 }
 
@@ -62,21 +67,27 @@ async function setDataAndCallWrappedFunction(pin, readysToBeSet) {
   await adminDatabase.ref(pathToReadys).set(readysToBeSet)
   const context = { params: { pin: pin } }
   const readysSnap = test.database.makeDataSnapshot(readysToBeSet, pathToReadys)
-  return winnerWrapped(test.makeChange(null, readysSnap), context)
+  return winnerWrapped(test.makeChange(readysSnap, readysSnap), context)
 }
 
-/**
- *
+/** Set bids for a bidder
  * @param {number} pin
- * @param {number} round
- * @param {number} seat
- * @param {object} bid
+ * @param {string} uid
+ * @param {number[]} bid
  */
-function setBid(pin, round, seat, bid) {
-  const bidRef = adminDatabase.ref(
-    `auctions/${pin}/bids/rounds/${round}/${seat}`
-  )
+async function setBid(pin, uid, bid) {
+  const bidRef = adminDatabase.ref(`auctions/${pin}/bids/${uid}`)
   return bidRef.set(bid)
+}
+
+/** Set a value on the scoreboard for a bidder
+ * @param {number} pin
+ * @param {number} seat
+ * @param {number} score
+ */
+async function setScore(pin, seat, score) {
+  const scoreboardRef = adminDatabase.ref(`auctions/${pin}/scoreboard/${seat}`)
+  return scoreboardRef.set(score)
 }
 
 module.exports = {
@@ -84,4 +95,5 @@ module.exports = {
   signUpFakeBidders,
   setDataAndCallWrappedFunction,
   setBid,
+  setScore,
 }
