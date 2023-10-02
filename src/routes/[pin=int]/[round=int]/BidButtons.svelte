@@ -31,12 +31,12 @@
   <button
     id="plus-five-{i}"
     class="plus-five"
-    on:click|preventDefault={() => plusFive(i)}
+    on:click|preventDefault={plusFive(i)}
   />
   <button
     id="plus-one-{i}"
     class="plus-one"
-    on:click|preventDefault={() => plusOne(i)}
+    on:click|preventDefault={plusOne(i)}
   />
   <button
     id="minus-one-{i}"
