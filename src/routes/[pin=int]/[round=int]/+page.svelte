@@ -1,7 +1,9 @@
 <script>
-  import { currentRound } from "$lib/stores"
+  import { bidByButtons, currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
   import { page } from "$app/stores"
+  import KeyboardBidItem from "./KeyboardBidItem.svelte"
+  import BidButtons from "./BidButtons.svelte"
 
   export let form
   export let data
@@ -30,12 +32,11 @@
   </div>
   <div
     class="spending-ratio"
+    class:hidden={!sumOfBids}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
-    {#if sumOfBids}
-      {sumOfBids} / {bankSum}
-    {/if}
+    {sumOfBids} / {bankSum}
   </div>
   <div class="next-link">
     {#if $currentRound > round}
@@ -57,19 +58,12 @@
 >
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each bids as bid, i}
-      <div>
-        <label for="bid-{i + 1}">{i + 1}</label>
-      </div>
-      <div>
-        <input
-          id="bid-{i + 1}"
-          type="number"
-          bind:value={bid}
-          min="0"
-          max="99"
-        />
-      </div>
+    {#each bids as bidValue, i}
+      {#if $bidByButtons}
+        <BidButtons bind:bidValue {i} />
+      {:else}
+        <KeyboardBidItem bind:bidValue {i} />
+      {/if}
     {/each}
   </div>
   <button type="submit">Bid!</button>
@@ -89,11 +83,18 @@
     grid-template-columns: 1fr 1fr 1fr;
   }
 
+  h3 {
+    margin: 0.25em;
+  }
+
   .previous-link {
     justify-self: left;
   }
   .spending-ratio {
     justify-self: center;
+  }
+  .hidden {
+    opacity: 0;
   }
   .next-link {
     justify-self: right;
@@ -101,19 +102,11 @@
 
   .input-container {
     display: grid;
-    grid-template-columns: repeat(4, 1fr 3fr);
-  }
-
-  .input-container > * {
-    margin-top: 8px;
+    grid-template-columns: repeat(4, 1fr);
   }
 
   button {
     float: right;
-  }
-
-  label {
-    text-align: center;
   }
 
   .error {

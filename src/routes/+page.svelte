@@ -1,6 +1,7 @@
 <script>
   import { getAuth, signInAnonymously, signOut } from "firebase/auth"
   import { uid, firebaseApp } from "$lib/stores"
+  import { LOADING } from "$lib/constants.js"
 
   export let form
 
@@ -11,7 +12,9 @@
   }
 </script>
 
-{#if $uid}
+{#if $uid == LOADING}
+  <h3>Loading...</h3>
+{:else if $uid}
   <h3>One of you, create an auction</h3>
   {#if form?.create?.error}
     <p class="error">{form.create.error}</p>
