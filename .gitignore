@@ -16,4 +16,6 @@ kitSSR/
 logs
 *.log
 npm-debug.log*
-
+/test-results/
+/playwright-report/
+/playwright/.cache/
