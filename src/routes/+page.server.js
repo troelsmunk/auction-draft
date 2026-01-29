@@ -1,5 +1,4 @@
 import { error, fail, redirect } from "@sveltejs/kit"
-import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('@sveltejs/kit').Actions} */
@@ -89,11 +88,11 @@ function calculateNextPin(previousPin) {
  * @returns {Promise<number>} The next PIN to be used
  */
 async function getNextPin() {
-  return admin
-    .database()
-    .ref("newestPin")
-    .transaction(calculateNextPin, null, false)
-    .then((result) => result.snapshot.val())
+  return 17
+    // .database()
+    // .ref("newestPin")
+    // .transaction(calculateNextPin, null, false)
+    // .then((result) => result.snapshot.val())
 }
 
 /**
@@ -108,17 +107,17 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
   for (let index = 0; index < auctionSize; index++) {
     scoreboard[index] = 200
   }
-  return admin
-    .database()
-    .ref(`auctions/${pin}`)
-    .update({
-      round: 1,
-      size: auctionSize,
-      timestamp: Date.now(),
-      scoreboard: scoreboard,
-      seats: { [uid]: 0 },
-      readys: { [uid]: -1 },
-    })
+  return 
+    // .database()
+    // .ref(`auctions/${pin}`)
+    // .update({
+    //   round: 1,
+    //   size: auctionSize,
+    //   timestamp: Date.now(),
+    //   scoreboard: scoreboard,
+    //   seats: { [uid]: 0 },
+    //   readys: { [uid]: -1 },
+    // })
 }
 
 /**
@@ -128,22 +127,22 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
  * @returns {Promise<void>}
  */
 async function enrollBidderInAuction(uid, pin) {
-  const auctionRef = admin.database().ref(`auctions/${pin}`)
-  const auctionSize = await auctionRef
-    .child(`size`)
-    .get()
-    .then((snap) => snap.val())
-  if (!auctionSize) {
-    throw error(500, "Auction size doesn't exist")
-  }
-  const findSeatForUid = findSeatReducer(uid, pin, auctionSize)
-  const transactionResult = await auctionRef
-    .child("seats")
-    .transaction(findSeatForUid, null, false)
-  if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
-    throw error(500, "Transaction failed")
-  }
-  return auctionRef.child("readys").update({ [uid]: -1 })
+  // const auctionRef = admin.database().ref(`auctions/${pin}`)
+  // const auctionSize = await auctionRef
+  //   .child(`size`)
+  //   .get()
+  //   .then((snap) => snap.val())
+  // if (!auctionSize) {
+  //   throw error(500, "Auction size doesn't exist")
+  // }
+  // const findSeatForUid = findSeatReducer(uid, pin, auctionSize)
+  // const transactionResult = await auctionRef
+  //   .child("seats")
+  //   .transaction(findSeatForUid, null, false)
+  // if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
+  //   throw error(500, "Transaction failed")
+  // }
+  // return auctionRef.child("readys").update({ [uid]: -1 })
 }
 
 /**
