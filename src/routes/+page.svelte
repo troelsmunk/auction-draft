@@ -1,14 +1,11 @@
 <script>
-  import { getAuth, signInAnonymously, signOut } from "firebase/auth"
-  import { uid, firebaseApp } from "$lib/stores"
+  import { uid } from "$lib/stores"
   import { LOADING } from "$lib/constants.js"
 
   export let form
 
   function signIn() {
-    return signOut(getAuth($firebaseApp)).then(() =>
-      signInAnonymously(getAuth($firebaseApp))
-    )
+    //TODO get uid from backend, put it in cookie and in store
   }
 </script>
 

@@ -1,21 +1,9 @@
 <script>
-  import { currentRound, firebaseApp } from "$lib/stores"
-  import { getDatabase, onValue, ref } from "firebase/database"
-  import Firebase from "$lib/Firebase.svelte"
+  import { currentRound } from "$lib/stores"
   import { onMount } from "svelte"
   import { page } from "$app/stores"
 
-  onMount(() => {
-    const roundRef = ref(
-      getDatabase($firebaseApp),
-      `auctions/${$page.params.pin}/round`
-    )
-    onValue(roundRef, (snap) => {
-      currentRound.set(snap.val())
-    })
-  })
+  // TODO get current round from backend
 </script>
-
-<Firebase />
 
 <slot />
