@@ -1,4 +1,3 @@
-import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
 import { error } from "@sveltejs/kit"
 
@@ -8,18 +7,20 @@ export async function load({ params, cookies }) {
   if (!uid) {
     throw error(401, "Please log in")
   }
-  const auctionRef = admin.database().ref(`auctions/${params.pin}`)
-  const seat = await auctionRef
-    .child(`seats/${uid}`)
-    .get()
-    .then((snap) => snap.val())
+  // const auctionRef = admin.database().ref(`auctions/${params.pin}`)
+  const seat = 1
+  // await auctionRef
+  //   .child(`seats/${uid}`)
+  //   .get()
+  //   .then((snap) => snap.val())
   if (typeof seat !== "number") {
     throw error(403, "You are not enrolled in this auction")
   }
-  const size = await auctionRef
-    .child("size")
-    .get()
-    .then((snap) => snap.val())
+  const size = 4
+  // await auctionRef
+  //   .child("size")
+  //   .get()
+  //   .then((snap) => snap.val())
   if (!size) {
     throw error(500, "The auction has no size")
   }

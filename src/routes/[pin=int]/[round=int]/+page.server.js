@@ -1,4 +1,3 @@
-import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
 import { error, fail } from "@sveltejs/kit"
 
@@ -40,23 +39,25 @@ export const actions = {
       })
     }
     const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
-    const auctionRef = admin.database().ref(`auctions/${pin}`)
-    const seat = await auctionRef
-      .child(`seats/${uid}`)
-      .get()
-      .then((snap) => snap.val())
-    const scoreboard = await auctionRef
-      .child(`scoreboard/${seat}`)
-      .get()
-      .then((snap) => snap.val())
+    // const auctionRef = admin.database().ref(`auctions/${pin}`)
+    const seat = 1
+    //  await auctionRef
+    //   .child(`seats/${uid}`)
+    //   .get()
+    //   .then((snap) => snap.val())
+    const scoreboard = 100
+    // await auctionRef
+    //   .child(`scoreboard/${seat}`)
+    //   .get()
+    //   .then((snap) => snap.val())
     if (scoreboard < sumOfBids) {
       return fail(400, {
         error: "Insufficient funds",
         bids: bids,
       })
     }
-    await auctionRef.child(`bids/${uid}`).set(filteredBids)
-    await auctionRef.child(`readys/${uid}`).set(round)
+    // await auctionRef.child(`bids/${uid}`).set(filteredBids)
+    // await auctionRef.child(`readys/${uid}`).set(round)
     return { success: true }
   },
 }
