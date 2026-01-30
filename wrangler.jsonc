@@ -17,7 +17,7 @@
   },
   "d1_databases": [
     {
-      "binding": "prod_auctions",
+      "binding": "db",
       "database_name": "prod-auctions",
       "database_id": "2a5879c1-18af-4ebd-9dbf-c43b5ff527d7",
     },
