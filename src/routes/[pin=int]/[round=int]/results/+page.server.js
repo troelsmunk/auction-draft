@@ -5,6 +5,6 @@ export async function load({ params }) {
   //   .get()
   //   .then((snap) => snap.val())
   return {
-    results: JSON.stringify({res: "resultsFromDatabase"}),
+    results: JSON.stringify({ res: "resultsFromDatabase" }),
   }
 }

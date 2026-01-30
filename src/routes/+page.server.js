@@ -6,7 +6,7 @@ export const actions = {
   create: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-     return fail(401, {
+      return fail(401, {
         create: {
           error: "Please log in",
         },
@@ -89,10 +89,10 @@ function calculateNextPin(previousPin) {
  */
 async function getNextPin() {
   return 17
-    // .database()
-    // .ref("newestPin")
-    // .transaction(calculateNextPin, null, false)
-    // .then((result) => result.snapshot.val())
+  // .database()
+  // .ref("newestPin")
+  // .transaction(calculateNextPin, null, false)
+  // .then((result) => result.snapshot.val())
 }
 
 /**
@@ -107,17 +107,17 @@ function setupAuctionAndBidder(auctionSize, uid, pin) {
   for (let index = 0; index < auctionSize; index++) {
     scoreboard[index] = 200
   }
-  return 
-    // .database()
-    // .ref(`auctions/${pin}`)
-    // .update({
-    //   round: 1,
-    //   size: auctionSize,
-    //   timestamp: Date.now(),
-    //   scoreboard: scoreboard,
-    //   seats: { [uid]: 0 },
-    //   readys: { [uid]: -1 },
-    // })
+  return
+  // .database()
+  // .ref(`auctions/${pin}`)
+  // .update({
+  //   round: 1,
+  //   size: auctionSize,
+  //   timestamp: Date.now(),
+  //   scoreboard: scoreboard,
+  //   seats: { [uid]: 0 },
+  //   readys: { [uid]: -1 },
+  // })
 }
 
 /**
