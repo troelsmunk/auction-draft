@@ -1,5 +1,5 @@
 <script>
-  import { uid, pin, round, bidByButtons } from "$lib/stores"
+  import { pin, round, bidByButtons } from "$lib/stores"
 </script>
 
 {#if $pin}
