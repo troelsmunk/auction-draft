@@ -13,7 +13,7 @@
   <div class="score">
     {score}
   </div>
-  <div />
+  <div></div>
 </div>
 
 <style>

@@ -31,18 +31,24 @@
   <button
     id="plus-five-{i}"
     class="plus-five"
+    aria-labelledby="plus-five-item-{i}"
     on:click|preventDefault={plusFive(i)}
-  />
+  >
+  </button>
   <button
     id="plus-one-{i}"
     class="plus-one"
+    aria-labelledby="plus-one-item-{i}"
     on:click|preventDefault={plusOne(i)}
-  />
+  >
+  </button>
   <button
     id="minus-one-{i}"
     class="minus-one"
+    aria-labelledby="minus-one-item-{i}"
     on:click|preventDefault={minusOne(i)}
-  />
+  >
+  </button>
 </div>
 
 <style>
