@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS auctions (
 
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  uuid TEXT UNIQUE,
+  uid TEXT UNIQUE,
   auction_id INTEGER,
   points_remaining INTEGER,
   bid_option_id INTEGER,
