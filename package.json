@@ -2,16 +2,16 @@
   "name": "blind-auction-draft",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
     "build": "vite build",
-    "preview": "npm run build && wrangler dev",
-    "prepare": "npm run types && svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
-    "types": "wrangler types",
-    "lint": "prettier --check .",
+    "deploy": "npm run build && wrangler deploy",
+    "dev": "vite dev",
     "format": "prettier --write .",
-    "deploy": "npm run build && wrangler deploy"
+    "lint": "prettier --check .",
+    "prepare": "npm run types && svelte-kit sync || echo ''",
+    "preview": "npm run build && wrangler dev",
+    "types": "wrangler types"
   },
   "devDependencies": {
     "@sveltejs/adapter-cloudflare": "^7.2.6",
