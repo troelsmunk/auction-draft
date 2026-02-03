@@ -27,9 +27,9 @@
   const messages = writable([])
 
   if (browser) {
-    let evtSource = new EventSource("/api/data")
+    let eventSource = new EventSource("/api/data")
 
-    evtSource.onmessage = function (event) {
+    eventSource.onmessage = function (event) {
       try {
         var dataobj = JSON.parse(event.data)
         messages.update((arr) => arr.concat(dataobj))
@@ -39,25 +39,13 @@
       }
     }
 
-    //TODO only one listener
-    evtSource.addEventListener("data_added", (event) => {
-      try {
-        var dataobj = JSON.parse(event.data)
-        messages.update((arr) => arr.concat(dataobj))
-        console.log("data_added:", dataobj)
-      } catch (e) {
-        console.error("Error parsing data_added event:", e)
-      }
-    })
-
-    evtSource.onerror = () => {
-      console.error("SSE connection error")
+    eventSource.onerror = (event) => {
+      console.error("SSE connection error", event)
       // TODO : Reconnect logic
     }
 
-    // Cleanup on unload
     window.addEventListener("beforeunload", () => {
-      evtSource.close()
+      eventSource.close()
     })
   }
 </script>
