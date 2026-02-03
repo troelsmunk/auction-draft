@@ -8,7 +8,7 @@ export async function load({ params }) {
   //   .get()
   //   .then((snap) => snap.val())
   // if (!scoreboard) {
-  throw error(500, "The auction has no scoreboard")
+  // throw error(500, "The auction has no scoreboard")
   // }
   // return {
   //   scores: scoreboard,

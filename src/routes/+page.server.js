@@ -33,7 +33,7 @@ export const actions = {
   join: async (event) => {
     const auctionNumber = await event.request
       .formData()
-      .then((data) => data.get("auction-number"))
+      .then((data) => data.get("pin"))
       .then((value) => value?.toString())
       .then((str) => parseInt(str || "0"))
     return enrollUserInAuction(event, auctionNumber)
@@ -71,9 +71,6 @@ async function enrollUserInAuction(event, auctionNumber) {
     path: "/",
     maxAge: 60 * 60 * 24, // 1 day
   })
-  const result = await db
-    .prepare("INSERT INTO users (uid) VALUES (?)")
-    .bind(uid)
-    .run()
+  // TODO enroll user in auction in db
   throw redirect(303, `/${auctionNumber}/1`)
 }

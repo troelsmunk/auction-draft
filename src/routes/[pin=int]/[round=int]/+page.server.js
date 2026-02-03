@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "$lib/constants"
+import { broadcastUpdate } from "$lib/eventManager"
 import { error, fail } from "@sveltejs/kit"
 
 /** @type {import('@sveltejs/kit').Actions} */
@@ -10,10 +11,11 @@ export const actions = {
     }
     const formData = await event.request.formData()
     /** @type {Array<number|null>} bids */
-    const bids = JSON.parse(formData?.get("bids"))
+    const bids = JSON.parse(formData?.get("bids")?.toString() || "[]")
     const round = parseInt(event.params.round)
     const pin = event.params.pin
     if (!round) {
+      // TODO already checked by sveltekit route param
       throw error(500, "The round is not a number")
     }
     if (bids.length != 15) {
@@ -22,7 +24,9 @@ export const actions = {
         bids: bids,
       })
     }
+    // TODO bids.some(bid => typeof bid !== 'number')
     const filteredBids = bids.map((bid) => {
+      // TODO bid || 0
       if (!bid) return 0
       return bid
     })
@@ -33,31 +37,26 @@ export const actions = {
       })
     }
     if (filteredBids.some((bid) => bid < 0)) {
+      // TODO combine the two checks
       return fail(400, {
         error: "The bids can't be negative",
         bids: bids,
       })
     }
     const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
-    // const auctionRef = admin.database().ref(`auctions/${pin}`)
-    const seat = 1
-    //  await auctionRef
-    //   .child(`seats/${uid}`)
-    //   .get()
-    //   .then((snap) => snap.val())
-    const scoreboard = 100
-    // await auctionRef
-    //   .child(`scoreboard/${seat}`)
-    //   .get()
-    //   .then((snap) => snap.val())
-    if (scoreboard < sumOfBids) {
+    const remainingPointsFromDb = 1000 // TODO get from db
+    if (remainingPointsFromDb < sumOfBids) {
       return fail(400, {
         error: "Insufficient funds",
         bids: bids,
       })
     }
-    // await auctionRef.child(`bids/${uid}`).set(filteredBids)
-    // await auctionRef.child(`readys/${uid}`).set(round)
-    return { success: true }
+    const update = {
+      uid: uid,
+      bids: sumOfBids,
+    }
+    broadcastUpdate(update, "message")
+    // TODO write bids to db
+    return { success: true } // TODO success from result of db write
   },
 }

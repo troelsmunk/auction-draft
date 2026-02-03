@@ -9,7 +9,7 @@
 {:else}
   <div class="scoreboard">
     {#each data.colors as color, i}
-      <ScoreItem {color} you={i == data.seat} score={data.scores[i]} />
+      <!-- <ScoreItem {color} you={i == data.seat} score={data.scores[i]} /> -->
     {/each}
   </div>
 

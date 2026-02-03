@@ -4,6 +4,8 @@
   import { page } from "$app/stores"
   import KeyboardBidItem from "./KeyboardBidItem.svelte"
   import BidButtons from "./BidButtons.svelte"
+  import { browser } from "$app/environment"
+  import { writable } from "svelte/store"
 
   export let form
   export let data
@@ -11,7 +13,7 @@
   let bids = Array(15)
   bids.fill(null)
   $: sumOfBids = bids.reduce((sum, value) => sum + value)
-  const bankSum = data.scores[data.seat]
+  const bankSum = 100 // data.scores[data.seat]
   $: spendingRatio = sumOfBids / bankSum
 
   const round = parseInt($page.params.round)
@@ -21,6 +23,42 @@
   }
   function currentRoundResultsAddress() {
     return `/${$page.params.pin}/${$currentRound - 1}/results`
+  }
+  const messages = writable([])
+
+  if (browser) {
+    let evtSource = new EventSource("/api/data")
+
+    evtSource.onmessage = function (event) {
+      try {
+        var dataobj = JSON.parse(event.data)
+        messages.update((arr) => arr.concat(dataobj))
+        console.log("Received update:", dataobj)
+      } catch (e) {
+        console.error("Error parsing message:", e)
+      }
+    }
+
+    //TODO only one listener
+    evtSource.addEventListener("data_added", (event) => {
+      try {
+        var dataobj = JSON.parse(event.data)
+        messages.update((arr) => arr.concat(dataobj))
+        console.log("data_added:", dataobj)
+      } catch (e) {
+        console.error("Error parsing data_added event:", e)
+      }
+    })
+
+    evtSource.onerror = () => {
+      console.error("SSE connection error")
+      // TODO : Reconnect logic
+    }
+
+    // Cleanup on unload
+    window.addEventListener("beforeunload", () => {
+      evtSource.close()
+    })
   }
 </script>
 
@@ -76,6 +114,13 @@
     Bid denied: {form.error}
   </div>
 {/if}
+
+<div>
+  <h3>Live Updates ({$messages.length})</h3>
+  {#each $messages as m}
+    <p>{JSON.stringify(m)}</p>
+  {/each}
+</div>
 
 <style>
   .navigation-container {
