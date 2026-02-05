@@ -15,6 +15,12 @@ export const registerConnection = (controller) => {
   console.log(
     `New connection registered. Total connections: ${activeConnections.size}`,
   )
+  return () => {
+    activeConnections.delete(controller)
+    console.log(
+      `Connection unregistered. Total connections: ${activeConnections.size}`,
+    )
+  }
 }
 
 /**
