@@ -1,4 +1,4 @@
-import { fail, redirect } from "@sveltejs/kit"
+import { error, fail, redirect } from "@sveltejs/kit"
 import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('@sveltejs/kit').Actions} */
@@ -25,9 +25,21 @@ export const actions = {
         { status: 500 },
       )
     }
-    const previousAuctionNumber = 0 // TODO get from db
+    /** @type {{"auction_number": number} | null} } */
+    const previousAuctionSelect = await db
+      .prepare("SELECT auction_number FROM auctions ORDER BY id DESC")
+      .first()
+    let previousAuctionNumber = previousAuctionSelect?.auction_number || 2000
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
-    // TODO create auction in db
+    const auctionInsert = await db
+      .prepare("INSERT INTO auctions (auction_number) VALUES (?)")
+      .bind(auctionNumber)
+      .run()
+    if (auctionInsert.error) {
+      console.error("Error inserting auction:", auctionInsert.error)
+      return error(500, "Failed to create auction")
+    }
+    // TODO create bidders in db
     return enrollUserInAuction(event, auctionNumber)
   },
   join: async (event) => {
@@ -40,7 +52,8 @@ export const actions = {
   },
 }
 
-/** Generate auction number based on latest auction number
+/** Generate auction number based on latest auction number,
+ * using 7 as a primitive root modulo 9001, starting at 1000.
  * @param {number} previousAuctionNumber The previous auction number from the database
  * @returns {number} The next auction number
  */
