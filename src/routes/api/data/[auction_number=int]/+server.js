@@ -6,7 +6,7 @@ export const GET = ({ params, request, platform }) => {
   let unregisterConnection
   /** @type {NodeJS.Timeout} */
   let keepAlive
-  /** @type{number} */
+  /** @type{number} TODO get this from db via uid from cookie */
   const auctionNumber = parseInt(params.auction_number)
 
   // Keep the worker alive until the connection is closed
