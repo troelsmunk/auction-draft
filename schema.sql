@@ -10,16 +10,16 @@ DROP TABLE IF EXISTS bid_options;
 
 CREATE TABLE IF NOT EXISTS auctions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  auction_number INTEGER UNIQUE
+  auction_number INTEGER UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   uid TEXT UNIQUE,
-  auction_id INTEGER,
-  points_remaining INTEGER,
-  bid_option_id INTEGER,
-  seat_number INTEGER,
+  auction_id INTEGER NOT NULL,
+  points_remaining INTEGER NOT NULL,
+  bid_option_id INTEGER NOT NULL,
+  seat_number INTEGER NOT NULL,
   UNIQUE(auction_id, bid_option_id),
   UNIQUE(auction_id, seat_number),
   FOREIGN KEY (auction_id) REFERENCES auctions(id),
@@ -28,17 +28,17 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS bids (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER,
-  round INTEGER,
-  bid_values ARRAY of INTEGER,
+  user_id INTEGER NOT NULL,
+  round INTEGER NOT NULL,
+  bid_values ARRAY of INTEGER NOT NULL,
   UNIQUE(user_id, round),
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE IF NOT EXISTS bid_options (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  bid_options_array ARRAY of INTEGER,
-  size INTEGER
+  bid_options_array ARRAY of INTEGER NOT NULL,
+  size INTEGER NOT NULL
 );
 
 INSERT INTO
