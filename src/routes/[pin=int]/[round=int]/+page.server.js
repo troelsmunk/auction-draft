@@ -1,5 +1,5 @@
 import { COOKIE_NAME } from "$lib/constants"
-import { broadcastUpdate } from "$lib/eventManager"
+import { broadcastUpdate } from "$lib/sseManager"
 import { error, fail } from "@sveltejs/kit"
 
 /** @type {import('@sveltejs/kit').Actions} */

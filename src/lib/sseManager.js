@@ -1,6 +1,6 @@
 /**
- * Shared event manager for broadcasting updates to multiple SSE connections
- * Stores active controllers and sends data to all connected clients
+ * Shared event manager for broadcasting updates to multiple SSE (Server Sent Event) connections
+ * Manages active controllers and sends data to all connected clients
  */
 
 /** @type {Set<ReadableStreamController<any>>} */

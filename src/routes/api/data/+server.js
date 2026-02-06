@@ -1,4 +1,4 @@
-import { registerConnection } from "$lib/eventManager.js"
+import { registerConnection } from "$lib/sseManager.js"
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export const GET = ({ request, platform }) => {
