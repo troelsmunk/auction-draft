@@ -7,7 +7,7 @@ export const GET = ({ params, request, platform }) => {
   /** @type {NodeJS.Timeout} */
   let keepAlive
   /** @type{number} */
-  const auctionNumber = parseInt(params.pin)
+  const auctionNumber = parseInt(params.auction_number)
 
   // Keep the worker alive until the connection is closed
   const { promise, resolve } = Promise.withResolvers()

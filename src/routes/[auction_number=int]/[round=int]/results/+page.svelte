@@ -7,7 +7,7 @@
 
   function nextRoundBiddingAddress() {
     const nextRound = parseInt($page.params.round) + 1
-    return `/${$page.params.pin}/${nextRound}`
+    return `/${$page.params.auction_number}/${nextRound}`
   }
 </script>
 

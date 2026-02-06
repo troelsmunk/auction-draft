@@ -24,14 +24,14 @@
   <p class="error">{form.join.error}</p>
 {/if}
 <form id="join-form" method="POST" action="?/join">
-  <label for="pin">Insert PIN:</label>
+  <label for="auction_number">Insert the auction number:</label>
   <input
-    name="pin"
+    name="auction_number"
     type="text"
     inputmode="numeric"
     placeholder="e.g.1234"
     required
-    value={form?.join?.pin ?? ""}
+    value={form?.join?.auction_number ?? ""}
   />
   <button type="submit">Join Auction</button>
 </form>

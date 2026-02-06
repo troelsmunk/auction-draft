@@ -33,7 +33,7 @@ export const actions = {
   join: async (event) => {
     const auctionNumber = await event.request
       .formData()
-      .then((data) => data.get("pin"))
+      .then((data) => data.get("auction_number"))
       .then((value) => value?.toString())
       .then((str) => parseInt(str || "0"))
     return enrollUserInAuction(event, auctionNumber)

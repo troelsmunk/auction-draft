@@ -1,12 +1,12 @@
 <script>
-  import { pin, round, bidByButtons } from "$lib/stores"
+  import { auctionNumber, round, bidByButtons } from "$lib/stores"
 </script>
 
-{#if $pin}
+{#if $auctionNumber}
   <div class="header-container">
     <div class="breadcrumb">
       <a href="/"> Home </a>
-      - Auction {$pin}
+      - Auction {$auctionNumber}
       {#if $round}
         - Round {$round}
       {/if}

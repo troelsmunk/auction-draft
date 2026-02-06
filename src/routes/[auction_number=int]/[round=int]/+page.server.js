@@ -13,7 +13,6 @@ export const actions = {
     /** @type {Array<number|null>} bids */
     const bids = JSON.parse(formData?.get("bids")?.toString() || "[]")
     const round = parseInt(event.params.round)
-    const pin = event.params.pin
     if (!round) {
       // TODO already checked by sveltekit route param
       throw error(500, "The round is not a number")
@@ -55,7 +54,7 @@ export const actions = {
       uid: uid,
       bids: sumOfBids,
     }
-    broadcastUpdate(update, parseInt(event.params.pin))
+    broadcastUpdate(update, parseInt(event.params.auction_number))
     // TODO write bids to db
     return { success: true } // TODO success from result of db write
   },

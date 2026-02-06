@@ -19,15 +19,17 @@
   const round = parseInt($page.params.round)
 
   function previousRoundResultsAddress() {
-    return `/${$page.params.pin}/${round - 1}/results`
+    return `/${$page.params.auction_number}/${round - 1}/results`
   }
   function currentRoundResultsAddress() {
-    return `/${$page.params.pin}/${$currentRound - 1}/results`
+    return `/${$page.params.auction_number}/${$currentRound - 1}/results`
   }
   const messages = writable([])
 
   if (browser) {
-    let eventSource = new EventSource("/api/data/" + $page.params.pin)
+    let eventSource = new EventSource(
+      "/api/data/" + $page.params.auction_number,
+    )
 
     eventSource.onmessage = function (event) {
       try {
