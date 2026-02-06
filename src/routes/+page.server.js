@@ -3,7 +3,6 @@ import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
-  // TODO check validity of values
   create: async (event) => {
     const auctionSize = await event.request
       .formData()
@@ -39,7 +38,29 @@ export const actions = {
       console.error("Error inserting auction:", auctionInsert.error)
       return error(500, "Failed to create auction")
     }
-    // TODO create bidders in db
+    /** @type {{"id": string} | null} } */
+    const auctionSelect = await db
+      .prepare("SELECT id FROM auctions WHERE auction_number = ?")
+      .bind(auctionNumber)
+      .first()
+    const auctionId = auctionSelect?.id
+    const optionsSelect = await db
+      .prepare("SELECT id FROM bid_options WHERE size = ?")
+      .bind(auctionSize)
+      .run()
+    const promises = new Array()
+    optionsSelect.results.forEach((optionsRow, seatIndex) => {
+      promises.push(
+        db
+          .prepare(
+            "INSERT INTO users (auction_id, points_remaining, bid_option_id, seat_number)" +
+              "VALUES (?1, ?2, ?3, ?4)",
+          )
+          .bind(auctionId, 1000, optionsRow.id, seatIndex)
+          .run(),
+      )
+    })
+    await Promise.all(promises)
     return enrollUserInAuction(event, auctionNumber)
   },
   join: async (event) => {
@@ -68,7 +89,7 @@ function generateAuctionNumber(previousAuctionNumber) {
 
 /**
  * @param {import('@sveltejs/kit').RequestEvent} event
- * @param {Number} auctionNumber
+ * @param {number} auctionNumber
  * @returns
  */
 async function enrollUserInAuction(event, auctionNumber) {
