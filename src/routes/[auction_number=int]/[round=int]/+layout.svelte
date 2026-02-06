@@ -4,17 +4,13 @@
   export let data
 </script>
 
-{#if data?.error}
-  <p class="error">{data.error}</p>
-{:else}
-  <div class="scoreboard">
-    {#each data.colors as color, i}
-      <!-- <ScoreItem {color} you={i == data.seat} score={data.scores[i]} /> -->
-    {/each}
-  </div>
+<div class="scoreboard">
+  {#each data.colors as color, i}
+    <ScoreItem {color} you={i == data.seat} score={data.seat} />
+  {/each}
+</div>
 
-  <slot />
-{/if}
+<slot />
 
 <style>
   .scoreboard {

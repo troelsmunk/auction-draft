@@ -1,7 +1,7 @@
 <script>
   export let color = "green"
   export let you = false
-  export let score = false
+  export let score
 </script>
 
 <div class="scoreboard-item" class:you style:background-color={color}>

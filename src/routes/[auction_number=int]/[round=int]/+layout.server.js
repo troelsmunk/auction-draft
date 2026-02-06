@@ -1,16 +1,7 @@
-import { error } from "@sveltejs/kit"
-
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load({ params }) {
-  // const scoreboard = await admin
-  //   .database()
-  //   .ref(`auctions/${params?.pin}/scoreboard`)
-  //   .get()
-  //   .then((snap) => snap.val())
-  // if (!scoreboard) {
-  // throw error(500, "The auction has no scoreboard")
-  // }
+  // TODO get auction data from database to display
   // return {
-  //   scores: scoreboard,
+  //   scores: remaining points
   // }
 }
