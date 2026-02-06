@@ -43,7 +43,7 @@ export const actions = {
       .prepare("SELECT id FROM auctions WHERE auction_number = ?")
       .bind(auctionNumber)
       .first()
-    const auctionId = auctionSelect?.id
+    const auctionId = parseInt(auctionSelect?.id || "")
     const optionsSelect = await db
       .prepare("SELECT id FROM bid_options WHERE size = ?")
       .bind(auctionSize)
@@ -63,7 +63,8 @@ export const actions = {
       promises.push(promise)
     })
     await Promise.all(promises)
-    return enrollUserInAuction(event, auctionNumber)
+    enrollUserInAuction(event, auctionId)
+    throw redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
     const auctionNumber = await event.request
@@ -71,7 +72,22 @@ export const actions = {
       .then((data) => data.get("auction_number"))
       .then((value) => value?.toString())
       .then((str) => parseInt(str || "0"))
-    return enrollUserInAuction(event, auctionNumber)
+    const db = event.platform?.env?.db
+    if (!db) {
+      return Response.json(
+        { ok: false, error: "Database not available" },
+        { status: 500 },
+      )
+    }
+    /** @type {{"id": string} | null} } */
+    const auctionSelect = await db
+      .prepare("SELECT id FROM auctions WHERE auction_number = ?")
+      .bind(auctionNumber)
+      .first()
+    const auctionId = parseInt(auctionSelect?.id || "")
+
+    enrollUserInAuction(event, auctionId)
+    throw redirect(303, `/${auctionNumber}/1`)
   },
 }
 
@@ -91,10 +107,10 @@ function generateAuctionNumber(previousAuctionNumber) {
 
 /**
  * @param {import('@sveltejs/kit').RequestEvent} event
- * @param {number} auctionNumber
+ * @param {number} auctionId
  * @returns
  */
-async function enrollUserInAuction(event, auctionNumber) {
+async function enrollUserInAuction(event, auctionId) {
   const db = event.platform?.env?.db
   if (!db) {
     return Response.json(
@@ -107,7 +123,15 @@ async function enrollUserInAuction(event, auctionNumber) {
     path: "/",
     maxAge: 60 * 60 * 24, // 1 day
   })
-
-  // TODO enroll user in auction in db
-  throw redirect(303, `/${auctionNumber}/1`)
+  const someUserSelect = await db
+    .prepare("SELECT id FROM users WHERE auction_id = ? AND uid IS NULL")
+    .bind(auctionId)
+    .first()
+    .catch((some) => console.log("caught something:", some))
+  const userId = someUserSelect?.id
+  console.log("someUserSelect", someUserSelect)
+  const userUpdate = await db
+    .prepare("UPDATE users SET uid = ? WHERE id = ?")
+    .bind(uid, userId)
+    .run()
 }
