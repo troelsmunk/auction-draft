@@ -27,7 +27,7 @@
   const messages = writable([])
 
   if (browser) {
-    let eventSource = new EventSource("/api/data")
+    let eventSource = new EventSource("/api/data/" + $page.params.pin)
 
     eventSource.onmessage = function (event) {
       try {
