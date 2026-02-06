@@ -48,17 +48,19 @@ export const actions = {
       .prepare("SELECT id FROM bid_options WHERE size = ?")
       .bind(auctionSize)
       .run()
+    if (optionsSelect.results.length != auctionSize) {
+      return error(500, "options not found in db")
+    }
     const promises = new Array()
     optionsSelect.results.forEach((optionsRow, seatIndex) => {
-      promises.push(
-        db
-          .prepare(
-            "INSERT INTO users (auction_id, points_remaining, bid_option_id, seat_number)" +
-              "VALUES (?1, ?2, ?3, ?4)",
-          )
-          .bind(auctionId, 1000, optionsRow.id, seatIndex)
-          .run(),
-      )
+      const promise = db
+        .prepare(
+          "INSERT INTO users (auction_id, points_remaining, bid_option_id, seat_number)" +
+            "VALUES (?1, ?2, ?3, ?4)",
+        )
+        .bind(auctionId, 1000, optionsRow.id, seatIndex)
+        .run()
+      promises.push(promise)
     })
     await Promise.all(promises)
     return enrollUserInAuction(event, auctionNumber)
@@ -105,6 +107,7 @@ async function enrollUserInAuction(event, auctionNumber) {
     path: "/",
     maxAge: 60 * 60 * 24, // 1 day
   })
+
   // TODO enroll user in auction in db
   throw redirect(303, `/${auctionNumber}/1`)
 }
