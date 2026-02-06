@@ -8,17 +8,18 @@ const activeConnections = new Set()
 
 /**
  * Register a new SSE connection
- * @param {ReadableStreamController<any>} controller
+ * @param {ReadableStreamController<any>} controller Controller for the new connection
+ * @return {() => void} Function to unregister connection after use
  */
 export const registerConnection = (controller) => {
   activeConnections.add(controller)
   console.log(
-    `New connection registered. Total connections: ${activeConnections.size}`,
+    `SSE connection manager: Connection registered. Total connections: ${activeConnections.size}`,
   )
   return () => {
     activeConnections.delete(controller)
     console.log(
-      `Connection unregistered. Total connections: ${activeConnections.size}`,
+      `SSE connection manager: Connection unregistered. Total connections: ${activeConnections.size}`,
     )
   }
 }
@@ -26,14 +27,10 @@ export const registerConnection = (controller) => {
 /**
  * Broadcast data to all connected clients
  * @param {any} data - The data to send // TODO specify type
- * @param {string} eventType - The event type (default: 'update') // TODO remove
  */
-export const broadcastUpdate = (data, eventType = "update") => {
-  const eventMessage = `event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`
+export const broadcastUpdate = (data) => {
+  const eventMessage = `event: message\ndata: ${JSON.stringify(data)}\n\n`
   const encoded = new TextEncoder().encode(eventMessage)
-
-  /** @type {Array<ReadableStreamController<any>>} */
-  let failedConnections = []
 
   activeConnections.forEach((controller) => {
     try {
@@ -41,15 +38,9 @@ export const broadcastUpdate = (data, eventType = "update") => {
       console.log(`Broadcast to client. Message: ${eventMessage.trim()}`)
     } catch (error) {
       console.error("Error sending to client:", error)
-      failedConnections.push(controller) // TODO move activeConnections.delete(controller) here
+      activeConnections.delete(controller)
     }
   })
 
-  // Remove failed connections
-  failedConnections.forEach((controller) => {
-    activeConnections.delete(controller)
-  })
-
   console.log(`Broadcast sent to ${activeConnections.size} connections`)
-  return activeConnections.size // TODO remove
 }
