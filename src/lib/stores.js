@@ -11,4 +11,4 @@ export const auctionNumber = derived(
 /** @type {import("svelte/store").Readable<number>} */
 export const round = derived(page, ($page) => $page.params.round)
 /** @type {import("svelte/store").Writable<boolean>} */
-export const bidByButtons = writable(false)
+export const bidByButtons = writable(true)
