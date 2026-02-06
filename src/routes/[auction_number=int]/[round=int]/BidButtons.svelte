@@ -1,19 +1,24 @@
 <script>
-  export let bidValue = false
-  export let i
+  /** @type { number }*/
+  export let bidValue
+  /** @type { number }*/
+  export let index
 
-  function plusFive(iValue) {
-    if (iValue == i) {
+  /** @type { (indexValue: number) => void  }*/
+  function plusFive(indexValue) {
+    if (indexValue == index) {
       bidValue += 5
     }
   }
-  function plusOne(iValue) {
-    if (iValue == i) {
+  /** @type { (indexValue: number) => void  }*/
+  function plusOne(indexValue) {
+    if (indexValue == index) {
       bidValue++
     }
   }
-  function minusOne(iValue) {
-    if (iValue == i && bidValue > 0) {
+  /** @type { (indexValue: number) => void  }*/
+  function minusOne(indexValue) {
+    if (indexValue == index && bidValue > 0) {
       bidValue--
     }
   }
@@ -25,28 +30,28 @@
       {bidValue}
     {/if}
   </span>
-  <label for="plus-five-{i}" class="plus-five">+5</label>
-  <label for="plus-one-{i}" class="plus-one">+</label>
-  <label for="minus-one-{i}" class="minus-one">-</label>
+  <label for="plus-five-{index}" class="plus-five">+5</label>
+  <label for="plus-one-{index}" class="plus-one">+</label>
+  <label for="minus-one-{index}" class="minus-one">-</label>
   <button
-    id="plus-five-{i}"
+    id="plus-five-{index}"
     class="plus-five"
-    aria-labelledby="plus-five-item-{i}"
-    on:click|preventDefault={plusFive(i)}
+    aria-labelledby="plus-five-item-{index}"
+    on:click|preventDefault={plusFive(index)}
   >
   </button>
   <button
-    id="plus-one-{i}"
+    id="plus-one-{index}"
     class="plus-one"
-    aria-labelledby="plus-one-item-{i}"
-    on:click|preventDefault={plusOne(i)}
+    aria-labelledby="plus-one-item-{index}"
+    on:click|preventDefault={plusOne(index)}
   >
   </button>
   <button
-    id="minus-one-{i}"
+    id="minus-one-{index}"
     class="minus-one"
-    aria-labelledby="minus-one-item-{i}"
-    on:click|preventDefault={minusOne(i)}
+    aria-labelledby="minus-one-item-{index}"
+    on:click|preventDefault={minusOne(index)}
   >
   </button>
 </div>

@@ -1,15 +1,17 @@
 <script>
-  export let bidValue = false
-  export let i = false
+  /** @type { number }*/
+  export let bidValue
+  /** @type { number }*/
+  export let index
 </script>
 
 <div class="input-container">
   <div>
-    <label for="bid-{i + 1}">{i + 1}</label>
+    <label for="bid-{index + 1}">{index + 1}</label>
   </div>
   <div>
     <input
-      id="bid-{i + 1}"
+      id="bid-{index + 1}"
       type="number"
       bind:value={bidValue}
       min="0"

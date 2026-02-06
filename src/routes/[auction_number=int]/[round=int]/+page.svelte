@@ -8,10 +8,10 @@
   import { writable } from "svelte/store"
 
   export let form
-  export let data
 
+  /** @type{Array<number>}*/
   let bids = Array(15)
-  bids.fill(null)
+  bids.fill(0)
   $: sumOfBids = bids.reduce((sum, value) => sum + value)
   const bankSum = 100 // data.scores[data.seat]
   $: spendingRatio = sumOfBids / bankSum
@@ -86,11 +86,11 @@
 >
   <input hidden="true" value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each bids as bidValue, i}
+    {#each bids as bidValue, index}
       {#if $bidByButtons}
-        <BidButtons bind:bidValue {i} />
+        <BidButtons bind:bidValue {index} />
       {:else}
-        <KeyboardBidItem bind:bidValue {i} />
+        <KeyboardBidItem bind:bidValue {index} />
       {/if}
     {/each}
   </div>
