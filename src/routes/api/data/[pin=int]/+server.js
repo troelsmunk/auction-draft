@@ -1,11 +1,13 @@
 import { registerConnection } from "$lib/sseManager.js"
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
-export const GET = ({ request, platform }) => {
+export const GET = ({ params, request, platform }) => {
   /** @type {() => void} */
   let unregisterConnection
   /** @type {NodeJS.Timeout} */
   let keepAlive
+  /** @type{number} */
+  const auctionNumber = parseInt(params.pin)
 
   // Keep the worker alive until the connection is closed
   const { promise, resolve } = Promise.withResolvers()
@@ -25,7 +27,7 @@ export const GET = ({ request, platform }) => {
   const stream = new ReadableStream({
     start(controller) {
       console.log("SSE: Client connected")
-      unregisterConnection = registerConnection(controller)
+      unregisterConnection = registerConnection(controller, auctionNumber)
       const encodedPing = new TextEncoder().encode(": ping\n")
       keepAlive = setInterval(() => {
         try {

@@ -55,7 +55,7 @@ export const actions = {
       uid: uid,
       bids: sumOfBids,
     }
-    broadcastUpdate(update)
+    broadcastUpdate(update, parseInt(event.params.pin))
     // TODO write bids to db
     return { success: true } // TODO success from result of db write
   },
