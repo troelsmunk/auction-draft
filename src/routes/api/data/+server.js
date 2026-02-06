@@ -3,58 +3,44 @@ import { registerConnection } from "$lib/eventManager.js"
 /** @type {import('@sveltejs/kit').RequestHandler} */
 export const GET = ({ request, platform }) => {
   /** @type {() => void} */
-  let unregister
+  let unregisterConnection
   /** @type {NodeJS.Timeout} */
   let keepAlive
+
+  // Keep the worker alive until the connection is closed
   const { promise, resolve } = Promise.withResolvers()
   platform?.ctx?.waitUntil(promise)
 
-  request.signal.addEventListener("abort", () => {
-    console.log("Request aborted!")
-    unregister?.()
+  /** @type {(reason: string) => void} */
+  function disconnectClient(reason) {
+    console.log("SSE: Disconnecting client: ", reason)
+    unregisterConnection?.()
     clearInterval(keepAlive)
-    resolve("")
+    resolve(reason)
+  }
+  request.signal.addEventListener("abort", () => {
+    disconnectClient("Request aborted")
   })
 
   const stream = new ReadableStream({
     start(controller) {
       console.log("SSE: Client connected")
-      unregister = registerConnection(controller)
+      unregisterConnection = registerConnection(controller)
       const encodedPing = new TextEncoder().encode(": ping\n")
       keepAlive = setInterval(() => {
         try {
           controller.enqueue(encodedPing)
         } catch (e) {
-          console.error("SSE: Error enqueuing data:", e)
-          clearInterval(keepAlive)
-          unregister()
+          disconnectClient("Error enqueuing data: " + e)
           // Attempt to close if not already closed by 'cancel'
           try {
-            console.log("SSE: attempting manual close")
             controller.close()
-          } catch {
-            console.error("SSE: Error closing stream:", e)
-          }
+          } catch (ignore) {}
         }
       }, 15000)
-      controller.error = () => {
-        clearInterval(keepAlive)
-        unregister()
-      }
-      controller.close = () => {
-        clearInterval(keepAlive)
-        unregister()
-      }
     },
     cancel(reason) {
-      // This is never called
-      console.log(
-        "SSE: Client disconnected (stream cancelled). Reason:",
-        reason,
-      )
-      clearInterval(keepAlive)
-      unregister?.()
-      resolve("")
+      disconnectClient("Stream cancelled: " + reason)
     },
   })
   return new Response(stream, {
