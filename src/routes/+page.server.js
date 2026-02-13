@@ -108,8 +108,12 @@ export const actions = {
       .bind(auctionNumber)
       .first("id")
     if (auctionId === null) {
-      console.error("Error: Could not read auctionId from database.")
-      return error(500, "Database error")
+      return fail(400, {
+        join: {
+          auction_number: auctionNumber,
+          error: "No auction with that number exists.",
+        },
+      })
     }
     await enrollUserInAuction(event.cookies, db, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
