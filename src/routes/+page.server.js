@@ -63,7 +63,7 @@ export const actions = {
       promises.push(promise)
     })
     await Promise.all(promises)
-    await enrollUserInAuction(event, auctionId)
+    await enrollUserInAuction(event.cookies, db, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
@@ -85,8 +85,7 @@ export const actions = {
       .bind(auctionNumber)
       .first()
     const auctionId = parseInt(auctionSelect?.id || "")
-
-    await enrollUserInAuction(event, auctionId)
+    await enrollUserInAuction(event.cookies, db, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
 }
@@ -106,20 +105,14 @@ function generateAuctionNumber(previousAuctionNumber) {
 }
 
 /**
- * @param {import('@sveltejs/kit').RequestEvent} event
+ * @param {import('@sveltejs/kit').Cookies} cookies
+ * @param {import('@cloudflare/workers-types').D1Database} db
  * @param {number} auctionId
  * @async
  */
-async function enrollUserInAuction(event, auctionId) {
-  const db = event.platform?.env?.db
-  if (!db) {
-    return Response.json(
-      { ok: false, error: "Database not available" },
-      { status: 500 },
-    )
-  }
+async function enrollUserInAuction(cookies, db, auctionId) {
   const uid = crypto.randomUUID()
-  event.cookies.set(COOKIE_NAME, uid, {
+  cookies.set(COOKIE_NAME, uid, {
     path: "/",
     maxAge: 60 * 60 * 24, // 1 day
   })
