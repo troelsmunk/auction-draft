@@ -1,16 +1,23 @@
 <script>
   import ScoreItem from "./ScoreItem.svelte"
-  /** @type {import('./$types').LayoutData} */
-  export let data
+  import { page } from "$app/state"
+
+  /**
+   * @typedef {Object} Props
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let { children } = $props()
 </script>
 
 <div class="scoreboard">
-  {#each data.colors as color, i}
-    <ScoreItem {color} you={i == data.seat} score={data.seat} />
+  {#each page.data.colors as color, i}
+    <ScoreItem {color} you={i == page.data.seat} score={/*dummy*/ i} />
   {/each}
 </div>
 
-<slot />
+{@render children?.()}
 
 <style>
   .scoreboard {

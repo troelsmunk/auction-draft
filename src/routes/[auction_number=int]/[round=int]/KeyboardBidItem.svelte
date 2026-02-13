@@ -1,8 +1,12 @@
 <script>
-  /** @type { number }*/
-  export let bidValue
-  /** @type { number }*/
-  export let index
+  /**
+   * @typedef {Object} Props
+   * @property { number } bidValue
+   * @property { number } index
+   */
+
+  /** @type {Props} */
+  let { bidValue = $bindable(), index } = $props()
 </script>
 
 <div class="input-container">

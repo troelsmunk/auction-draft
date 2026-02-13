@@ -1,8 +1,14 @@
 <script>
-  /** @type { number }*/
-  export let bidValue
-  /** @type { number }*/
-  export let index
+  import { preventDefault } from "svelte/legacy"
+
+  /**
+   * @typedef {Object} Props
+   * @property { number } bidValue
+   * @property { number } index
+   */
+
+  /** @type {Props} */
+  let { bidValue = $bindable(), index } = $props()
 
   /** @type { (indexValue: number) => void  }*/
   function plusFive(indexValue) {
@@ -37,21 +43,21 @@
     id="plus-five-{index}"
     class="plus-five"
     aria-labelledby="plus-five-item-{index}"
-    on:click|preventDefault={() => plusFive(index)}
+    onclick={preventDefault(() => plusFive(index))}
   >
   </button>
   <button
     id="plus-one-{index}"
     class="plus-one"
     aria-labelledby="plus-one-item-{index}"
-    on:click|preventDefault={() => plusOne(index)}
+    onclick={preventDefault(() => plusOne(index))}
   >
   </button>
   <button
     id="minus-one-{index}"
     class="minus-one"
     aria-labelledby="minus-one-item-{index}"
-    on:click|preventDefault={() => minusOne(index)}
+    onclick={preventDefault(() => minusOne(index))}
   >
   </button>
 </div>

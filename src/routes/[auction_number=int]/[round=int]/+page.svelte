@@ -7,14 +7,20 @@
   import { browser } from "$app/environment"
   import { writable } from "svelte/store"
 
-  export let form
+  /**
+   * @typedef {Object} Props
+   * @property {import('./$types').ActionData} form
+   */
+
+  /** @type {Props} */
+  let { form } = $props()
 
   /** @type{Array<number>}*/
-  let bids = Array(15)
+  let bids = $state(Array(15))
   bids.fill(0)
-  $: sumOfBids = bids.reduce((sum, value) => sum + value)
+  let sumOfBids = $derived(bids.reduce((sum, value) => sum + value))
   const bankSum = 100 // data.scores[data.seat]
-  $: spendingRatio = sumOfBids / bankSum
+  let spendingRatio = $derived(sumOfBids / bankSum)
 
   const round = parseInt(page.params.round)
 
@@ -84,11 +90,11 @@
 >
   <input hidden={true} value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each bids as bidValue, index}
+    {#each bids as unusedValue, index}
       {#if $bidByButtons}
-        <BidButtons bind:bidValue {index} />
+        <BidButtons bind:bidValue={bids[index]} {index} />
       {:else}
-        <KeyboardBidItem bind:bidValue {index} />
+        <KeyboardBidItem bind:bidValue={bids[index]} {index} />
       {/if}
     {/each}
   </div>

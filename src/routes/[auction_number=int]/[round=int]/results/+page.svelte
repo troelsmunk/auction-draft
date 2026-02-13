@@ -1,9 +1,7 @@
 <script>
   import { page } from "$app/state"
-  /** @type {import('./$types').PageData} */
-  export let data
 
-  let results = JSON.parse(data.results)
+  let results = JSON.parse(page.data.results)
 
   function nextRoundBiddingAddress() {
     const nextRound = parseInt(page.params.round) + 1
@@ -18,7 +16,7 @@
 <h3>Results</h3>
 <div class="grid-container">
   {#each Object.values(results) as card}
-    <div class="result" style:background-color={data.colors[card.seat]}>
+    <div class="result" style:background-color={page.data.colors[card.seat]}>
       {card.bid}
     </div>
   {/each}
