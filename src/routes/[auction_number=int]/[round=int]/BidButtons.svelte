@@ -37,21 +37,21 @@
     id="plus-five-{index}"
     class="plus-five"
     aria-labelledby="plus-five-item-{index}"
-    on:click|preventDefault={plusFive(index)}
+    on:click|preventDefault={() => plusFive(index)}
   >
   </button>
   <button
     id="plus-one-{index}"
     class="plus-one"
     aria-labelledby="plus-one-item-{index}"
-    on:click|preventDefault={plusOne(index)}
+    on:click|preventDefault={() => plusOne(index)}
   >
   </button>
   <button
     id="minus-one-{index}"
     class="minus-one"
     aria-labelledby="minus-one-item-{index}"
-    on:click|preventDefault={minusOne(index)}
+    on:click|preventDefault={() => minusOne(index)}
   >
   </button>
 </div>
