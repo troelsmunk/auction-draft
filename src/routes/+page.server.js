@@ -63,7 +63,7 @@ export const actions = {
       promises.push(promise)
     })
     await Promise.all(promises)
-    enrollUserInAuction(event, auctionId)
+    await enrollUserInAuction(event, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
@@ -86,7 +86,7 @@ export const actions = {
       .first()
     const auctionId = parseInt(auctionSelect?.id || "")
 
-    enrollUserInAuction(event, auctionId)
+    await enrollUserInAuction(event, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
 }
@@ -108,7 +108,7 @@ function generateAuctionNumber(previousAuctionNumber) {
 /**
  * @param {import('@sveltejs/kit').RequestEvent} event
  * @param {number} auctionId
- * @returns
+ * @async
  */
 async function enrollUserInAuction(event, auctionId) {
   const db = event.platform?.env?.db
@@ -127,10 +127,8 @@ async function enrollUserInAuction(event, auctionId) {
     .prepare("SELECT id FROM users WHERE auction_id = ? AND uid IS NULL")
     .bind(auctionId)
     .first()
-    .catch((some) => console.log("caught something:", some))
   const userId = someUserSelect?.id
-  console.log("someUserSelect", someUserSelect)
-  const userUpdate = await db
+  await db
     .prepare("UPDATE users SET uid = ? WHERE id = ?")
     .bind(uid, userId)
     .run()
