@@ -1,7 +1,7 @@
 <script>
   import { bidByButtons, currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
-  import { page } from "$app/stores"
+  import { page } from "$app/state"
   import KeyboardBidItem from "./KeyboardBidItem.svelte"
   import BidButtons from "./BidButtons.svelte"
   import { browser } from "$app/environment"
@@ -16,20 +16,18 @@
   const bankSum = 100 // data.scores[data.seat]
   $: spendingRatio = sumOfBids / bankSum
 
-  const round = parseInt($page.params.round)
+  const round = parseInt(page.params.round)
 
   function previousRoundResultsAddress() {
-    return `/${$page.params.auction_number}/${round - 1}/results`
+    return `/${page.params.auction_number}/${round - 1}/results`
   }
   function currentRoundResultsAddress() {
-    return `/${$page.params.auction_number}/${$currentRound - 1}/results`
+    return `/${page.params.auction_number}/${$currentRound - 1}/results`
   }
   const messages = writable([])
 
   if (browser) {
-    let eventSource = new EventSource(
-      "/api/data/" + $page.params.auction_number,
-    )
+    let eventSource = new EventSource("/api/data/" + page.params.auction_number)
 
     eventSource.onmessage = function (event) {
       try {

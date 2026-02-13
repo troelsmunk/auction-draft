@@ -1,13 +1,13 @@
 <script>
-  import { page } from "$app/stores"
+  import { page } from "$app/state"
   /** @type {import('./$types').PageData} */
   export let data
 
   let results = JSON.parse(data.results)
 
   function nextRoundBiddingAddress() {
-    const nextRound = parseInt($page.params.round) + 1
-    return `/${$page.params.auction_number}/${nextRound}`
+    const nextRound = parseInt(page.params.round) + 1
+    return `/${page.params.auction_number}/${nextRound}`
   }
 </script>
 

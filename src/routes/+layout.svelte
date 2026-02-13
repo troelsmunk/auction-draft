@@ -1,14 +1,17 @@
 <script>
-  import { auctionNumber, round, bidByButtons } from "$lib/stores"
+  import { bidByButtons } from "$lib/stores"
+  import { page } from "$app/state"
+  let auctionNumber = $derived(parseInt(page.params.auction_number))
+  let round = $derived(parseInt(page.params.round))
 </script>
 
-{#if $auctionNumber}
+{#if auctionNumber}
   <div class="header-container">
     <div class="breadcrumb">
       <a href="/"> Home </a>
-      - Auction {$auctionNumber}
-      {#if $round}
-        - Round {$round}
+      - Auction {auctionNumber}
+      {#if round}
+        - Round {round}
       {/if}
     </div>
     <div class="feature-toggle">
