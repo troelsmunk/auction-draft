@@ -19,50 +19,75 @@ export const actions = {
     }
     const db = event.platform?.env?.db
     if (!db) {
-      return Response.json(
-        { ok: false, error: "Database not available" },
-        { status: 500 },
-      )
+      console.error("Error: Could not connect to database.")
+      return error(500, "Database error")
     }
-    /** @type {{"auction_number": number} | null} } */
-    const previousAuctionSelect = await db
-      .prepare("SELECT auction_number FROM auctions ORDER BY id DESC")
-      .first()
-    let previousAuctionNumber = previousAuctionSelect?.auction_number || 2000
+    /** @type { number | null}>} */
+    let previousAuctionNumber = await db
+      .prepare("SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1")
+      .first("auction_number")
+    if (previousAuctionNumber === null) {
+      console.debug(
+        "No previous auctions found. Creating first auction using default value.",
+        "Should only happen once.",
+      )
+      previousAuctionNumber = previousAuctionNumber || 2000
+    }
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
     const auctionInsert = await db
       .prepare("INSERT INTO auctions (auction_number) VALUES (?)")
       .bind(auctionNumber)
       .run()
     if (auctionInsert.error) {
-      console.error("Error inserting auction:", auctionInsert.error)
-      return error(500, "Failed to create auction")
+      console.error(
+        "Error: Could not insert auction into database: ",
+        auctionInsert.error,
+      )
+      return error(500, "Database error")
     }
-    /** @type {{"id": string} | null} } */
-    const auctionSelect = await db
-      .prepare("SELECT id FROM auctions WHERE auction_number = ?")
+    /** @type { string | null} } */
+    const auctionId = await db
+      .prepare("SELECT id FROM auctions WHERE auction_number = ? LIMIT 1")
       .bind(auctionNumber)
-      .first()
-    const auctionId = parseInt(auctionSelect?.id || "")
+      .first("id")
+    if (auctionId === null) {
+      console.error("Error: Could not read auctionId from database.")
+      return error(500, "Database error")
+    }
     const optionsSelect = await db
       .prepare("SELECT id FROM bid_options WHERE size = ?")
       .bind(auctionSize)
       .run()
-    if (optionsSelect.results.length != auctionSize) {
-      return error(500, "options not found in db")
+    if (optionsSelect.error || optionsSelect.results.length != auctionSize) {
+      console.error(
+        "Error: Could not read options from database: ",
+        optionsSelect.error,
+      )
+      return error(500, "Database error")
     }
+    /** @type {Array<Promise<D1Result<Record<string, unknown>>>>} */
     const promises = new Array()
     optionsSelect.results.forEach((optionsRow, seatIndex) => {
       const promise = db
         .prepare(
           "INSERT INTO users (auction_id, points_remaining, bid_option_id, seat_number)" +
-            "VALUES (?1, ?2, ?3, ?4)",
+            "VALUES (?, ?, ?, ?)",
         )
         .bind(auctionId, 1000, optionsRow.id, seatIndex)
         .run()
       promises.push(promise)
     })
-    await Promise.all(promises)
+    const responses = await Promise.all(promises)
+    const errors = responses.filter((response) => {
+      return response.error
+    })
+    if (errors.length > 0) {
+      console.error(
+        "Error: Could not setup user shells in database: ",
+        errors.flatMap((value) => value.error).join(),
+      )
+      return error(500, "Database error")
+    }
     await enrollUserInAuction(event.cookies, db, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
@@ -74,17 +99,18 @@ export const actions = {
       .then((str) => parseInt(str || "0"))
     const db = event.platform?.env?.db
     if (!db) {
-      return Response.json(
-        { ok: false, error: "Database not available" },
-        { status: 500 },
-      )
+      console.error("Error: Could not connect to database.")
+      return error(500, "Database error")
     }
-    /** @type {{"id": string} | null} } */
-    const auctionSelect = await db
+    /** @type {string | null} } */
+    const auctionId = await db
       .prepare("SELECT id FROM auctions WHERE auction_number = ?")
       .bind(auctionNumber)
-      .first()
-    const auctionId = parseInt(auctionSelect?.id || "")
+      .first("id")
+    if (auctionId === null) {
+      console.error("Error: Could not read auctionId from database.")
+      return error(500, "Database error")
+    }
     await enrollUserInAuction(event.cookies, db, auctionId)
     throw redirect(303, `/${auctionNumber}/1`)
   },
@@ -107,7 +133,7 @@ function generateAuctionNumber(previousAuctionNumber) {
 /**
  * @param {import('@sveltejs/kit').Cookies} cookies
  * @param {import('@cloudflare/workers-types').D1Database} db
- * @param {number} auctionId
+ * @param {string} auctionId
  * @async
  */
 async function enrollUserInAuction(cookies, db, auctionId) {
