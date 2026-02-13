@@ -1,6 +1,4 @@
 <script>
-  import { preventDefault } from "svelte/legacy"
-
   /**
    * @typedef {Object} Props
    * @property { number } bidValue
@@ -10,21 +8,20 @@
   /** @type {Props} */
   let { bidValue = $bindable(), index } = $props()
 
-  /** @type { (indexValue: number) => void  }*/
-  function plusFive(indexValue) {
-    if (indexValue == index) {
-      bidValue += 5
-    }
+  /** @type { (event: Event) => void  }*/
+  function plusFive(event) {
+    event.preventDefault()
+    bidValue += 5
   }
-  /** @type { (indexValue: number) => void  }*/
-  function plusOne(indexValue) {
-    if (indexValue == index) {
-      bidValue++
-    }
+  /** @type { (event: Event) => void  }*/
+  function plusOne(event) {
+    event.preventDefault()
+    bidValue++
   }
-  /** @type { (indexValue: number) => void  }*/
-  function minusOne(indexValue) {
-    if (indexValue == index && bidValue > 0) {
+  /** @type { (event: Event) => void  }*/
+  function minusOne(event) {
+    event.preventDefault()
+    if (bidValue > 0) {
       bidValue--
     }
   }
@@ -43,21 +40,21 @@
     id="plus-five-{index}"
     class="plus-five"
     aria-labelledby="plus-five-item-{index}"
-    onclick={preventDefault(() => plusFive(index))}
+    onclick={(event) => plusFive(event)}
   >
   </button>
   <button
     id="plus-one-{index}"
     class="plus-one"
     aria-labelledby="plus-one-item-{index}"
-    onclick={preventDefault(() => plusOne(index))}
+    onclick={(event) => plusOne(event)}
   >
   </button>
   <button
     id="minus-one-{index}"
     class="minus-one"
     aria-labelledby="minus-one-item-{index}"
-    onclick={preventDefault(() => minusOne(index))}
+    onclick={(event) => minusOne(event)}
   >
   </button>
 </div>
