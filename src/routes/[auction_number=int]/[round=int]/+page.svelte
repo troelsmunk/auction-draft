@@ -84,7 +84,7 @@
     }
   }}
 >
-  <input hidden="true" value={JSON.stringify(bids)} name="bids" />
+  <input hidden={true} value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each bids as bidValue, index}
       {#if $bidByButtons}
