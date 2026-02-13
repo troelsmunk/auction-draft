@@ -2,25 +2,32 @@ import { COOKIE_NAME } from "$lib/constants"
 import { error } from "@sveltejs/kit"
 
 /** @type {import('./$types').LayoutServerLoad} */
-export async function load({ params, cookies }) {
-  const uid = cookies.get(COOKIE_NAME)
+export async function load(event) {
+  const uid = event.cookies.get(COOKIE_NAME)
   if (!uid) {
     throw error(401, "Please log in")
   }
-  // const auctionRef = admin.database().ref(`auctions/${params.pin}`)
-  const seat = 1
-  // await auctionRef
-  //   .child(`seats/${uid}`)
-  //   .get()
-  //   .then((snap) => snap.val())
+  const db = event.platform?.env?.db
+  if (!db) {
+    console.error("Error: Could not connect to database.")
+    return error(500, "Database error")
+  }
+  /** @type { {seat_number: string, auction_id: string} | null} } */
+  const selectUser = await db
+    .prepare("SELECT seat_number, auction_id FROM users WHERE uid = ? LIMIT 1")
+    .bind(uid)
+    .first()
+  const seat = selectUser?.seat_number
   if (typeof seat !== "number") {
     throw error(403, "You are not enrolled in this auction")
   }
-  const size = 4
-  // await auctionRef
-  //   .child("size")
-  //   .get()
-  //   .then((snap) => snap.val())
+  const auctionId = selectUser?.auction_id
+  /** @type {{count: number}| null} */
+  const countUsers = await db
+    .prepare("SELECT count(1) as count FROM users WHERE auction_id = ?")
+    .bind(auctionId)
+    .first()
+  const size = countUsers?.count
   if (!size) {
     throw error(500, "The auction has no size")
   }
