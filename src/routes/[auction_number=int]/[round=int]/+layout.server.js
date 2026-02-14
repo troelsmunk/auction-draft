@@ -12,15 +12,14 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     return error(500, "Database error")
   }
-  /** @type { number | null}  */
-  const auctionId = await db
-    .prepare("SELECT auction_id FROM users WHERE uid = ? LIMIT 1")
-    .bind(uid)
-    .first("auction_id")
   /** @type {D1Result<Record<string, number>>} */
   const pointsSelect = await db
-    .prepare("SELECT points_remaining FROM users WHERE auction_id = ?")
-    .bind(auctionId)
+    .prepare(
+      "SELECT points_remaining FROM users WHERE auction_id = " +
+        "(SELECT auction_id FROM users WHERE uid = ?)" +
+        " ORDER BY seat_number",
+    )
+    .bind(uid)
     .run()
   const points = pointsSelect?.results.map((record) => {
     return record.points_remaining
