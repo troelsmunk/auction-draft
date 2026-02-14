@@ -20,17 +20,7 @@ export async function load(event) {
   if (typeof seat !== "number") {
     throw error(403, "You are not enrolled in an auction")
   }
-  const colors = [
-    "#A0A6A6",
-    "#B98EF6",
-    "#FF931F",
-    "#FF70AE",
-    "#C27C5B",
-    "#FAC30F",
-  ]
-  colors.length = 4
   return {
-    colors: colors,
     seat: seat,
   }
 }

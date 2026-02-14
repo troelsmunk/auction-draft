@@ -1,5 +1,6 @@
 <script>
   import { page } from "$app/state"
+  import { COLOURS } from "$lib/constants"
 
   let results = JSON.parse(page.data.results)
 
@@ -16,7 +17,7 @@
 <h3>Results</h3>
 <div class="grid-container">
   {#each Object.values(results) as card}
-    <div class="result" style:background-color={page.data.colors[card.seat]}>
+    <div class="result" style:background-color={COLOURS[card.seat]}>
       {card.bid}
     </div>
   {/each}

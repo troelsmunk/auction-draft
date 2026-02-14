@@ -1,6 +1,7 @@
 <script>
   import ScoreItem from "./ScoreItem.svelte"
   import { page } from "$app/state"
+  import { COLOURS } from "$lib/constants"
 
   /**
    * @typedef {Object} Props
@@ -9,12 +10,12 @@
 
   /** @type {Props} */
   let { children } = $props()
-  let { colors, points, seat } = page.data
+  let { points, seat } = page.data
 </script>
 
 <div class="scoreboard">
-  {#each colors as color, i}
-    <ScoreItem {color} you={i == seat} score={points?.at(i)} />
+  {#each points as pointsForOneUser, i}
+    <ScoreItem color={COLOURS.at(i)} you={i == seat} score={pointsForOneUser} />
   {/each}
 </div>
 
