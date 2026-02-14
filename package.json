@@ -1,6 +1,44 @@
 {
   "name": "blind-auction-draft",
   "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    "./constants": {
+      "types": "./package/constants.d.ts",
+      "default": "./package/constants.js"
+    },
+    "./sseManager": {
+      "types": "./package/sseManager.d.ts",
+      "default": "./package/sseManager.js"
+    },
+    "./stores": {
+      "types": "./package/stores.d.ts",
+      "default": "./package/stores.js"
+    },
+    "./validation": {
+      "types": "./package/validation.d.ts",
+      "default": "./package/validation.js"
+    }
+  },
+  "typesVersions": {
+    ">4.0": {
+      "constants": [
+        "./package/constants.d.ts"
+      ],
+      "sseManager": [
+        "./package/sseManager.d.ts"
+      ],
+      "stores": [
+        "./package/stores.d.ts"
+      ],
+      "validation": [
+        "./package/validation.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "package"
+  ],
   "scripts": {
     "build": "vite build",
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
@@ -27,43 +65,5 @@
     "typescript": "^5.9.3",
     "vite": "^7.2.6",
     "wrangler": "^4.63.0"
-  },
-  "exports": {
-    "./package.json": "./package.json",
-    "./constants": {
-      "types": "./package/constants.d.ts",
-      "default": "./package/constants.js"
-    },
-    "./sseManager": {
-      "types": "./package/sseManager.d.ts",
-      "default": "./package/sseManager.js"
-    },
-    "./stores": {
-      "types": "./package/stores.d.ts",
-      "default": "./package/stores.js"
-    },
-    "./validation": {
-      "types": "./package/validation.d.ts",
-      "default": "./package/validation.js"
-    }
-  },
-  "files": [
-    "package"
-  ],
-  "typesVersions": {
-    ">4.0": {
-      "constants": [
-        "./package/constants.d.ts"
-      ],
-      "sseManager": [
-        "./package/sseManager.d.ts"
-      ],
-      "stores": [
-        "./package/stores.d.ts"
-      ],
-      "validation": [
-        "./package/validation.d.ts"
-      ]
-    }
   }
 }

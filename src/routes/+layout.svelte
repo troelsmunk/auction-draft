@@ -7,7 +7,7 @@
    */
 
   /** @type {Props} */
-  let { children } = $props();
+  let { children } = $props()
   let auctionNumber = $derived(parseInt(page.params.auction_number))
   let round = $derived(parseInt(page.params.round))
 </script>
