@@ -13,7 +13,6 @@ declare namespace App {
     ctx: ExecutionContext
   }
   interface PageData {
-    auctionSize?: number
     seat?: number
     points?: number[]
   }

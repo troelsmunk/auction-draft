@@ -24,13 +24,7 @@ export async function load(event) {
   const points = pointsSelect?.results.map((record) => {
     return record.points_remaining
   })
-  const auctionSize = pointsSelect?.results.length
-  if (!auctionSize) {
-    console.error("The auction has no size")
-    throw error(500, "Database error")
-  }
   return {
-    auctionSize: auctionSize,
     points: points,
   }
 }
