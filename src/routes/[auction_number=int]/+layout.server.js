@@ -12,7 +12,7 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     return error(500, "Database error")
   }
-  /** @type { {seat_number: string, auction_id: string} | null} } */
+  /** @type { {seat_number: number, auction_id: number} | null} } */
   const selectUser = await db
     .prepare("SELECT seat_number, auction_id FROM users WHERE uid = ? LIMIT 1")
     .bind(uid)
@@ -27,8 +27,8 @@ export async function load(event) {
     .prepare("SELECT count(1) as count FROM users WHERE auction_id = ?")
     .bind(auctionId)
     .first()
-  const size = countUsers?.count
-  if (!size) {
+  const auctionSize = countUsers?.count
+  if (!auctionSize) {
     throw error(500, "The auction has no size")
   }
   const colors = [
@@ -39,9 +39,10 @@ export async function load(event) {
     "#C27C5B",
     "#FAC30F",
   ]
-  colors.length = size
+  colors.length = auctionSize
   return {
-    size: size,
+    auctionSize: auctionSize,
+    auctionId: auctionId,
     colors: colors,
     seat: seat,
   }
