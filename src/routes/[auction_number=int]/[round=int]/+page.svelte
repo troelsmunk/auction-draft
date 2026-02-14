@@ -19,8 +19,12 @@
   let bids = $state(Array(15))
   bids.fill(0)
   let sumOfBids = $derived(bids.reduce((sum, value) => sum + value))
-  const bankSum = 100 // data.scores[data.seat]
-  let spendingRatio = $derived(sumOfBids / bankSum)
+  let { points, seat } = page.data
+  const remainingPoints =
+    points && typeof seat == "number" ? points.at(seat) : 0
+  let spendingRatio = $derived(
+    sumOfBids / (remainingPoints ? remainingPoints : 1),
+  )
 
   const round = parseInt(page.params.round)
 
@@ -64,11 +68,11 @@
   </div>
   <div
     class="spending-ratio"
-    class:hidden={!sumOfBids}
+    class:hidden={!spendingRatio}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
-    {sumOfBids} / {bankSum}
+    {sumOfBids} / {remainingPoints}
   </div>
   <div class="next-link">
     {#if $currentRound > round}

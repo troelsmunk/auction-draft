@@ -16,6 +16,7 @@ declare namespace App {
     auctionSize?: number
     seat?: number
     auctionId?: number
-    colors: string[]
+    colors?: string[]
+    points?: number[]
   }
 }

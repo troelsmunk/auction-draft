@@ -9,11 +9,12 @@
 
   /** @type {Props} */
   let { children } = $props()
+  let { colors, points, seat } = page.data
 </script>
 
 <div class="scoreboard">
-  {#each page.data.colors as color, i}
-    <ScoreItem {color} you={i == page.data.seat} score={/*dummy*/ i} />
+  {#each colors as color, i}
+    <ScoreItem {color} you={i == seat} score={points?.at(i)} />
   {/each}
 </div>
 
