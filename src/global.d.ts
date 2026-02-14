@@ -15,7 +15,6 @@ declare namespace App {
   interface PageData {
     auctionSize?: number
     seat?: number
-    auctionId?: number
     colors?: string[]
     points?: number[]
   }

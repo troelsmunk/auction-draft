@@ -12,24 +12,13 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     return error(500, "Database error")
   }
-  /** @type { {seat_number: number, auction_id: number} | null} } */
-  const selectUser = await db
-    .prepare("SELECT seat_number, auction_id FROM users WHERE uid = ? LIMIT 1")
+  /** @type { number | null} } */
+  const seat = await db
+    .prepare("SELECT seat_number FROM users WHERE uid = ? LIMIT 1")
     .bind(uid)
-    .first()
-  const seat = selectUser?.seat_number
+    .first("seat_number")
   if (typeof seat !== "number") {
-    throw error(403, "You are not enrolled in this auction")
-  }
-  const auctionId = selectUser?.auction_id
-  /** @type {{count: number}| null} */
-  const countUsers = await db
-    .prepare("SELECT count(1) as count FROM users WHERE auction_id = ?")
-    .bind(auctionId)
-    .first()
-  const auctionSize = countUsers?.count
-  if (!auctionSize) {
-    throw error(500, "The auction has no size")
+    throw error(403, "You are not enrolled in an auction")
   }
   const colors = [
     "#A0A6A6",
@@ -39,10 +28,8 @@ export async function load(event) {
     "#C27C5B",
     "#FAC30F",
   ]
-  colors.length = auctionSize
+  colors.length = 4
   return {
-    auctionSize: auctionSize,
-    auctionId: auctionId,
     colors: colors,
     seat: seat,
   }
