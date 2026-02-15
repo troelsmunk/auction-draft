@@ -1,10 +1,8 @@
-DROP TABLE IF EXISTS Customers;
-
-DROP TABLE IF EXISTS auctions;
+DROP TABLE IF EXISTS bids;
 
 DROP TABLE IF EXISTS users;
 
-DROP TABLE IF EXISTS bids;
+DROP TABLE IF EXISTS auctions;
 
 DROP TABLE IF EXISTS bid_options;
 
@@ -22,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
   seat_number INTEGER NOT NULL,
   UNIQUE(auction_id, bid_option_id),
   UNIQUE(auction_id, seat_number),
-  FOREIGN KEY (auction_id) REFERENCES auctions(id),
+  FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE,
   FOREIGN KEY (bid_option_id) REFERENCES bid_options(id)
 );
 
@@ -32,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bids (
   round INTEGER NOT NULL,
   bid_values ARRAY of INTEGER NOT NULL,
   UNIQUE(user_id, round),
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS bid_options (
