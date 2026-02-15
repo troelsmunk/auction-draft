@@ -141,6 +141,10 @@ function generateAuctionNumber(previousAuctionNumber) {
  * @async
  */
 async function enrollUserInAuction(cookies, db, auctionId) {
+  const previousUid = cookies.get(COOKIE_NAME)
+  if (previousUid) {
+    await cleanUpDataFromPreviousUid(db, previousUid)
+  }
   const uid = crypto.randomUUID()
   cookies.set(COOKIE_NAME, uid, {
     path: "/",
@@ -155,4 +159,39 @@ async function enrollUserInAuction(cookies, db, auctionId) {
     .prepare("UPDATE users SET uid = ? WHERE id = ?")
     .bind(uid, userId)
     .run()
+}
+
+/**
+ * @param {import('@cloudflare/workers-types').D1Database} db
+ * @param {string} previousUid
+ * @async
+ */
+async function cleanUpDataFromPreviousUid(db, previousUid) {
+  const bidsDelete = await db
+    .prepare(
+      "DELETE FROM bids WHERE user_id IN " +
+        "(SELECT id FROM users WHERE uid = ?)",
+    )
+    .bind(previousUid)
+    .run()
+  if (bidsDelete.error) {
+    console.error(
+      "Error: Failed to delete bids for previous cookie with UID: ",
+      previousUid,
+      " with error: ",
+      bidsDelete.error,
+    )
+  }
+  const uidUpdate = await db
+    .prepare("UPDATE users SET uid = null WHERE uid = ?")
+    .bind(previousUid)
+    .run()
+  if (uidUpdate.error) {
+    console.error(
+      "Error: Failed to set UID to null for previous cookie with UID: ",
+      previousUid,
+      " with error: ",
+      uidUpdate.error,
+    )
+  }
 }
