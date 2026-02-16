@@ -146,19 +146,20 @@ async function enrollUserInAuction(cookies, db, auctionId) {
     await cleanUpDataFromPreviousUid(db, previousUid)
   }
   const uid = crypto.randomUUID()
+  const uidUpdate = await db
+    .prepare(
+      "UPDATE users SET uid = ? WHERE auction_id = ? AND uid IS null LIMIT 1",
+    )
+    .bind(uid, auctionId)
+    .run()
+  if (uidUpdate.error) {
+    console.error("Error: Failed to set UID of new user: ", uidUpdate.error)
+    return error(500, "Database error")
+  }
   cookies.set(COOKIE_NAME, uid, {
     path: "/",
     maxAge: 60 * 60 * 24, // 1 day
   })
-  const someUserSelect = await db
-    .prepare("SELECT id FROM users WHERE auction_id = ? AND uid IS NULL")
-    .bind(auctionId)
-    .first()
-  const userId = someUserSelect?.id
-  await db
-    .prepare("UPDATE users SET uid = ? WHERE id = ?")
-    .bind(uid, userId)
-    .run()
 }
 
 /**
