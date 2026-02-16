@@ -14,7 +14,6 @@ export const actions = {
     const bids = JSON.parse(formData?.get("bids")?.toString() || "[]")
     const round = parseInt(event.params.round)
     if (!round) {
-      // TODO already checked by sveltekit route param
       throw error(500, "The round is not a number")
     }
     if (bids.length != 15) {
@@ -23,22 +22,15 @@ export const actions = {
         bids: bids,
       })
     }
-    // TODO bids.some(bid => typeof bid !== 'number')
     const filteredBids = bids.map((bid) => {
-      // TODO bid || 0
-      if (!bid) return 0
-      return bid
+      return bid || 0
     })
-    if (filteredBids.some((bid) => typeof bid !== "number")) {
+    if (
+      filteredBids.some((bid) => typeof bid !== "number") ||
+      filteredBids.some((bid) => bid < 0)
+    ) {
       return fail(400, {
-        error: "The bids should be numbers",
-        bids: bids,
-      })
-    }
-    if (filteredBids.some((bid) => bid < 0)) {
-      // TODO combine the two checks
-      return fail(400, {
-        error: "The bids can't be negative",
+        error: "The bids should be nonnegative numbers",
         bids: bids,
       })
     }
