@@ -51,7 +51,6 @@
 
     eventSource.onerror = (event) => {
       console.error("SSE connection error", event)
-      // TODO : Reconnect logic
     }
 
     window.addEventListener("beforeunload", () => {

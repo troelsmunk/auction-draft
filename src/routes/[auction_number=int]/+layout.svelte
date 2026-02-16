@@ -6,7 +6,6 @@
 
   /** @type {Props} */
   let { children } = $props()
-  // TODO get current round from backend
 </script>
 
 {@render children?.()}

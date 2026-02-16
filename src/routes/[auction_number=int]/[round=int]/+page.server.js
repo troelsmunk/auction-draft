@@ -35,7 +35,7 @@ export const actions = {
       })
     }
     const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
-    const remainingPointsFromDb = 1000 // TODO get from db
+    const remainingPointsFromDb = 1000
     if (remainingPointsFromDb < sumOfBids) {
       return fail(400, {
         error: "Insufficient funds",
@@ -47,7 +47,5 @@ export const actions = {
       bids: sumOfBids,
     }
     broadcastUpdate(update, parseInt(event.params.auction_number))
-    // TODO write bids to db
-    return { success: true } // TODO success from result of db write
   },
 }
