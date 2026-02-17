@@ -34,9 +34,22 @@ export const actions = {
         bids: bids,
       })
     }
+    const db = event.platform?.env?.db
+    if (!db) {
+      console.error("Error: Could not connect to database.")
+      return error(500, "Database error")
+    }
+    /** @type {number|null} */
+    const pointsRemaining = await db
+      .prepare("SELECT points_remaining FROM users WHERE uid = ?")
+      .bind(uid)
+      .first("points_remaining")
+    if (typeof pointsRemaining != "number") {
+      console.error("Could not find points for UID: ", uid)
+      return error(500, "Database error")
+    }
     const sumOfBids = filteredBids.reduce((sum, value) => sum + value)
-    const remainingPointsFromDb = 1000
-    if (remainingPointsFromDb < sumOfBids) {
+    if (pointsRemaining < sumOfBids) {
       return fail(400, {
         error: "Insufficient funds",
         bids: bids,
