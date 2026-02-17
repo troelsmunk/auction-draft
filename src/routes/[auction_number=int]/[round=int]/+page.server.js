@@ -13,15 +13,6 @@ export const actions = {
     /** @type {Array<number|null>} bids */
     const bids = JSON.parse(formData?.get("bids")?.toString() || "[]")
     const round = parseInt(event.params.round)
-    if (!round) {
-      throw error(500, "The round is not a number")
-    }
-    if (bids.length != 15) {
-      return fail(400, {
-        error: "Wrong number of bids",
-        bids: bids,
-      })
-    }
     const filteredBids = bids.map((bid) => {
       return bid || 0
     })
