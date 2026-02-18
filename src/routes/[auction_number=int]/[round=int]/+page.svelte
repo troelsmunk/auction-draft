@@ -1,8 +1,7 @@
 <script>
-  import { bidByButtons, currentRound } from "$lib/stores"
+  import { currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
   import { page } from "$app/state"
-  import KeyboardBidItem from "./KeyboardBidItem.svelte"
   import BidButtons from "./BidButtons.svelte"
   import { browser } from "$app/environment"
   import { writable } from "svelte/store"
@@ -99,11 +98,7 @@
   <input hidden={true} value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
     {#each { length: bids.length }, index}
-      {#if $bidByButtons}
-        <BidButtons bind:bidValue={bids[index]} {index} {options} />
-      {:else}
-        <KeyboardBidItem bind:bidValue={bids[index]} {index} />
-      {/if}
+      <BidButtons bind:bidValue={bids[index]} {index} {options} />
     {/each}
   </div>
   <button type="submit">Bid!</button>
