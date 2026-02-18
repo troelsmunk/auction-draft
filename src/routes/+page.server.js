@@ -54,7 +54,6 @@ export const actions = {
       console.error("Error: Could not read auctionId from database.")
       return error(500, "Database error")
     }
-
     /** @type {Array<Promise<D1Result<Record<string, unknown>>>>} */
     const promises = new Array()
     for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
@@ -138,7 +137,8 @@ async function enrollUserInAuction(cookies, db, auctionId) {
   const uid = crypto.randomUUID()
   const uidUpdate = await db
     .prepare(
-      "UPDATE users SET uid = ? WHERE auction_id = ? AND uid IS null LIMIT 1",
+      "UPDATE users SET uid = ? WHERE auction_id = ? AND uid IS null " +
+        "ORDER BY random() LIMIT 1",
     )
     .bind(uid, auctionId)
     .run()
