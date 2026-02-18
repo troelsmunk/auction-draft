@@ -1,5 +1,4 @@
 <script>
-  import { bidByButtons } from "$lib/stores"
   import { page } from "$app/state"
   /**
    * @typedef {Object} Props
@@ -21,10 +20,6 @@
         - Round {round}
       {/if}
     </div>
-    <div class="feature-toggle">
-      <label for="bid-method">Buttons!</label>
-      <input id="bid-method" type="checkbox" bind:checked={$bidByButtons} />
-    </div>
   </div>
 {:else}
   <h1>Blind Auction Drafting</h1>
@@ -42,8 +37,5 @@
   .header-container {
     display: grid;
     grid-template-columns: auto auto;
-  }
-  .feature-toggle {
-    justify-self: right;
   }
 </style>
