@@ -54,29 +54,19 @@ export const actions = {
       console.error("Error: Could not read auctionId from database.")
       return error(500, "Database error")
     }
-    const optionsSelect = await db
-      .prepare("SELECT id FROM bid_options WHERE size = ?")
-      .bind(auctionSize)
-      .run()
-    if (optionsSelect.error || optionsSelect.results.length != auctionSize) {
-      console.error(
-        "Error: Could not read options from database: ",
-        optionsSelect.error,
-      )
-      return error(500, "Database error")
-    }
+
     /** @type {Array<Promise<D1Result<Record<string, unknown>>>>} */
     const promises = new Array()
-    optionsSelect.results.forEach((optionsRow, seatIndex) => {
+    for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
       const promise = db
         .prepare(
-          "INSERT INTO users (auction_id, points_remaining, bid_option_id, seat_number)" +
-            "VALUES (?, ?, ?, ?)",
+          "INSERT INTO users (auction_id, points_remaining, seat_number)" +
+            "VALUES (?, ?, ?)",
         )
-        .bind(auctionId, 1000, optionsRow.id, seatIndex)
+        .bind(auctionId, 1000, seatIndex)
         .run()
       promises.push(promise)
-    })
+    }
     const responses = await Promise.all(promises)
     const errors = responses.filter((response) => {
       return response.error
