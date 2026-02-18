@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS bids (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL,
   round INTEGER NOT NULL,
-  bid_values ARRAY of INTEGER NOT NULL,
+  bid_values TEXT NOT NULL,
   UNIQUE(user_id, round),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
