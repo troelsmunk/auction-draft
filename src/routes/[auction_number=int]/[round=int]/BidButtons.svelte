@@ -3,10 +3,11 @@
    * @typedef {Object} Props
    * @property { number } bidValue
    * @property { number } index
+   * @property { import('$lib/constants').userBidOptions } options
    */
 
   /** @type {Props} */
-  let { bidValue = $bindable(), index } = $props()
+  let { bidValue = $bindable(), index, options } = $props()
 
   /** @type { (event: Event) => void  }*/
   function plusFive(event) {
@@ -30,7 +31,7 @@
 <div class="container">
   <span class="bid">
     {#if bidValue != null}
-      {bidValue}
+      {options.at(bidValue)}
     {/if}
   </span>
   <label for="plus-five-{index}" class="plus-five">+5</label>

@@ -6,6 +6,7 @@
   import BidButtons from "./BidButtons.svelte"
   import { browser } from "$app/environment"
   import { writable } from "svelte/store"
+  import { BID_OPTIONS } from "$lib/constants"
 
   /**
    * @typedef {Object} Props
@@ -18,10 +19,14 @@
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
   bids.fill(0)
-  let sumOfBids = $derived(bids.reduce((sum, value) => sum + value))
   let { points, seat } = page.data
   const remainingPoints =
     points && typeof seat == "number" ? points.at(seat) : 0
+  const auctionSize = points?.length || 0
+  const yourOptions = BID_OPTIONS.get(auctionSize)?.at(seat || 0)
+  let sumOfBids = $derived(
+    bids.reduce((sum, value) => sum + (yourOptions?.at(value) || 0)),
+  )
   let spendingRatio = $derived(
     sumOfBids / (remainingPoints ? remainingPoints : 1),
   )
@@ -95,7 +100,7 @@
   <div class="input-container">
     {#each bids as unusedValue, index}
       {#if $bidByButtons}
-        <BidButtons bind:bidValue={bids[index]} {index} />
+        <BidButtons bind:bidValue={bids[index]} {index} options={yourOptions} />
       {:else}
         <KeyboardBidItem bind:bidValue={bids[index]} {index} />
       {/if}
