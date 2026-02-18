@@ -16,8 +16,8 @@ export async function load(event) {
   const pointsSelect = await db
     .prepare(
       "SELECT points_remaining FROM users WHERE auction_id = " +
-        "(SELECT auction_id FROM users WHERE uid = ? LIMIT 1)" +
-        " ORDER BY seat_number",
+        "(SELECT auction_id FROM users WHERE uid = ? LIMIT 1) " +
+        "ORDER BY seat_number",
     )
     .bind(uid)
     .run()
