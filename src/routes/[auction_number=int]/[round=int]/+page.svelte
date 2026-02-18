@@ -25,7 +25,7 @@
   const auctionSize = points?.length || 0
   const yourOptions = BID_OPTIONS.get(auctionSize)?.at(seat || 0)
   let sumOfBids = $derived(
-    bids.reduce((sum, value) => sum + (yourOptions?.at(value) || 0)),
+    bids.reduce((sum, value) => sum + (yourOptions?.at(value) || 0), 0),
   )
   let spendingRatio = $derived(
     sumOfBids / (remainingPoints ? remainingPoints : 1),
