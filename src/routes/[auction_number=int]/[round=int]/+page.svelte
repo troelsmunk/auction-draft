@@ -19,12 +19,11 @@
   let bids = $state(Array(15))
   bids.fill(0)
   let { points, seat } = page.data
-  const remainingPoints =
-    points && typeof seat == "number" ? points.at(seat) : 0
-  const auctionSize = points?.length || 0
-  const options = BID_OPTIONS.get(auctionSize)?.at(seat || 0)
+  const remainingPoints = points.at(seat)
+  const auctionSize = points.length
+  const options = BID_OPTIONS.get(auctionSize)?.at(seat) || []
   let sumOfBids = $derived(
-    bids.reduce((sum, value) => sum + (options?.at(value) || 0), 0),
+    bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
   let spendingRatio = $derived(
     sumOfBids / (remainingPoints ? remainingPoints : 1),

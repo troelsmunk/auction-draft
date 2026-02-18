@@ -13,7 +13,7 @@ declare namespace App {
     ctx: ExecutionContext
   }
   interface PageData {
-    seat?: number
-    points?: number[]
+    seat: number
+    points: number[]
   }
 }
