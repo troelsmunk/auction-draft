@@ -23,9 +23,9 @@
   const remainingPoints =
     points && typeof seat == "number" ? points.at(seat) : 0
   const auctionSize = points?.length || 0
-  const yourOptions = BID_OPTIONS.get(auctionSize)?.at(seat || 0)
+  const options = BID_OPTIONS.get(auctionSize)?.at(seat || 0)
   let sumOfBids = $derived(
-    bids.reduce((sum, value) => sum + (yourOptions?.at(value) || 0), 0),
+    bids.reduce((sum, value) => sum + (options?.at(value) || 0), 0),
   )
   let spendingRatio = $derived(
     sumOfBids / (remainingPoints ? remainingPoints : 1),
@@ -98,9 +98,9 @@
 >
   <input hidden={true} value={JSON.stringify(bids)} name="bids" />
   <div class="input-container">
-    {#each bids as unusedValue, index}
+    {#each { length: bids.length }, index}
       {#if $bidByButtons}
-        <BidButtons bind:bidValue={bids[index]} {index} options={yourOptions} />
+        <BidButtons bind:bidValue={bids[index]} {index} {options} />
       {:else}
         <KeyboardBidItem bind:bidValue={bids[index]} {index} />
       {/if}
