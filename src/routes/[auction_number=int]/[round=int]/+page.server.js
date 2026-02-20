@@ -86,19 +86,18 @@ export const actions = {
       console.error("Failed to write bids to database for uid: ", uid)
       return error(500, "Database error")
     }
-    findWinnerIfEveryoneHasBid(db, event)
+    const auctionNumber = parseInt(event.params.auction_number)
+    const numberOfReadyBidders = await db
+      .prepare(
+        "SELECT count(1) FROM bids WHERE round = ? AND user_id IN " +
+          "(SELECT id FROM users WHERE auction_id = ?)",
+      )
+      .bind(event.params.round, auctionId)
+      .first("count(1)")
+    if (numberOfReadyBidders === auctionSize) {
+      const update = { newRound: 123 }
+      broadcastUpdate(update, auctionNumber)
+    }
     return { success: writeToDb.success }
   },
-}
-
-async function findWinnerIfEveryoneHasBid(db, event) {
-  const something = await db
-    .prepare("SELECT bid_values as count FROM bids ORDER BY id DESC LIMIT 1")
-    .first("count")
-  const json = JSON.parse(something)
-  const update = {
-    json: json,
-    json1: json[1],
-  }
-  broadcastUpdate(update, parseInt(event.params.auction_number))
 }
