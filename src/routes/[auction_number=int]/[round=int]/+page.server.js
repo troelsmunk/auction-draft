@@ -74,13 +74,14 @@ export const actions = {
         bids: bidsConvertedToOptions,
       })
     }
+    const round = event.params.round
     const stringifiedBids = JSON.stringify(bidsConvertedToOptions)
     const writeToDb = await db
       .prepare(
         "INSERT INTO bids (user_id, round, bid_values) VALUES (?,?,json(?)) " +
           "ON CONFLICT (user_id, round) DO UPDATE SET bid_values = excluded.bid_values",
       )
-      .bind(userId, event.params.round, stringifiedBids)
+      .bind(userId, round, stringifiedBids)
       .run()
     if (writeToDb.error) {
       console.error("Failed to write bids to database for uid: ", uid)
@@ -89,12 +90,12 @@ export const actions = {
     const auctionNumber = parseInt(event.params.auction_number)
     const numberOfReadyBidders = await db
       .prepare(
-        "SELECT count(1) FROM bids WHERE round = ? AND user_id IN " +
-          "(SELECT id FROM users WHERE auction_id = ?)",
+        "SELECT users.seat_number, bids.bid_values FROM users JOIN bids ON users.id = bids.user_id " +
+          "WHERE users.auction_id = ? AND bids.round = ?",
       )
-      .bind(event.params.round, auctionId)
-      .first("count(1)")
-    if (numberOfReadyBidders === auctionSize) {
+      .bind(auctionId, round)
+      .run()
+    if (numberOfReadyBidders.results.length === auctionSize) {
       const update = { newRound: 123 }
       broadcastUpdate(update, auctionNumber)
     }
