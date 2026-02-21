@@ -2,6 +2,16 @@ import { BID_OPTIONS, COOKIE_NAME } from "$lib/constants"
 import { broadcastUpdate } from "$lib/sseManager"
 import { error, fail } from "@sveltejs/kit"
 
+/**
+ * @typedef {Object} SeatAndBidsRow
+ * @property {number} seat
+ * @property {string} bids
+ *
+ * @typedef {Object} PreliminaryResultForItem
+ * @property {number|null} seat
+ * @property {number} bid
+ */
+
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   submit: async (event) => {
@@ -87,11 +97,6 @@ export const actions = {
       return error(500, "Database error")
     }
     const auctionNumber = parseInt(event.params.auction_number)
-    /**
-     * @typedef {Object} SeatAndBidsRow
-     * @property {number} seat
-     * @property {string} bids
-     */
     const selectBids = await db
       .prepare(
         "SELECT users.seat_number as seat, bids.bid_values as bids " +
@@ -101,42 +106,28 @@ export const actions = {
       .bind(auctionId, round)
       .run()
     if (selectBids.results.length === auctionSize) {
-      /**
-       * @typedef {Object} ResultForItem
-       * @property {number|null} seat
-       * @property {number} bid
-       */
-
-      const numberOfBids = bidsConvertedToOptions.length
-
-      /** @type {ResultForItem[]} */
-      let results = Array(numberOfBids)
-      console.log("empty, results: ", results)
-      results.fill({ seat: null, bid: 0 })
-      results.forEach((result, index) => {
-        results[index] = { seat: null, bid: 0 }
+      /** @type {PreliminaryResultForItem[]} */
+      let preliminaryResults = []
+      // Set default state for every item in a bid
+      bidsConvertedToOptions.forEach(() => {
+        preliminaryResults.push({ seat: null, bid: 0 })
       })
-      console.log("filled, results: ", results)
-      results[2].bid = 2
-      console.log("one set, results: ", results)
-
-      selectBids.results.forEach((/** @type {SeatAndBidsRow}*/ record) => {
-        const thisSeat = record.seat
-        const theseBids = JSON.parse(record.bids)
-        results.forEach((resultForItem, index) => {
-          if (resultForItem.bid < theseBids[index]) {
-            resultForItem.seat = thisSeat
-            resultForItem.bid = theseBids[index]
+      selectBids.results.forEach((/** @type {SeatAndBidsRow} */ record) => {
+        const seatForUser = record.seat
+        const bidsFromUser = JSON.parse(record.bids)
+        preliminaryResults.forEach((item, index) => {
+          if (item.bid < bidsFromUser[index]) {
+            item.seat = seatForUser
+            item.bid = bidsFromUser[index]
           }
         })
       })
-      console.log("calculated, results: ", results)
       const insertResults = await db
         .prepare(
           "INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) " +
             "ON CONFLICT (auction_id, round) DO NOTHING",
         )
-        .bind(auctionId, round, JSON.stringify(results))
+        .bind(auctionId, round, JSON.stringify(preliminaryResults))
         .run()
       if (insertResults.success) {
         const update = { newRound: round + 1 }
