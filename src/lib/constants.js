@@ -18,6 +18,7 @@ export const COLOURS = [
 
 /** @type {Map<number, auctionBidOptions>} Options for auctions, indexed by the size of the auction */
 export const BID_OPTIONS = new Map([
+  [1, [[0, 1, 2, 3, 4, 5, 6]]],
   [
     2,
     [
