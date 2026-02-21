@@ -3,8 +3,10 @@ import { broadcastUpdate } from "$lib/sseManager"
 import { error, fail } from "@sveltejs/kit"
 
 /**
- * @typedef {Object} SeatAndBidsRow
- * @property {number} seat
+ * @typedef {Object} UserAndBidRow
+ * @property {number} id
+ * @property {number} seat_number
+ * @property {number} points_remaining
  * @property {string} bids
  *
  * @typedef {Object} PreliminaryResultForItem
@@ -99,24 +101,24 @@ export const actions = {
     const auctionNumber = parseInt(event.params.auction_number)
     const selectBids = await db
       .prepare(
-        "SELECT users.seat_number as seat, bids.bid_values as bids " +
+        "SELECT users.id as id, users.points_remaining as points_remaining, users.seat_number as seat_number, bids.bid_values as bids " +
           "FROM users JOIN bids ON users.id = bids.user_id " +
           "WHERE users.auction_id = ? AND bids.round = ?",
       )
       .bind(auctionId, round)
       .run()
-    const seatAndBidsFromDb = /** @type {SeatAndBidsRow[]} */ (
+    const usersAndBidsFromDb = /** @type {UserAndBidRow[]} */ (
       selectBids.results
     )
-    if (seatAndBidsFromDb.length === auctionSize) {
+    if (usersAndBidsFromDb.length === auctionSize) {
       /** @type {PreliminaryResultForItem[]} */
       let preliminaryResults = []
       // Set default state for every item in a bid
       bidsConvertedToOptions.forEach(() => {
         preliminaryResults.push({ seat: null, bid: 0 })
       })
-      seatAndBidsFromDb.forEach((record) => {
-        const seatForUser = record.seat
+      usersAndBidsFromDb.forEach((record) => {
+        const seatForUser = record.seat_number
         const bidsFromUser = JSON.parse(record.bids)
         preliminaryResults.forEach((item, index) => {
           if (item.bid < bidsFromUser[index]) {
@@ -132,10 +134,37 @@ export const actions = {
         )
         .bind(auctionId, round, JSON.stringify(preliminaryResults))
         .run()
-      if (insertResults.success) {
-        const update = { newRound: round + 1 }
-        broadcastUpdate(update, auctionNumber)
+      if (!insertResults.meta.changed_db) {
+        return { success: insertBids.success }
       }
+      /** @type {Array<Promise<D1Result>>} */
+      const promises = new Array()
+      usersAndBidsFromDb.forEach((user) => {
+        let points = user.points_remaining
+        preliminaryResults
+          .filter((value) => value.seat == user.seat_number)
+          .forEach((value) => {
+            points -= value.bid
+          })
+        const promise = db
+          .prepare("UPDATE users SET points_remaining = ? WHERE id = ?")
+          .bind(points, user.id)
+          .run()
+        promises.push(promise)
+      })
+      const responses = await Promise.all(promises)
+      const errors = responses.filter((response) => {
+        return response.error
+      })
+      if (errors.length > 0) {
+        console.error(
+          "Error: Could not subtrack points from users: ",
+          errors.flatMap((value) => value.error).join(),
+        )
+        return error(500, "Database error")
+      }
+      const update = { newRound: round + 1 }
+      broadcastUpdate(update, auctionNumber)
     }
     return { success: insertBids.success }
   },
