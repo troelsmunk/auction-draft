@@ -105,14 +105,17 @@ export const actions = {
       )
       .bind(auctionId, round)
       .run()
-    if (selectBids.results.length === auctionSize) {
+    const seatAndBidsFromDb = /** @type {SeatAndBidsRow[]} */ (
+      selectBids.results
+    )
+    if (seatAndBidsFromDb.length === auctionSize) {
       /** @type {PreliminaryResultForItem[]} */
       let preliminaryResults = []
       // Set default state for every item in a bid
       bidsConvertedToOptions.forEach(() => {
         preliminaryResults.push({ seat: null, bid: 0 })
       })
-      selectBids.results.forEach((/** @type {SeatAndBidsRow} */ record) => {
+      seatAndBidsFromDb.forEach((record) => {
         const seatForUser = record.seat
         const bidsFromUser = JSON.parse(record.bids)
         preliminaryResults.forEach((item, index) => {
