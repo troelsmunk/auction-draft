@@ -3,15 +3,24 @@ import { broadcastUpdate } from "$lib/sseManager"
 import { error, fail } from "@sveltejs/kit"
 
 /**
- * @typedef {Object} UserAndBidRow
+ * @typedef {Object} UsersRow
  * @property {number} id
- * @property {number} seat_number
+ * @property {string} uid
+ * @property {number} auction_id
  * @property {number} points_remaining
- * @property {string} bids
+ * @property {number} seat_number
  *
- * @typedef {Object} PreliminaryResultForItem
- * @property {number|null} seat
- * @property {number} bid
+ * @typedef {Object} BidsRow
+ * @property {number} id
+ * @property {number} user_id
+ * @property {number} round
+ * @property {string} bid_values
+ *
+ * @typedef {Object} ResultsRow
+ * @property {number} id
+ * @property {number} auction_id
+ * @property {number} round
+ * @property {string} results
  */
 
 /** @type {import('@sveltejs/kit').Actions} */
@@ -101,17 +110,17 @@ export const actions = {
     const auctionNumber = parseInt(event.params.auction_number)
     const selectBids = await db
       .prepare(
-        "SELECT users.id as id, users.points_remaining as points_remaining, users.seat_number as seat_number, bids.bid_values as bids " +
+        "SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values " +
           "FROM users JOIN bids ON users.id = bids.user_id " +
           "WHERE users.auction_id = ? AND bids.round = ?",
       )
       .bind(auctionId, round)
       .run()
-    const usersAndBidsFromDb = /** @type {UserAndBidRow[]} */ (
+    const usersAndBidsFromDb = /** @type {(UsersRow & BidsRow)[]} */ (
       selectBids.results
     )
     if (usersAndBidsFromDb.length === auctionSize) {
-      /** @type {PreliminaryResultForItem[]} */
+      /** @type {{seat:number|null, bid:number}[]} */
       let preliminaryResults = []
       // Set default state for every item in a bid
       bidsConvertedToOptions.forEach(() => {
@@ -119,7 +128,7 @@ export const actions = {
       })
       usersAndBidsFromDb.forEach((record) => {
         const seatForUser = record.seat_number
-        const bidsFromUser = JSON.parse(record.bids)
+        const bidsFromUser = JSON.parse(record.bid_values)
         preliminaryResults.forEach((item, index) => {
           if (item.bid < bidsFromUser[index]) {
             item.seat = seatForUser
