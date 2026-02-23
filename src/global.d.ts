@@ -15,5 +15,6 @@ declare namespace App {
   interface PageData {
     seat: number
     points: number[]
+    results?: { seat: number | null; bid: number }[]
   }
 }

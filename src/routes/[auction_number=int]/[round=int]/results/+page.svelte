@@ -2,7 +2,7 @@
   import { page } from "$app/state"
   import { COLOURS } from "$lib/constants"
 
-  let results = JSON.parse(page.data.results)
+  let results = page.data.results
 
   function nextRoundBiddingAddress() {
     const nextRound = parseInt(page.params.round) + 1
