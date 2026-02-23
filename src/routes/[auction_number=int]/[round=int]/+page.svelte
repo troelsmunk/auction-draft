@@ -42,14 +42,8 @@
   if (browser) {
     let eventSource = new EventSource("/api/data/" + page.params.auction_number)
 
-    eventSource.onmessage = function (event) {
-      try {
-        var dataobj = JSON.parse(event.data)
-        messages.update((arr) => arr.concat(dataobj))
-        console.log("Received update:", dataobj)
-      } catch (e) {
-        console.error("Error parsing message:", e)
-      }
+    eventSource.onmessage = (event) => {
+      currentRound.set(JSON.parse(event.data).newRound)
     }
 
     eventSource.onerror = (event) => {
