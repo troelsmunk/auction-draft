@@ -15,11 +15,11 @@ export async function load(event) {
   /** @type {{seat:number|null, bid:number}[]} */
   const results = await db
     .prepare(
-      "SELECT results FROM results WHERE auction_id = " +
+      "SELECT results FROM results WHERE round = ? AND auction_id = " +
         "(SELECT auction_id FROM users WHERE uid = ? LIMIT 1) " +
         "LIMIT 1",
     )
-    .bind(uid)
+    .bind(event.params.round, uid)
     .first("results")
     .then((value) => {
       if (typeof value == "string") {
