@@ -1,6 +1,15 @@
 import { COOKIE_NAME } from "$lib/constants"
 import { error } from "@sveltejs/kit"
 
+/**
+ * @typedef {Object} UsersRow
+ * @property {number} id
+ * @property {string} uid
+ * @property {number} auction_id
+ * @property {number} points_remaining
+ * @property {number} seat_number
+ */
+
 /** @type {import('./$types').LayoutServerLoad} */
 export async function load(event) {
   const uid = event.cookies.get(COOKIE_NAME)
@@ -12,19 +21,21 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     return error(500, "Database error")
   }
-  /** @type {D1Result<Record<string, number>>} */
-  const pointsSelect = await db
+  const usersSelect = await db
     .prepare(
-      "SELECT points_remaining FROM users WHERE auction_id = " +
+      "SELECT points_remaining, seat_number, uid FROM users WHERE auction_id = " +
         "(SELECT auction_id FROM users WHERE uid = ? LIMIT 1) " +
         "ORDER BY seat_number",
     )
     .bind(uid)
     .run()
-  const points = pointsSelect?.results.map((record) => {
+  const users = /** @type {UsersRow[]} */ (usersSelect.results)
+  const points = users.map((record) => {
     return record.points_remaining
   })
+  const seat = users.find((user) => user.uid == uid)?.seat_number
   return {
     points: points,
+    seat: seat,
   }
 }
