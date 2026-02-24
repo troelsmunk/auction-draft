@@ -1,17 +1,21 @@
 <script>
-  import { page } from "$app/state"
   import { COLOURS } from "$lib/constants"
 
-  let results = page.data.results
+  /**
+   * @typedef {Object} Props
+   * @property {import('../$types').LayoutParams} params
+   * @property {import('./$types').PageData} data
+   */
 
-  function nextRoundBiddingAddress() {
-    const nextRound = parseInt(page.params.round) + 1
-    return `/${page.params.auction_number}/${nextRound}`
-  }
+  /** @type {Props} */
+  let { data, params } = $props()
+  let auctionNumber = $derived(params.auction_number)
+  let nextRound = $derived(parseInt(params.round) + 1)
+  let results = $derived(data.results)
 </script>
 
 <div class="container">
-  <a class="next-link" href={nextRoundBiddingAddress()}>Next round </a>
+  <a class="next-link" href={`/${auctionNumber}/${nextRound}`}>Next round </a>
 </div>
 
 <h3>Results</h3>

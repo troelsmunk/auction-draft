@@ -1,5 +1,4 @@
 <script>
-  import { page } from "$app/state"
   import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
   import { COLOURS } from "$lib/constants"
@@ -8,13 +7,16 @@
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
+   * @property {import('./$types').LayoutParams} params
+   * @property {import('./$types').PageData} data
    */
 
-  /** @type {import('./$types').PageProps & Props} */
-  let { children, data } = $props()
+  /** @type {Props} */
+  let { children, data, params } = $props()
+  let auctionNumber = $derived(params.auction_number)
 
   if (browser) {
-    let eventSource = new EventSource("/api/data/" + page.params.auction_number)
+    let eventSource = new EventSource("/api/data/" + auctionNumber)
 
     eventSource.onmessage = (event) => {
       invalidateAll()

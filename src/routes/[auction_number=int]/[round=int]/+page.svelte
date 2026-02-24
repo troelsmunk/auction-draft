@@ -1,25 +1,29 @@
 <script>
   import { enhance } from "$app/forms"
-  import { page } from "$app/state"
   import BidButtons from "./BidButtons.svelte"
   import { BID_OPTIONS } from "$lib/constants"
 
   /**
    * @typedef {Object} Props
    * @property {import('./$types').ActionData} form
+   * @property {import('./$types').LayoutParams} params
+   * @property {import('./$types').PageData} data
    */
 
-  /** @type {import('./$types').PageProps & Props} */
-  let { form, data } = $props()
+  /** @type {Props} */
+  let { form, data, params } = $props()
   let currentRound = $derived(data.currentRound + 1)
+  let auctionNumber = $derived(params.auction_number)
+  let round = $derived(parseInt(params.round))
+  let points = $derived(data.points)
+  let seat = $derived(data.seat)
 
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
   bids.fill(0)
-  let { points, seat } = page.data
-  const remainingPoints = points.at(seat)
-  const auctionSize = points.length
-  const options = BID_OPTIONS.get(auctionSize)?.at(seat) || []
+  const remainingPoints = $derived(points.at(seat))
+  const auctionSize = $derived(points.length)
+  const options = $derived(BID_OPTIONS.get(auctionSize)?.at(seat) || [])
   let sumOfBids = $derived(
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
@@ -27,13 +31,11 @@
     sumOfBids / (remainingPoints ? remainingPoints : 1),
   )
 
-  const round = parseInt(page.params.round)
-
   function previousRoundResultsAddress() {
-    return `/${page.params.auction_number}/${round - 1}/results`
+    return `/${auctionNumber}/${round - 1}/results`
   }
   function currentRoundResultsAddress() {
-    return `/${page.params.auction_number}/${currentRound - 1}/results`
+    return `/${auctionNumber}/${currentRound - 1}/results`
   }
 </script>
 
