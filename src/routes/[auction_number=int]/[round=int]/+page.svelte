@@ -1,5 +1,4 @@
 <script>
-  import { currentRound } from "$lib/stores"
   import { enhance } from "$app/forms"
   import { page } from "$app/state"
   import BidButtons from "./BidButtons.svelte"
@@ -10,8 +9,9 @@
    * @property {import('./$types').ActionData} form
    */
 
-  /** @type {Props} */
-  let { form } = $props()
+  /** @type {import('./$types').PageProps & Props} */
+  let { form, data } = $props()
+  let currentRound = $derived(data.currentRound + 1)
 
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
@@ -33,13 +33,13 @@
     return `/${page.params.auction_number}/${round - 1}/results`
   }
   function currentRoundResultsAddress() {
-    return `/${page.params.auction_number}/${$currentRound - 1}/results`
+    return `/${page.params.auction_number}/${currentRound - 1}/results`
   }
 </script>
 
 <div class="navigation-container">
   <div class="previous-link">
-    {#if round > 1 && round >= $currentRound}
+    {#if round > 1 && round >= currentRound}
       <a href={previousRoundResultsAddress()}>Previous Results</a>
     {/if}
   </div>
@@ -52,7 +52,7 @@
     {sumOfBids} / {remainingPoints}
   </div>
   <div class="next-link">
-    {#if $currentRound > round}
+    {#if currentRound > round}
       <a href={currentRoundResultsAddress()}>New Results</a>
     {/if}
   </div>
