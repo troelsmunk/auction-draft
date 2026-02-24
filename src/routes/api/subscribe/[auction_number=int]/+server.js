@@ -39,7 +39,7 @@ export const GET = ({ params, request, platform }) => {
             controller.close()
           } catch (ignore) {}
         }
-      }, 15000)
+      }, 120000)
     },
     cancel(reason) {
       disconnectClient("Stream cancelled: " + reason)
