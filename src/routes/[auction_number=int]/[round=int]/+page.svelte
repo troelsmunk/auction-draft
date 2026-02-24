@@ -71,7 +71,9 @@
       <BidButtons bind:bidValue={bids[index]} {index} {options} />
     {/each}
   </div>
-  <button type="submit">Bid!</button>
+  {#if !newResultsAreReady}
+    <button type="submit">Bid!</button>
+  {/if}
 </form>
 
 {#if form?.success === true}
