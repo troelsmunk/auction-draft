@@ -12,37 +12,31 @@
 
   /** @type {Props} */
   let { form, data, params } = $props()
-  let currentRound = $derived(data.currentRound + 1)
-  let auctionNumber = $derived(params.auction_number)
-  let round = $derived(parseInt(params.round))
-  let points = $derived(data.points)
-  let seat = $derived(data.seat)
 
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
   bids.fill(0)
-  let remainingPoints = $derived(points.at(seat))
-  let auctionSize = $derived(points.length)
-  let options = $derived(BID_OPTIONS.get(auctionSize)?.at(seat) || [])
+
+  let auctionNumber = $derived(params.auction_number)
+  let round = $derived(parseInt(params.round))
+  let previousRound = $derived(round - 1)
+  let newResultsAreReady = $derived(data.roundOfLatestResults >= round)
+  let remainingPoints = $derived(data.points.at(data.seat))
+  let auctionSize = $derived(data.points.length)
+  let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
   let sumOfBids = $derived(
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
   let spendingRatio = $derived(
     sumOfBids / (remainingPoints ? remainingPoints : 1),
   )
-
-  function previousRoundResultsAddress() {
-    return `/${auctionNumber}/${round - 1}/results`
-  }
-  function currentRoundResultsAddress() {
-    return `/${auctionNumber}/${currentRound - 1}/results`
-  }
 </script>
 
 <div class="navigation-container">
   <div class="previous-link">
-    {#if round > 1 && round >= currentRound}
-      <a href={previousRoundResultsAddress()}>Previous Results</a>
+    {#if previousRound && !newResultsAreReady}
+      <a href={`/${auctionNumber}/${previousRound}/results`}>Previous Results</a
+      >
     {/if}
   </div>
   <div
@@ -54,8 +48,8 @@
     {sumOfBids} / {remainingPoints}
   </div>
   <div class="next-link">
-    {#if currentRound > round}
-      <a href={currentRoundResultsAddress()}>New Results</a>
+    {#if newResultsAreReady}
+      <a href={`/${auctionNumber}/${round}/results`}>New Results</a>
     {/if}
   </div>
 </div>
