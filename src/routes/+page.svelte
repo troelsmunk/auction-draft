@@ -24,12 +24,13 @@
   <p class="error">{form.join.error}</p>
 {/if}
 <form id="join-form" method="POST" action="?/join">
-  <label for="auction_number">Insert the auction number:</label>
+  <label for="auction_number">Insert auction number:</label>
   <input
     name="auction_number"
     type="text"
+    size="8"
     inputmode="numeric"
-    placeholder="e.g.1234"
+    placeholder="e.g. 1234"
     required
     value={form?.join?.auction_number ?? ""}
   />
