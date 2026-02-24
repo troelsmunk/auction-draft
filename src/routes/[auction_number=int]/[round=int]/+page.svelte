@@ -21,9 +21,9 @@
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
   bids.fill(0)
-  const remainingPoints = $derived(points.at(seat))
-  const auctionSize = $derived(points.length)
-  const options = $derived(BID_OPTIONS.get(auctionSize)?.at(seat) || [])
+  let remainingPoints = $derived(points.at(seat))
+  let auctionSize = $derived(points.length)
+  let options = $derived(BID_OPTIONS.get(auctionSize)?.at(seat) || [])
   let sumOfBids = $derived(
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
