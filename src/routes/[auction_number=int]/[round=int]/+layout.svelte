@@ -1,6 +1,9 @@
 <script>
+  import { page } from "$app/state"
+  import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
   import { COLOURS } from "$lib/constants"
+  import { currentRound } from "$lib/stores"
 
   /**
    * @typedef {Object} Props
@@ -9,6 +12,22 @@
 
   /** @type {import('./$types').PageProps & Props} */
   let { children, data } = $props()
+
+  if (browser) {
+    let eventSource = new EventSource("/api/data/" + page.params.auction_number)
+
+    eventSource.onmessage = (event) => {
+      currentRound.set(JSON.parse(event.data).newRound)
+    }
+
+    eventSource.onerror = (event) => {
+      console.error("SSE connection error", event)
+    }
+
+    window.addEventListener("beforeunload", () => {
+      eventSource.close()
+    })
+  }
 </script>
 
 <div class="scoreboard">
