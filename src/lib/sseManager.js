@@ -15,12 +15,12 @@ const activeConnections = new Map()
 export const registerConnection = (controller, auctionNumber) => {
   activeConnections.set(controller, auctionNumber)
   console.log(
-    `SSE connection manager: Connection registered in ${auctionNumber}. Grand total connections: ${activeConnections.size}`,
+    `SSE connection registered in ${auctionNumber}. Grand total connections: ${activeConnections.size}`,
   )
   return () => {
     activeConnections.delete(controller)
     console.log(
-      `SSE connection manager: Connection unregistered from ${auctionNumber}. Grand total connections: ${activeConnections.size}`,
+      `SSE connection unregistered from ${auctionNumber}. Grand total connections: ${activeConnections.size}`,
     )
   }
 }
@@ -38,7 +38,6 @@ export const broadcastUpdate = (data, targetAuction) => {
     if (auctionNumber === targetAuction) {
       try {
         controller.enqueue(encoded)
-        console.log(`Broadcast to client. Message: ${eventMessage.trim()}`)
       } catch (error) {
         console.error("Error sending to client:", error)
         activeConnections.delete(controller)
