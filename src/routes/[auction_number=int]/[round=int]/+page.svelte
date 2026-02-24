@@ -4,7 +4,6 @@
   import { page } from "$app/state"
   import BidButtons from "./BidButtons.svelte"
   import { browser } from "$app/environment"
-  import { writable } from "svelte/store"
   import { BID_OPTIONS } from "$lib/constants"
 
   /**
@@ -37,7 +36,6 @@
   function currentRoundResultsAddress() {
     return `/${page.params.auction_number}/${$currentRound - 1}/results`
   }
-  const messages = writable([])
 
   if (browser) {
     let eventSource = new EventSource("/api/data/" + page.params.auction_number)
@@ -104,13 +102,6 @@
     Bid denied: {form.error}
   </div>
 {/if}
-
-<div>
-  <h3>Live Updates ({$messages.length})</h3>
-  {#each $messages as m}
-    <p>{JSON.stringify(m)}</p>
-  {/each}
-</div>
 
 <style>
   .navigation-container {
