@@ -107,7 +107,6 @@ export const actions = {
       console.error("Failed to write bids to database for uid: ", uid)
       return error(500, "Database error")
     }
-    const auctionNumber = parseInt(event.params.auction_number)
     const selectBids = await db
       .prepare(
         "SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values " +
@@ -173,7 +172,7 @@ export const actions = {
         return error(500, "Database error")
       }
       const update = { newRound: round + 1 }
-      broadcastUpdate(update, auctionNumber)
+      broadcastUpdate(update, auctionId)
     }
     return { success: insertBids.success }
   },

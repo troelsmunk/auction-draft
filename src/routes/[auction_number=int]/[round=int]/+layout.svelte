@@ -7,16 +7,14 @@
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
-   * @property {import('./$types').LayoutParams} params
    * @property {import('./$types').PageData} data
    */
 
   /** @type {Props} */
-  let { children, data, params } = $props()
-  let auctionNumber = $derived(params.auction_number)
+  let { children, data } = $props()
 
   if (browser) {
-    let eventSource = new EventSource("/api/subscribe/" + auctionNumber)
+    let eventSource = new EventSource("/api/subscribe/")
 
     eventSource.onmessage = (event) => {
       invalidateAll()
