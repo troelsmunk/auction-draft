@@ -16,7 +16,7 @@
   let auctionNumber = $derived(params.auction_number)
 
   if (browser) {
-    let eventSource = new EventSource("/api/data/" + auctionNumber)
+    let eventSource = new EventSource("/api/subscribe/" + auctionNumber)
 
     eventSource.onmessage = (event) => {
       invalidateAll()
