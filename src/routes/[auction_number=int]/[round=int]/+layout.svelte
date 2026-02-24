@@ -3,7 +3,7 @@
   import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
   import { COLOURS } from "$lib/constants"
-  import { currentRound } from "$lib/stores"
+  import { invalidateAll } from "$app/navigation"
 
   /**
    * @typedef {Object} Props
@@ -17,7 +17,7 @@
     let eventSource = new EventSource("/api/data/" + page.params.auction_number)
 
     eventSource.onmessage = (event) => {
-      currentRound.set(JSON.parse(event.data).newRound)
+      invalidateAll()
     }
 
     eventSource.onerror = (event) => {
