@@ -26,13 +26,6 @@ export const actions = {
     let previousAuctionNumber = await db
       .prepare("SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1")
       .first("auction_number")
-    if (previousAuctionNumber === null) {
-      console.debug(
-        "No previous auctions found. Creating first auction using default value.",
-        "Should only happen once.",
-      )
-      previousAuctionNumber = previousAuctionNumber || 2000
-    }
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
     const auctionInsert = await db
       .prepare("INSERT INTO auctions (auction_number) VALUES (?)")
@@ -109,18 +102,30 @@ export const actions = {
   },
 }
 
-/** Generate auction number based on latest auction number,
- * using 7 as a primitive root modulo 9001, starting at 1000.
- * @param {number} previousAuctionNumber The previous auction number from the database
- * @returns {number} The next auction number
+/**
+ * Generate an auction number based on the previous one without sequential numbers.
+ * It is generated using 7 as a primitive root modulo 9001, and a  buffer of 999
+ * is added to raise the number to 1000-9999, with four digits and no leading zeros.
+ * @param {number|null} previousAuctionNumber number from the database, if any
+ * @returns {number}
  */
 function generateAuctionNumber(previousAuctionNumber) {
-  if (previousAuctionNumber > 999) {
-    let base = previousAuctionNumber - 999
-    base = (base * 7) % 9001
-    return base + 999
+  if (previousAuctionNumber === null) {
+    console.debug(
+      `No previous auctions found in database. 
+      This first auction is created using the default value.`,
+    )
+    previousAuctionNumber = 1999
   }
-  return 1000
+  const debufferedNumber = previousAuctionNumber - 999
+  if (debufferedNumber < 1 || debufferedNumber > 9000) {
+    console.error(
+      `Error: Auction numbers should be four digits. 
+      Somehow the previous auction had number ${previousAuctionNumber}`,
+    )
+    throw error(500, "Database error")
+  }
+  return ((debufferedNumber * 7) % 9001) + 999
 }
 
 /**
