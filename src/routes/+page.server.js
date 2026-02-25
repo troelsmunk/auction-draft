@@ -6,9 +6,7 @@ export const actions = {
   create: async (event) => {
     const auctionSize = await event.request
       .formData()
-      .then((data) => data.get("auction-size"))
-      .then((value) => value?.toString())
-      .then((str) => parseInt(str || "0"))
+      .then((data) => Number(data.get("auction-size")))
     if (auctionSize < 1 || auctionSize > 6) {
       return fail(400, {
         create: {
@@ -76,9 +74,7 @@ export const actions = {
   join: async (event) => {
     const auctionNumber = await event.request
       .formData()
-      .then((data) => data.get("auction_number"))
-      .then((value) => value?.toString())
-      .then((str) => parseInt(str || "0"))
+      .then((data) => Number(data.get("auction_number")))
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
