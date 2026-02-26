@@ -48,37 +48,31 @@ export const actions = {
       console.error("Error: Could not connect to database.")
       return error(500, "Database error")
     }
-    /** @type {Record<string, number|null>|null} */
+    /** @type {UsersRow|null} */
     const userSelect = await db
       .prepare(
-        "SELECT id, points_remaining, seat_number, auction_id FROM users WHERE uid = ?",
+        `SELECT id, points_remaining, seat_number, auction_id FROM users 
+        WHERE uid = ? 
+        LIMIT 1`,
       )
       .bind(uid)
       .first()
+    if (!userSelect) {
+      console.error("Could not find user data for UID: ", uid)
+      return error(500, "Database error")
+    }
     const pointsRemaining = userSelect?.points_remaining
     const userId = userSelect?.id
     const seat = userSelect?.seat_number
     const auctionId = userSelect?.auction_id
-    if (
-      typeof pointsRemaining != "number" ||
-      typeof userId != "number" ||
-      typeof seat != "number" ||
-      typeof auctionId != "number"
-    ) {
-      console.error("Could not find user data for UID: ", uid)
-      return error(500, "Database error")
-    }
     /** @type {number|null} */
     const auctionSize = await db
-      .prepare("SELECT count(1) as count FROM users WHERE auction_id = ?")
+      .prepare("SELECT count(1) FROM users WHERE auction_id = ?")
       .bind(auctionId)
-      .first("count")
+      .first("count(1)")
     if (typeof auctionSize != "number") {
       console.error(
-        "Could not find size for auction_id: ",
-        auctionId,
-        " related to UID: ",
-        uid,
+        `Could not find size for auction_id: ${auctionId}, related to UID: ${uid},`,
       )
       return error(500, "Database error")
     }
@@ -96,8 +90,9 @@ export const actions = {
     const round = parseInt(event.params.round)
     const insertBids = await db
       .prepare(
-        "INSERT INTO bids (user_id, round, bid_values) VALUES (?,?,json(?)) " +
-          "ON CONFLICT (user_id, round) DO UPDATE SET bid_values = excluded.bid_values",
+        `INSERT INTO bids (user_id, round, bid_values) 
+        VALUES (?,?,json(?)) 
+        ON CONFLICT (user_id, round) DO UPDATE SET bid_values = excluded.bid_values`,
       )
       .bind(userId, round, JSON.stringify(bidsConvertedToOptions))
       .run()
@@ -105,28 +100,28 @@ export const actions = {
       console.error("Failed to write bids to database for uid: ", uid)
       return error(500, "Database error")
     }
-    const selectBids = await db
+    const selectUserAndBids = await db
       .prepare(
-        "SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values " +
-          "FROM users JOIN bids ON users.id = bids.user_id " +
-          "WHERE users.auction_id = ? AND bids.round = ?",
+        `SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values 
+        FROM users JOIN bids ON users.id = bids.user_id 
+        WHERE users.auction_id = ? AND bids.round = ?`,
       )
       .bind(auctionId, round)
       .run()
-    const usersAndBidsFromDb = /** @type {(UsersRow & BidsRow)[]} */ (
-      selectBids.results
+    const usersAndTheirBids = /** @type {(UsersRow & BidsRow)[]} */ (
+      selectUserAndBids.results
     )
-    if (usersAndBidsFromDb.length === auctionSize) {
+    if (usersAndTheirBids.length === auctionSize) {
       /** @type {{seat:number|null, bid:number}[]} */
-      let preliminaryResults = []
+      let auctionResults = []
       // Set default state for every item in a bid
       bidsConvertedToOptions.forEach(() => {
-        preliminaryResults.push({ seat: null, bid: 0 })
+        auctionResults.push({ seat: null, bid: 0 })
       })
-      usersAndBidsFromDb.forEach((record) => {
+      usersAndTheirBids.forEach((record) => {
         const seatForUser = record.seat_number
         const bidsFromUser = JSON.parse(record.bid_values)
-        preliminaryResults.forEach((item, index) => {
+        auctionResults.forEach((item, index) => {
           if (item.bid < bidsFromUser[index]) {
             item.seat = seatForUser
             item.bid = bidsFromUser[index]
@@ -135,25 +130,25 @@ export const actions = {
       })
       const insertResults = await db
         .prepare(
-          "INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) " +
-            "ON CONFLICT (auction_id, round) DO NOTHING",
+          `INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) 
+          ON CONFLICT (auction_id, round) DO NOTHING`,
         )
-        .bind(auctionId, round, JSON.stringify(preliminaryResults))
+        .bind(auctionId, round, JSON.stringify(auctionResults))
         .run()
       if (!insertResults.meta.changed_db) {
         return { success: insertBids.success }
       }
-      /** @type {Array<Promise<D1Result>>} */
+      /** @type {Promise<D1Result>[]} */
       const promises = new Array()
-      usersAndBidsFromDb.forEach((user) => {
+      usersAndTheirBids.forEach((user) => {
         let points = user.points_remaining
-        preliminaryResults
+        auctionResults
           .filter((value) => value.seat == user.seat_number)
           .forEach((value) => {
             points -= value.bid
           })
         const promise = db
-          .prepare("UPDATE users SET points_remaining = ? WHERE id = ?")
+          .prepare(`UPDATE users SET points_remaining = ? WHERE id = ?`)
           .bind(points, user.id)
           .run()
         promises.push(promise)
