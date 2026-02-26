@@ -7,7 +7,7 @@
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
-   * @property {import('../[auction_number=int]/[round=int]/$types').PageData} data
+   * @property {import('./results/$types').PageData} data
    */
 
   /** @type {Props} */
@@ -16,9 +16,7 @@
   if (browser) {
     let eventSource = new EventSource("/api/subscribe/")
 
-    eventSource.onmessage = (event) => {
-      invalidateAll()
-    }
+    eventSource.onmessage = (event) => {}
 
     eventSource.onerror = (event) => {
       console.error("SSE connection error", event)

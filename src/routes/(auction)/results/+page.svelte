@@ -3,19 +3,16 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('../$types').LayoutParams} params
    * @property {import('./$types').PageData} data
    */
 
   /** @type {Props} */
-  let { data, params } = $props()
-  let auctionNumber = $derived(params.auction_number)
-  let nextRound = $derived(parseInt(params.round) + 1)
+  let { data } = $props()
   let results = $derived(data.results)
 </script>
 
 <div class="container">
-  <a class="next-link" href={`/${auctionNumber}/${nextRound}`}>Next round </a>
+  <a class="next-link" href={`/bids`}>Next round </a>
 </div>
 
 <h3>Results</h3>

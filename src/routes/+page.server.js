@@ -69,7 +69,7 @@ export const actions = {
       return error(500, "Database error")
     }
     await enrollUserInAuction(event.cookies, db, auctionId)
-    throw redirect(303, `/${auctionNumber}/1`)
+    throw redirect(303, `/bids`)
   },
   join: async (event) => {
     const auctionNumber = await event.request
@@ -94,7 +94,7 @@ export const actions = {
       })
     }
     await enrollUserInAuction(event.cookies, db, auctionId)
-    throw redirect(303, `/${auctionNumber}/1`)
+    throw redirect(303, `/bids`)
   },
 }
 

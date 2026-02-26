@@ -6,21 +6,20 @@
   /**
    * @typedef {Object} Props
    * @property {import('./$types').ActionData} form
-   * @property {import('../$types').LayoutParams} params
    * @property {import('./$types').PageData} data
    */
 
   /** @type {Props} */
-  let { form, data, params } = $props()
+  let { form, data } = $props()
 
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
   bids.fill(0)
 
-  let auctionNumber = $derived(params.auction_number)
-  let round = $derived(parseInt(params.round))
-  let previousRound = $derived(round - 1)
-  let newResultsAreReady = $derived(data.roundOfLatestResults >= round)
+  // svelte-ignore state_referenced_locally
+  // const roundAtMountTime = Number(data.roundOfLatestResults)
+  // let roundOfLatestResults = $derived(Number(data.roundOfLatestResults))
+  let newResultsAreReady = false //$derived(roundOfLatestResults >= roundAtMountTime)
   let remainingPoints = $derived(data.points.at(data.seat))
   let auctionSize = $derived(data.points.length)
   let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
@@ -34,9 +33,8 @@
 
 <div class="navigation-container">
   <div class="previous-link">
-    {#if previousRound && !newResultsAreReady}
-      <a href={`/${auctionNumber}/${previousRound}/results`}>Previous Results</a
-      >
+    {#if !newResultsAreReady}
+      <a href={`/results`}>Previous Results</a>
     {/if}
   </div>
   <div
@@ -49,7 +47,7 @@
   </div>
   <div class="next-link">
     {#if newResultsAreReady}
-      <a href={`/${auctionNumber}/${round}/results`}>New Results</a>
+      <a href={`/results`}>New Results</a>
     {/if}
   </div>
 </div>
