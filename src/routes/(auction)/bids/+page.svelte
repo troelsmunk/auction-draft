@@ -6,7 +6,7 @@
   /**
    * @typedef {Object} Props
    * @property {import('./$types').ActionData} form
-   * @property {import('./$types').LayoutParams} params
+   * @property {import('../$types').LayoutParams} params
    * @property {import('./$types').PageData} data
    */
 

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "$lib/constants"
 import { error } from "@sveltejs/kit"
 
-/** @type {import('../$types').LayoutServerLoad} */
+/** @type {import('../../[auction_number=int]/[round=int]/$types').LayoutServerLoad} */
 export async function load(event) {
   const uid = event.cookies.get(COOKIE_NAME)
   if (!uid) {

@@ -7,7 +7,7 @@
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
-   * @property {import('./$types').PageData} data
+   * @property {import('../[auction_number=int]/[round=int]/$types').PageData} data
    */
 
   /** @type {Props} */
