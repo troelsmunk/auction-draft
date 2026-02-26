@@ -31,18 +31,16 @@ export const actions = {
       throw error(401, "Please log in")
     }
     const formData = await event.request.formData()
-    /** @type {Array<number|null>} bids */
-    const bids = JSON.parse(formData?.get("bids")?.toString() || "[]")
-    const filteredBids = bids.map((bid) => {
-      return bid || 0
-    })
+    /** @type {Array<any>} */
+    const bids = JSON.parse(String(formData?.get("bids")))
     if (
-      filteredBids.some((bid) => typeof bid !== "number") ||
-      filteredBids.some((bid) => bid < 0)
+      bids.length == 0 ||
+      bids.some((bid) => typeof bid != "number") ||
+      bids.some((bid) => bid < 0)
     ) {
+      console.error("Failed parsing formData: ", formData)
       return fail(400, {
-        error: "The bids should be nonnegative numbers",
-        bids: bids,
+        error: "Error parsing input. The bids should be nonnegative numbers",
       })
     }
     const db = event.platform?.env?.db
@@ -85,7 +83,7 @@ export const actions = {
       return error(500, "Database error")
     }
     const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat)
-    const bidsConvertedToOptions = filteredBids.map((bid) => {
+    const bidsConvertedToOptions = bids.map((bid) => {
       return optionsForThisUser?.at(bid) || 0
     })
     const sumOfBids = bidsConvertedToOptions.reduce((sum, value) => sum + value)
