@@ -20,7 +20,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
   }
   /** @type {number|null} */
   const auctionId = await db
-    .prepare("SELECT auction_id FROM users WHERE uid = ? LIMIT 1")
+    .prepare(`SELECT auction_id FROM users WHERE uid = ? LIMIT 1`)
     .bind(uid)
     .first("auction_id")
   if (!auctionId) {

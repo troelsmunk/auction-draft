@@ -67,7 +67,7 @@ export const actions = {
     const auctionId = userSelect?.auction_id
     /** @type {number|null} */
     const auctionSize = await db
-      .prepare("SELECT count(1) FROM users WHERE auction_id = ?")
+      .prepare(`SELECT count(1) FROM users WHERE auction_id = ?`)
       .bind(auctionId)
       .first("count(1)")
     if (typeof auctionSize != "number") {
@@ -159,8 +159,8 @@ export const actions = {
       })
       if (errors.length > 0) {
         console.error(
-          "Error: Could not subtrack points from users: ",
-          errors.flatMap((value) => value.error).join(),
+          `Error: Could not subtrack points from users: 
+          ${errors.flatMap((value) => value.error).join()}`,
         )
         return error(500, "Database error")
       }

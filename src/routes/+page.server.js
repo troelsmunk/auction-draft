@@ -22,23 +22,22 @@ export const actions = {
     }
     /** @type { number | null}>} */
     let previousAuctionNumber = await db
-      .prepare("SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1")
+      .prepare(`SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1`)
       .first("auction_number")
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
     const auctionInsert = await db
-      .prepare("INSERT INTO auctions (auction_number) VALUES (?)")
+      .prepare(`INSERT INTO auctions (auction_number) VALUES (?)`)
       .bind(auctionNumber)
       .run()
     if (auctionInsert.error) {
       console.error(
-        "Error: Could not insert auction into database: ",
-        auctionInsert.error,
+        `Error: Could not insert auction into database: ${auctionInsert.error}`,
       )
       return error(500, "Database error")
     }
     /** @type { string | null} } */
     const auctionId = await db
-      .prepare("SELECT id FROM auctions WHERE auction_number = ? LIMIT 1")
+      .prepare(`SELECT id FROM auctions WHERE auction_number = ? LIMIT 1`)
       .bind(auctionNumber)
       .first("id")
     if (auctionId === null) {
@@ -50,8 +49,8 @@ export const actions = {
     for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
       const promise = db
         .prepare(
-          "INSERT INTO users (auction_id, points_remaining, seat_number)" +
-            "VALUES (?, ?, ?)",
+          `INSERT INTO users (auction_id, points_remaining, seat_number) 
+          VALUES (?, ?, ?)`,
         )
         .bind(auctionId, 1000, seatIndex)
         .run()
@@ -63,8 +62,8 @@ export const actions = {
     })
     if (errors.length > 0) {
       console.error(
-        "Error: Could not setup user shells in database: ",
-        errors.flatMap((value) => value.error).join(),
+        `Error: Could not setup user shells in database: 
+        ${errors.flatMap((value) => value.error).join()}`,
       )
       return error(500, "Database error")
     }
@@ -82,7 +81,7 @@ export const actions = {
     }
     /** @type {string | null} } */
     const auctionId = await db
-      .prepare("SELECT id FROM auctions WHERE auction_number = ?")
+      .prepare(`SELECT id FROM auctions WHERE auction_number = ?`)
       .bind(auctionNumber)
       .first("id")
     if (auctionId === null) {
@@ -138,13 +137,14 @@ async function enrollUserInAuction(cookies, db, auctionId) {
   const uid = crypto.randomUUID()
   const uidUpdate = await db
     .prepare(
-      "UPDATE users SET uid = ? WHERE auction_id = ? AND uid IS null " +
-        "ORDER BY random() LIMIT 1",
+      `UPDATE users SET uid = ? 
+      WHERE auction_id = ? AND uid IS null 
+      ORDER BY random() LIMIT 1`,
     )
     .bind(uid, auctionId)
     .run()
   if (uidUpdate.error) {
-    console.error("Error: Failed to set UID of new user: ", uidUpdate.error)
+    console.error(`Error: Failed to set UID of new user: ${uidUpdate.error}`)
     return error(500, "Database error")
   }
   cookies.set(COOKIE_NAME, uid, {
@@ -161,29 +161,25 @@ async function enrollUserInAuction(cookies, db, auctionId) {
 async function cleanUpDataFromPreviousUid(db, previousUid) {
   const bidsDelete = await db
     .prepare(
-      "DELETE FROM bids WHERE user_id IN " +
-        "(SELECT id FROM users WHERE uid = ?)",
+      `DELETE FROM bids WHERE user_id IN 
+      (SELECT id FROM users WHERE uid = ?)`,
     )
     .bind(previousUid)
     .run()
   if (bidsDelete.error) {
     console.error(
-      "Error: Failed to delete bids for previous cookie with UID: ",
-      previousUid,
-      " with error: ",
-      bidsDelete.error,
+      `Error: Failed to delete bids for previous cookie with UID: 
+      ${previousUid} with error: ${bidsDelete.error}`,
     )
   }
   const uidUpdate = await db
-    .prepare("UPDATE users SET uid = null WHERE uid = ?")
+    .prepare(`UPDATE users SET uid = null WHERE uid = ?`)
     .bind(previousUid)
     .run()
   if (uidUpdate.error) {
     console.error(
-      "Error: Failed to set UID to null for previous cookie with UID: ",
-      previousUid,
-      " with error: ",
-      uidUpdate.error,
+      `Error: Failed to set UID to null for previous cookie with UID: 
+      ${previousUid} with error: ${uidUpdate.error}`,
     )
   }
 }
