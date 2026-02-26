@@ -27,7 +27,7 @@ export const registerConnection = (controller, auctionId) => {
 
 /**
  * Broadcast data to all connected clients in that auction
- * @param {any} data - The data to send
+ * @param {Object} data - The data to send
  * @param {number} targetAuction The auction id that the data should go to
  */
 export const broadcastUpdate = (data, targetAuction) => {
