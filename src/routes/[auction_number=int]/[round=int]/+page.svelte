@@ -76,9 +76,9 @@
   {/if}
 </form>
 
-{#if form?.success === true}
+{#if form?.success}
   Bid received
-{:else if form && !form.success}
+{:else if form?.error}
   <div class="error">
     Bid denied: {form.error}
   </div>

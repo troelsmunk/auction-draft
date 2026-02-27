@@ -28,7 +28,7 @@ export const actions = {
   submit: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      return fail(401, ERROR_MESSAGE_401)
+      return fail(401, { success: false, error: ERROR_MESSAGE_401 })
     }
     const formData = await event.request.formData()
     /** @type {Array<any>} */
@@ -40,13 +40,14 @@ export const actions = {
     ) {
       console.error("Failed parsing formData: ", formData)
       return fail(400, {
-        error: "Error parsing input. The bids should be nonnegative numbers",
+        success: false,
+        error: "Invalid input. The bids should be nonnegative numbers",
       })
     }
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
-      return fail(500, "Database error")
+      return fail(500, { success: false, error: "Database error" })
     }
     /** @type {UsersRow|null} */
     const userSelect = await db
@@ -59,7 +60,7 @@ export const actions = {
       .first()
     if (!userSelect) {
       console.error("Could not find user data for UID: ", uid)
-      return fail(500, "Database error")
+      return fail(500, { success: false, error: "Database error" })
     }
     const pointsRemaining = userSelect?.points_remaining
     const userId = userSelect?.id
@@ -74,7 +75,7 @@ export const actions = {
       console.error(
         `Could not find size for auction_id: ${auctionId}, related to UID: ${uid},`,
       )
-      return fail(500, "Database error")
+      return fail(500, { success: false, error: "Database error" })
     }
     const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat)
     const bidsConvertedToOptions = bids.map((bid) => {
@@ -82,10 +83,7 @@ export const actions = {
     })
     const sumOfBids = bidsConvertedToOptions.reduce((sum, value) => sum + value)
     if (pointsRemaining < sumOfBids) {
-      return fail(400, {
-        error: "Insufficient funds",
-        bids: bidsConvertedToOptions,
-      })
+      return fail(400, { success: false, error: "Insufficient funds" })
     }
     const round = parseInt(event.params.round)
     const insertBids = await db
@@ -98,7 +96,7 @@ export const actions = {
       .run()
     if (insertBids.error) {
       console.error("Failed to write bids to database for uid: ", uid)
-      return fail(500, "Database error")
+      return fail(500, { success: false, error: "Database error" })
     }
     const selectUserAndBids = await db
       .prepare(
@@ -159,7 +157,7 @@ export const actions = {
         console.error(
           `Error: Could not subtract points from users: ${responses}`,
         )
-        return fail(500, "Database error")
+        return fail(500, { success: false, error: "Database error" })
       }
       const update = { newRound: round + 1 }
       broadcastUpdate(update, auctionId)

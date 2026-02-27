@@ -18,7 +18,11 @@ export const actions = {
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
-      return fail(500, "Database error")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
     }
     /** @type { number | null}>} */
     let previousAuctionNumber = await db
@@ -33,7 +37,11 @@ export const actions = {
       console.error(
         `Error: Could not insert auction into database: ${auctionInsert.error}`,
       )
-      return fail(500, "Database error")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
     }
     /** @type { string | null} } */
     const auctionId = await db
@@ -42,7 +50,11 @@ export const actions = {
       .first("id")
     if (auctionId === null) {
       console.error("Error: Could not read auctionId from database.")
-      return fail(500, "Database error")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
     }
     /** @type {Array<Promise<D1Result>>} */
     const promises = new Array()
@@ -62,10 +74,14 @@ export const actions = {
       console.error(
         `Error: Could not setup user shells in database: ${responses}`,
       )
-      return fail(500, "Database error")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
     }
     await enrollUserInAuction(event.cookies, db, auctionId)
-    throw redirect(303, `/${auctionNumber}/1`)
+    redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
     const auctionNumber = await event.request
@@ -74,7 +90,11 @@ export const actions = {
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
-      return fail(500, "Database error")
+      return fail(500, {
+        join: {
+          error: "Database error",
+        },
+      })
     }
     /** @type {string | null} } */
     const auctionId = await db
@@ -82,7 +102,7 @@ export const actions = {
       .bind(auctionNumber)
       .first("id")
     if (auctionId === null) {
-      return fail(400, {
+      return fail(404, {
         join: {
           auction_number: auctionNumber,
           error: "No auction with that number exists.",
@@ -90,7 +110,7 @@ export const actions = {
       })
     }
     await enrollUserInAuction(event.cookies, db, auctionId)
-    throw redirect(303, `/${auctionNumber}/1`)
+    redirect(303, `/${auctionNumber}/1`)
   },
 }
 
@@ -142,7 +162,9 @@ async function enrollUserInAuction(cookies, db, auctionId) {
     .run()
   if (uidUpdate.error) {
     console.error(`Error: Failed to set UID of new user: ${uidUpdate.error}`)
-    return fail(500, "Database error")
+    return fail(500, {
+      error: "Database error",
+    })
   }
   cookies.set(COOKIE_NAME, uid, {
     path: "/",
