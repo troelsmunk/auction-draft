@@ -1,6 +1,6 @@
 import { BID_OPTIONS, COOKIE_NAME } from "$lib/constants"
 import { broadcastUpdate } from "$lib/sseManager"
-import { error, fail } from "@sveltejs/kit"
+import { fail } from "@sveltejs/kit"
 
 /**
  * @typedef {Object} UsersRow
@@ -28,7 +28,7 @@ export const actions = {
   submit: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      throw error(401, "Please log in")
+      return fail(401, "Please log in")
     }
     const formData = await event.request.formData()
     /** @type {Array<any>} */
@@ -46,7 +46,7 @@ export const actions = {
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
-      return error(500, "Database error")
+      return fail(500, "Database error")
     }
     /** @type {UsersRow|null} */
     const userSelect = await db
@@ -59,7 +59,7 @@ export const actions = {
       .first()
     if (!userSelect) {
       console.error("Could not find user data for UID: ", uid)
-      return error(500, "Database error")
+      return fail(500, "Database error")
     }
     const pointsRemaining = userSelect?.points_remaining
     const userId = userSelect?.id
@@ -74,7 +74,7 @@ export const actions = {
       console.error(
         `Could not find size for auction_id: ${auctionId}, related to UID: ${uid},`,
       )
-      return error(500, "Database error")
+      return fail(500, "Database error")
     }
     const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat)
     const bidsConvertedToOptions = bids.map((bid) => {
@@ -98,7 +98,7 @@ export const actions = {
       .run()
     if (insertBids.error) {
       console.error("Failed to write bids to database for uid: ", uid)
-      return error(500, "Database error")
+      return fail(500, "Database error")
     }
     const selectUserAndBids = await db
       .prepare(
@@ -159,7 +159,7 @@ export const actions = {
         console.error(
           `Error: Could not subtract points from users: ${responses}`,
         )
-        return error(500, "Database error")
+        return fail(500, "Database error")
       }
       const update = { newRound: round + 1 }
       broadcastUpdate(update, auctionId)
