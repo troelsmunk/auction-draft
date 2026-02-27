@@ -3,17 +3,17 @@ import { registerConnection } from "$lib/sseManager.js"
 import { error } from "@sveltejs/kit"
 
 /** @type {import('@sveltejs/kit').RequestHandler} */
-export const GET = async ({ cookies, params, request, platform }) => {
+export const GET = async (event) => {
   /** @type {() => void} */
   let unregisterConnection
   /** @type {NodeJS.Timeout} */
   let keepAlive
 
-  const uid = cookies.get(COOKIE_NAME)
+  const uid = event.cookies.get(COOKIE_NAME)
   if (!uid) {
     throw error(401, ERROR_MESSAGE_401)
   }
-  const db = platform?.env?.db
+  const db = event.platform?.env?.db
   if (!db) {
     console.error("Error: Could not connect to database.")
     throw error(500, "Database error")
@@ -30,7 +30,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
 
   // Keep the worker alive until the connection is closed
   const { promise, resolve } = Promise.withResolvers()
-  platform?.ctx?.waitUntil(promise)
+  event.platform?.ctx?.waitUntil(promise)
 
   /** @type {(reason: string) => void} */
   function disconnectClient(reason) {
@@ -39,7 +39,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
     clearInterval(keepAlive)
     resolve(reason)
   }
-  request.signal.addEventListener("abort", () => {
+  event.request.signal.addEventListener("abort", () => {
     disconnectClient("Request aborted")
   })
 
