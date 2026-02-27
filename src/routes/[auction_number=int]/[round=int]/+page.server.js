@@ -1,4 +1,4 @@
-import { BID_OPTIONS, COOKIE_NAME } from "$lib/constants"
+import { BID_OPTIONS, COOKIE_NAME, ERROR_MESSAGE_401 } from "$lib/constants"
 import { broadcastUpdate } from "$lib/sseManager"
 import { fail } from "@sveltejs/kit"
 
@@ -28,7 +28,7 @@ export const actions = {
   submit: async (event) => {
     const uid = event.cookies.get(COOKIE_NAME)
     if (!uid) {
-      return fail(401, "Please log in")
+      return fail(401, ERROR_MESSAGE_401)
     }
     const formData = await event.request.formData()
     /** @type {Array<any>} */

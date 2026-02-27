@@ -1,6 +1,9 @@
 /** @type {string} */
 export const COOKIE_NAME = "__session"
 /** @type {string} */
+export const ERROR_MESSAGE_401 =
+  "You are not enrolled in an auction. Please join one."
+/** @type {string} */
 export const LOADING = "loading"
 /** @type {string[]} */
 export const COLOURS = [

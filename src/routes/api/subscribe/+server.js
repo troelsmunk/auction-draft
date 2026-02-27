@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "$lib/constants"
+import { COOKIE_NAME, ERROR_MESSAGE_401 } from "$lib/constants"
 import { registerConnection } from "$lib/sseManager.js"
 import { error } from "@sveltejs/kit"
 
@@ -11,7 +11,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
 
   const uid = cookies.get(COOKIE_NAME)
   if (!uid) {
-    throw error(401, "Please log in")
+    throw error(401, ERROR_MESSAGE_401)
   }
   const db = platform?.env?.db
   if (!db) {

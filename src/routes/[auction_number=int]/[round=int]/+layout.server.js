@@ -1,4 +1,4 @@
-import { COOKIE_NAME } from "$lib/constants"
+import { COOKIE_NAME, ERROR_MESSAGE_401 } from "$lib/constants"
 import { error } from "@sveltejs/kit"
 
 /**
@@ -14,7 +14,7 @@ import { error } from "@sveltejs/kit"
 export async function load(event) {
   const uid = event.cookies.get(COOKIE_NAME)
   if (!uid) {
-    throw error(401, "Please log in")
+    throw error(401, ERROR_MESSAGE_401)
   }
   const db = event.platform?.env?.db
   if (!db) {
