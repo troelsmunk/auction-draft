@@ -154,13 +154,10 @@ export const actions = {
         promises.push(promise)
       })
       const responses = await Promise.all(promises)
-      const errors = responses.filter((response) => {
-        return response.error
-      })
-      if (errors.length > 0) {
+      const haveErrors = responses.some((response) => Boolean(response.error))
+      if (haveErrors) {
         console.error(
-          `Error: Could not subtrack points from users: 
-          ${errors.flatMap((value) => value.error).join()}`,
+          `Error: Could not subtract points from users: ${responses}`,
         )
         return error(500, "Database error")
       }

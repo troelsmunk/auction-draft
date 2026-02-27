@@ -44,7 +44,7 @@ export const actions = {
       console.error("Error: Could not read auctionId from database.")
       return error(500, "Database error")
     }
-    /** @type {Array<Promise<D1Result<Record<string, unknown>>>>} */
+    /** @type {Array<Promise<D1Result>>} */
     const promises = new Array()
     for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
       const promise = db
@@ -57,13 +57,10 @@ export const actions = {
       promises.push(promise)
     }
     const responses = await Promise.all(promises)
-    const errors = responses.filter((response) => {
-      return response.error
-    })
-    if (errors.length > 0) {
+    const haveErrors = responses.some((response) => Boolean(response.error))
+    if (haveErrors) {
       console.error(
-        `Error: Could not setup user shells in database: 
-        ${errors.flatMap((value) => value.error).join()}`,
+        `Error: Could not setup user shells in database: ${responses}`,
       )
       return error(500, "Database error")
     }
