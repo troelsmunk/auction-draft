@@ -23,9 +23,10 @@ export async function load(event) {
   }
   const usersSelect = await db
     .prepare(
-      "SELECT points_remaining, seat_number, uid, auction_id FROM users WHERE auction_id = " +
-        "(SELECT auction_id FROM users WHERE uid = ? LIMIT 1) " +
-        "ORDER BY seat_number",
+      `SELECT points_remaining, seat_number, uid, auction_id FROM users 
+      WHERE auction_id = 
+        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      ORDER BY seat_number`,
     )
     .bind(uid)
     .run()
@@ -36,8 +37,8 @@ export async function load(event) {
   const seat = users.find((user) => user.uid == uid)?.seat_number
   let roundOfLatestResults = await db
     .prepare(
-      "SELECT round FROM results WHERE auction_id = ? " +
-        "ORDER BY round DESC LIMIT 1",
+      `SELECT round FROM results WHERE auction_id = ? 
+      ORDER BY round DESC LIMIT 1`,
     )
     .bind(users.at(0)?.auction_id)
     .first("round")

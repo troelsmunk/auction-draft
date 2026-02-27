@@ -181,7 +181,7 @@ async function cleanUpDataFromPreviousUid(db, previousUid) {
   const bidsDelete = await db
     .prepare(
       `DELETE FROM bids WHERE user_id IN 
-      (SELECT id FROM users WHERE uid = ?)`,
+        (SELECT id FROM users WHERE uid = ?)`,
     )
     .bind(previousUid)
     .run()
