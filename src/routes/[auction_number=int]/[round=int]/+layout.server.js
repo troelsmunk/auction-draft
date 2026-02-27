@@ -19,7 +19,7 @@ export async function load(event) {
   const db = event.platform?.env?.db
   if (!db) {
     console.error("Error: Could not connect to database.")
-    return error(500, "Database error")
+    throw error(500, "Database error")
   }
   const usersSelect = await db
     .prepare(

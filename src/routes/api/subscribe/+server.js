@@ -16,7 +16,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
   const db = platform?.env?.db
   if (!db) {
     console.error("Error: Could not connect to database.")
-    return error(500, "Database error")
+    throw error(500, "Database error")
   }
   /** @type {number|null} */
   const auctionId = await db
@@ -25,7 +25,7 @@ export const GET = async ({ cookies, params, request, platform }) => {
     .first("auction_id")
   if (!auctionId) {
     console.error("Error: Could not fetch auction_id from the database.")
-    return error(500, "Database error")
+    throw error(500, "Database error")
   }
 
   // Keep the worker alive until the connection is closed

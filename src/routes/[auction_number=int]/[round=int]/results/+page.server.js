@@ -10,7 +10,7 @@ export async function load(event) {
   const db = event.platform?.env?.db
   if (!db) {
     console.error("Error: Could not connect to database.")
-    return error(500, "Database error")
+    throw error(500, "Database error")
   }
   /** @type {{seat:number|null, bid:number}[]} */
   const results = await db
