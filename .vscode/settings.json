@@ -1,5 +1,5 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "githubPullRequests.defaultMergeMethod": "squash"
+  "githubPullRequests.defaultMergeMethod": "squash",
+  "files.associations": { "wrangler.json": "jsonc" }
 }

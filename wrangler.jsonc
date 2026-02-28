@@ -1,0 +1,29 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "auction-draft",
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "compatibility_date": "2026-01-28",
+  "compatibility_flags": [
+    "nodejs_als",
+    "enable_request_signal",
+    "nodejs_compat",
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".svelte-kit/cloudflare",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "d1_databases": [
+    {
+      "binding": "db",
+      "database_name": "prod-auctions",
+      "database_id": "2a5879c1-18af-4ebd-9dbf-c43b5ff527d7",
+    },
+  ],
+}

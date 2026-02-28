@@ -1,7 +1,13 @@
 <script>
-  export let color = "green"
-  export let you = false
-  export let score = false
+  /**
+   * @typedef {Object} Props
+   * @property {string} [color]
+   * @property {boolean} [you]
+   * @property {any} score
+   */
+
+  /** @type {Props} */
+  let { color = "green", you = false, score } = $props()
 </script>
 
 <div class="scoreboard-item" class:you style:background-color={color}>
@@ -13,7 +19,7 @@
   <div class="score">
     {score}
   </div>
-  <div />
+  <div></div>
 </div>
 
 <style>

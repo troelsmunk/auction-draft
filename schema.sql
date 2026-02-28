@@ -1,0 +1,40 @@
+DROP TABLE IF EXISTS bids;
+
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS results;
+
+DROP TABLE IF EXISTS auctions;
+
+CREATE TABLE IF NOT EXISTS auctions (
+  id INTEGER PRIMARY KEY,
+  auction_number INTEGER UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY,
+  uid TEXT UNIQUE,
+  auction_id INTEGER NOT NULL,
+  points_remaining INTEGER NOT NULL,
+  seat_number INTEGER NOT NULL,
+  UNIQUE(auction_id, seat_number),
+  FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS bids (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  round INTEGER NOT NULL,
+  bid_values TEXT NOT NULL,
+  UNIQUE(user_id, round),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS results (
+  id INTEGER PRIMARY KEY,
+  auction_id INTEGER NOT NULL,
+  round INTEGER NOT NULL,
+  results TEXT NOT NULL,
+  UNIQUE(auction_id, round),
+  FOREIGN KEY (auction_id) REFERENCES auctions(id) ON DELETE CASCADE
+);

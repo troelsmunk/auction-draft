@@ -1,179 +1,199 @@
 import { error, fail, redirect } from "@sveltejs/kit"
-import { admin } from "$lib/admin.server"
 import { COOKIE_NAME } from "$lib/constants"
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {
-    const uid = event.cookies.get(COOKIE_NAME)
-    if (!uid) {
-     return fail(401, {
-        create: {
-          error: "Please log in",
-        },
-      })
-    }
-    const data = await event.request.formData()
-    const auctionSize = parseInt(data?.get("auction-size"))
+    const auctionSize = await event.request
+      .formData()
+      .then((data) => Number(data.get("auction-size")))
     if (auctionSize < 1 || auctionSize > 6) {
       return fail(400, {
         create: {
-          auctionSize: data?.get("auction-size"),
+          auctionSize: auctionSize,
           error: "The auction size should be a number between 1 and 6",
         },
       })
     }
-    let pin
-    try {
-      pin = await getNextPin()
-      await setupAuctionAndBidder(auctionSize, uid, pin)
-    } catch (error) {
+    const db = event.platform?.env?.db
+    if (!db) {
+      console.error("Error: Could not connect to database.")
       return fail(500, {
         create: {
-          pin: pin,
-          auctionSize: auctionSize,
-          error: "Creation of the auction failed. Please try again.",
+          error: "Database error",
         },
       })
     }
-    throw redirect(303, `/${pin}/1`)
+    let previousAuctionNumber = await db
+      .prepare(`SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1`)
+      .first("auction_number")
+    const auctionNumber = generateAuctionNumber(previousAuctionNumber)
+    const auctionInsert = await db
+      .prepare(`INSERT INTO auctions (auction_number) VALUES (?)`)
+      .bind(auctionNumber)
+      .run()
+    if (auctionInsert.error) {
+      console.error(
+        `Error: Could not insert auction into database: ${auctionInsert.error}`,
+      )
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
+    }
+    const auctionId = await db
+      .prepare(`SELECT id FROM auctions WHERE auction_number = ? LIMIT 1`)
+      .bind(auctionNumber)
+      .first("id")
+    if (typeof auctionId != "number") {
+      console.error("Error: Could not read auctionId from database.")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
+    }
+    /** @type {Array<Promise<D1Result>>} */
+    const promises = new Array()
+    for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
+      const promise = db
+        .prepare(
+          `INSERT INTO users (auction_id, points_remaining, seat_number) 
+          VALUES (?, ?, ?)`,
+        )
+        .bind(auctionId, 1000, seatIndex)
+        .run()
+      promises.push(promise)
+    }
+    const responses = await Promise.all(promises)
+    const haveErrors = responses.some((response) => Boolean(response.error))
+    if (haveErrors) {
+      console.error(
+        `Error: Could not setup user shells in database: ${responses}`,
+      )
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
+    }
+    await enrollUserInAuction(event.cookies, db, auctionId)
+    redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
-    const uid = event.cookies.get(COOKIE_NAME)
-    if (!uid) {
-      return fail(401, {
-        join: {
-          error: "Please log in",
-        },
-      })
-    }
-    const data = await event.request.formData()
-    const pin = parseInt(data?.get("pin"))
-    if (!pin) {
-      return fail(400, {
-        join: {
-          pin: data?.get("pin"),
-          error: "Please verify the PIN",
-        },
-      })
-    }
-    try {
-      await enrollBidderInAuction(uid, pin)
-    } catch (error) {
+    const auctionNumber = await event.request
+      .formData()
+      .then((data) => Number(data.get("auction_number")))
+    const db = event.platform?.env?.db
+    if (!db) {
+      console.error("Error: Could not connect to database.")
       return fail(500, {
         join: {
-          pin: pin,
-          error: "Enrollment into the auction failed. Please verify the PIN.",
+          error: "Database error",
         },
       })
     }
-    throw redirect(303, `/${pin}/1`)
+    const auctionId = await db
+      .prepare(`SELECT id FROM auctions WHERE auction_number = ?`)
+      .bind(auctionNumber)
+      .first("id")
+    if (typeof auctionId != "number") {
+      return fail(404, {
+        join: {
+          auction_number: auctionNumber,
+          error: "No auction with that number exists.",
+        },
+      })
+    }
+    await enrollUserInAuction(event.cookies, db, auctionId)
+    redirect(303, `/${auctionNumber}/1`)
   },
 }
 
 /**
- * Calculates the next PIN from the previous PIN
- * Done using the prime 9973 and its primitive root 11
- * @param {any} previousPin The previous PIN which the calculation is based upon
- * @returns {number} The next PIN to be used in the transaction
+ * Generate an auction number based on the previous one without sequential numbers.
+ * It is generated using 7 as a primitive root modulo 9001, and a buffer of 999
+ * is added to raise the number to 1000-9999, with four digits and no leading zeros.
+ * @param {any} previousAuctionNumber number from the database, if any
+ * @returns {number}
  */
-function calculateNextPin(previousPin) {
-  if (typeof previousPin === "number") {
-    return (previousPin * 11) % 9973
+function generateAuctionNumber(previousAuctionNumber) {
+  if (typeof previousAuctionNumber != "number") {
+    console.debug(
+      `No previous auctions found in database. 
+      This first auction is created using the default value.`,
+    )
+    previousAuctionNumber = 1999
   }
-  return 1
+  const debufferedNumber = previousAuctionNumber - 999
+  if (debufferedNumber < 1 || debufferedNumber > 9000) {
+    console.error(
+      `Error: Auction numbers should be four digits. 
+      Somehow the previous auction had number ${previousAuctionNumber}`,
+    )
+    throw error(500, "Database error")
+  }
+  return ((debufferedNumber * 7) % 9001) + 999
 }
 
 /**
- * Calculates the next PIN to be used from the currently newest PIN
- * @returns {Promise<number>} The next PIN to be used
+ * @param {import('@sveltejs/kit').Cookies} cookies
+ * @param {import('@cloudflare/workers-types').D1Database} db
+ * @param {number} auctionId
+ * @async
  */
-async function getNextPin() {
-  return admin
-    .database()
-    .ref("newestPin")
-    .transaction(calculateNextPin, null, false)
-    .then((result) => result.snapshot.val())
+async function enrollUserInAuction(cookies, db, auctionId) {
+  const previousUid = cookies.get(COOKIE_NAME)
+  if (previousUid) {
+    await cleanUpDataFromPreviousUid(db, previousUid)
+  }
+  const uid = crypto.randomUUID()
+  const uidUpdate = await db
+    .prepare(
+      `UPDATE users SET uid = ? 
+      WHERE auction_id = ? AND uid IS null 
+      ORDER BY random() LIMIT 1`,
+    )
+    .bind(uid, auctionId)
+    .run()
+  if (uidUpdate.error) {
+    console.error(`Error: Failed to set UID of new user: ${uidUpdate.error}`)
+    throw error(500, "Database error")
+  }
+  cookies.set(COOKIE_NAME, uid, {
+    path: "/",
+    maxAge: 60 * 60 * 24, // 1 day
+  })
 }
 
 /**
- * Creates the auction in the database, as well as the first bidder
- * @param {number} auctionSize The requested size of the auction
- * @param {string} uid The UID of the user who requested the auction
- * @param {number} pin The calculated auction PIN
- * @returns {Promise<void>}
+ * @param {import('@cloudflare/workers-types').D1Database} db
+ * @param {string} previousUid
+ * @async
  */
-function setupAuctionAndBidder(auctionSize, uid, pin) {
-  const scoreboard = {}
-  for (let index = 0; index < auctionSize; index++) {
-    scoreboard[index] = 200
+async function cleanUpDataFromPreviousUid(db, previousUid) {
+  const bidsDelete = await db
+    .prepare(
+      `DELETE FROM bids WHERE user_id IN 
+        (SELECT id FROM users WHERE uid = ?)`,
+    )
+    .bind(previousUid)
+    .run()
+  if (bidsDelete.error) {
+    console.error(
+      `Error: Failed to delete bids for previous cookie with UID: 
+      ${previousUid} with error: ${bidsDelete.error}`,
+    )
   }
-  return admin
-    .database()
-    .ref(`auctions/${pin}`)
-    .update({
-      round: 1,
-      size: auctionSize,
-      timestamp: Date.now(),
-      scoreboard: scoreboard,
-      seats: { [uid]: 0 },
-      readys: { [uid]: -1 },
-    })
-}
-
-/**
- * Enrolls a bidder into an auction in the database
- * @param {string} uid The UID of the bidder that requested to join
- * @param {number} pin The PIN of the auction
- * @returns {Promise<void>}
- */
-async function enrollBidderInAuction(uid, pin) {
-  const auctionRef = admin.database().ref(`auctions/${pin}`)
-  const auctionSize = await auctionRef
-    .child(`size`)
-    .get()
-    .then((snap) => snap.val())
-  if (!auctionSize) {
-    throw error(500, "Auction size doesn't exist")
-  }
-  const findSeatForUid = findSeatReducer(uid, pin, auctionSize)
-  const transactionResult = await auctionRef
-    .child("seats")
-    .transaction(findSeatForUid, null, false)
-  if (!transactionResult?.committed || !transactionResult?.snapshot.exists()) {
-    throw error(500, "Transaction failed")
-  }
-  return auctionRef.child("readys").update({ [uid]: -1 })
-}
-
-/**
- * Produce a function that can find a seat during a transaction
- * @param {string} uid The UID of the bidder that is to be seated
- * @param {number} pin The PIN of the auction
- * @param {number} auctionSize The size of the auction
- * @returns {(seats:?object) => object} The reduced function for the transaction
- */
-function findSeatReducer(uid, pin, auctionSize) {
-  return function (seatsData) {
-    if (!seatsData) {
-      return { [uid]: pin % auctionSize }
-    }
-    if (Object.keys(seatsData).includes(uid)) {
-      return seatsData
-    }
-    let availableSeats = new Array()
-    const takenSeats = Object.values(seatsData)
-    for (let index = 0; index < auctionSize; index++) {
-      if (!takenSeats.includes(index)) {
-        availableSeats.push(index)
-      }
-    }
-    const numberOfSeats = availableSeats.length
-    if (numberOfSeats <= 0) {
-      return
-    }
-    const modulo = pin % numberOfSeats
-    const assignedSeat = availableSeats[modulo]
-    return { ...seatsData, [uid]: assignedSeat }
+  const uidUpdate = await db
+    .prepare(`UPDATE users SET uid = null WHERE uid = ?`)
+    .bind(previousUid)
+    .run()
+  if (uidUpdate.error) {
+    console.error(
+      `Error: Failed to set UID to null for previous cookie with UID: 
+      ${previousUid} with error: ${uidUpdate.error}`,
+    )
   }
 }
