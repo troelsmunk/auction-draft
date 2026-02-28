@@ -43,12 +43,11 @@ export const actions = {
         },
       })
     }
-    /** @type { string | null} } */
     const auctionId = await db
       .prepare(`SELECT id FROM auctions WHERE auction_number = ? LIMIT 1`)
       .bind(auctionNumber)
       .first("id")
-    if (auctionId === null) {
+    if (typeof auctionId != "number") {
       console.error("Error: Could not read auctionId from database.")
       return fail(500, {
         create: {
@@ -96,12 +95,11 @@ export const actions = {
         },
       })
     }
-    /** @type {string | null} } */
     const auctionId = await db
       .prepare(`SELECT id FROM auctions WHERE auction_number = ?`)
       .bind(auctionNumber)
       .first("id")
-    if (auctionId === null) {
+    if (typeof auctionId != "number") {
       return fail(404, {
         join: {
           auction_number: auctionNumber,
@@ -143,7 +141,7 @@ function generateAuctionNumber(previousAuctionNumber) {
 /**
  * @param {import('@sveltejs/kit').Cookies} cookies
  * @param {import('@cloudflare/workers-types').D1Database} db
- * @param {string} auctionId
+ * @param {number} auctionId
  * @async
  */
 async function enrollUserInAuction(cookies, db, auctionId) {

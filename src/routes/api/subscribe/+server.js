@@ -18,12 +18,11 @@ export const GET = async (event) => {
     console.error("Error: Could not connect to database.")
     throw error(500, "Database error")
   }
-  /** @type {number|null} */
   const auctionId = await db
     .prepare(`SELECT auction_id FROM users WHERE uid = ? LIMIT 1`)
     .bind(uid)
     .first("auction_id")
-  if (!auctionId) {
+  if (typeof auctionId != "number") {
     console.error("Error: Could not fetch auction_id from the database.")
     throw error(500, "Database error")
   }
