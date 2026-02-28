@@ -27,16 +27,11 @@ export const GET = async (event) => {
     throw error(500, "Database error")
   }
 
-  // Keep the worker alive until the connection is closed
-  const { promise, resolve } = Promise.withResolvers()
-  event.platform?.ctx?.waitUntil(promise)
-
   /** @type {(reason: string) => void} */
   function disconnectClient(reason) {
     console.log("SSE: Disconnecting client: ", reason)
     unregisterConnection?.()
     clearInterval(keepAlive)
-    resolve(reason)
   }
   event.request.signal.addEventListener("abort", () => {
     disconnectClient("Request aborted")
