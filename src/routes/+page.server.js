@@ -64,10 +64,11 @@ export const actions = {
         .bind(auctionId, 1000, seatIndex)
       statements.push(statement)
     }
-    const result = await db.batch(statements)
-    if (!result) {
+    const results = await db.batch(statements)
+    const haveErrors = results.some((result) => Boolean(result.error))
+    if (haveErrors) {
       console.error(
-        `Error: Could not setup user shells in database: ${statements}`,
+        `Error: Could not setup user shells in database: ${results}`,
       )
       return fail(500, {
         create: {

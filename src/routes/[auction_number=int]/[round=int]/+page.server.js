@@ -150,11 +150,10 @@ export const actions = {
           .bind(points, user.id)
         statements.push(statement)
       })
-      const result = await db.batch(statements)
-      if (!result) {
-        console.error(
-          `Error: Could not subtract points from users: ${statements}`,
-        )
+      const results = await db.batch(statements)
+      const haveErrors = results.some((result) => Boolean(result.error))
+      if (haveErrors) {
+        console.error(`Error: Could not subtract points from users: ${results}`)
         return fail(500, { success: false, error: "Database error" })
       }
       const update = { newRound: round + 1 }
