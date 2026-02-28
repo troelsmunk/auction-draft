@@ -24,7 +24,6 @@ export const actions = {
         },
       })
     }
-    /** @type { number | null}>} */
     let previousAuctionNumber = await db
       .prepare(`SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1`)
       .first("auction_number")
@@ -116,11 +115,11 @@ export const actions = {
  * Generate an auction number based on the previous one without sequential numbers.
  * It is generated using 7 as a primitive root modulo 9001, and a  buffer of 999
  * is added to raise the number to 1000-9999, with four digits and no leading zeros.
- * @param {number|null} previousAuctionNumber number from the database, if any
+ * @param {any} previousAuctionNumber number from the database, if any
  * @returns {number}
  */
 function generateAuctionNumber(previousAuctionNumber) {
-  if (previousAuctionNumber === null) {
+  if (typeof previousAuctionNumber != "number") {
     console.debug(
       `No previous auctions found in database. 
       This first auction is created using the default value.`,
