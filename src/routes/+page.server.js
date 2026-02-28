@@ -113,7 +113,7 @@ export const actions = {
 
 /**
  * Generate an auction number based on the previous one without sequential numbers.
- * It is generated using 7 as a primitive root modulo 9001, and a  buffer of 999
+ * It is generated using 7 as a primitive root modulo 9001, and a buffer of 999
  * is added to raise the number to 1000-9999, with four digits and no leading zeros.
  * @param {any} previousAuctionNumber number from the database, if any
  * @returns {number}
