@@ -109,7 +109,8 @@ export const actions = {
     const usersAndTheirBids = /** @type {(UsersRow & BidsRow)[]} */ (
       selectUserAndBids.results
     )
-    if (usersAndTheirBids.length === auctionSize) {
+    const everyoneHasBid = usersAndTheirBids.length === auctionSize
+    if (everyoneHasBid) {
       /** @type {{seat:number|null, bid:number}[]} */
       let auctionResults = []
       // Set default state for every item in a bid
