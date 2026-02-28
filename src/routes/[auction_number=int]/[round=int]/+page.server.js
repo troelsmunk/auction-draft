@@ -137,8 +137,7 @@ export const actions = {
       if (!insertResults.meta.changed_db) {
         return { success: insertBids.success }
       }
-      /** @type {Promise<D1Result>[]} */
-      const promises = new Array()
+      const statements = new Array()
       usersAndTheirBids.forEach((user) => {
         let points = user.points_remaining
         auctionResults
@@ -146,18 +145,15 @@ export const actions = {
           .forEach((value) => {
             points -= value.bid
           })
-        const promise = db
+        const statement = db
           .prepare(`UPDATE users SET points_remaining = ? WHERE id = ?`)
           .bind(points, user.id)
-          .run()
-        promises.push(promise)
+        statements.push(statement)
       })
-      const responses = await Promise.all(promises)
-      const haveErrors = responses.some((response) => Boolean(response.error))
+      const results = await db.batch(statements)
+      const haveErrors = results.some((result) => Boolean(result.error))
       if (haveErrors) {
-        console.error(
-          `Error: Could not subtract points from users: ${responses}`,
-        )
+        console.error(`Error: Could not subtract points from users: ${results}`)
         return fail(500, { success: false, error: "Database error" })
       }
       const update = { newRound: round + 1 }

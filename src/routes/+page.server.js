@@ -54,23 +54,21 @@ export const actions = {
         },
       })
     }
-    /** @type {Array<Promise<D1Result>>} */
-    const promises = new Array()
+    const statements = new Array()
     for (let seatIndex = 0; seatIndex < auctionSize; seatIndex++) {
-      const promise = db
+      const statement = db
         .prepare(
           `INSERT INTO users (auction_id, points_remaining, seat_number) 
           VALUES (?, ?, ?)`,
         )
         .bind(auctionId, 1000, seatIndex)
-        .run()
-      promises.push(promise)
+      statements.push(statement)
     }
-    const responses = await Promise.all(promises)
-    const haveErrors = responses.some((response) => Boolean(response.error))
+    const results = await db.batch(statements)
+    const haveErrors = results.some((result) => Boolean(result.error))
     if (haveErrors) {
       console.error(
-        `Error: Could not setup user shells in database: ${responses}`,
+        `Error: Could not setup user shells in database: ${results}`,
       )
       return fail(500, {
         create: {
