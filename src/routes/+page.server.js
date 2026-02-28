@@ -159,9 +159,7 @@ async function enrollUserInAuction(cookies, db, auctionId) {
     .run()
   if (uidUpdate.error) {
     console.error(`Error: Failed to set UID of new user: ${uidUpdate.error}`)
-    return fail(500, {
-      error: "Database error",
-    })
+    throw error(500, "Database error")
   }
   cookies.set(COOKIE_NAME, uid, {
     path: "/",
