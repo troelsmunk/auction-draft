@@ -11,21 +11,23 @@
   let round = $derived(params.round)
 </script>
 
-{#if auctionNumber}
-  <div class="header-container">
-    <div class="breadcrumb">
-      <a href="/"> Home </a>
-      - Auction {auctionNumber}
-      {#if round}
-        - Round {round}
-      {/if}
+<div class="global-container">
+  {#if auctionNumber}
+    <div class="header-container">
+      <div class="breadcrumb">
+        <a href="/"> Home </a>
+        - Auction {auctionNumber}
+        {#if round}
+          - Round {round}
+        {/if}
+      </div>
     </div>
-  </div>
-{:else}
-  <h1>Blind Auction Drafting</h1>
-{/if}
+  {:else}
+    <h1>Blind Auction Drafting</h1>
+  {/if}
 
-{@render children?.()}
+  {@render children?.()}
+</div>
 
 <style>
   :global(*) {
@@ -37,5 +39,10 @@
   .header-container {
     display: grid;
     grid-template-columns: auto auto;
+  }
+
+  .global-container {
+    max-width: 450px;
+    margin: 1em auto;
   }
 </style>
