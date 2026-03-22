@@ -107,6 +107,13 @@
     </div>
     <button type="submit">Bid!</button>
   </form>
+  {#if form?.success}
+    Bid received
+  {:else if form?.error}
+    <div class="error">
+      Bid denied: {form.error}
+    </div>
+  {/if}
 {:else}
   <h3>Results</h3>
   <div class="grid-container">
@@ -115,14 +122,6 @@
         {card.bid}
       </div>
     {/each}
-  </div>
-{/if}
-
-{#if form?.success}
-  Bid received
-{:else if form?.error}
-  <div class="error">
-    Bid denied: {form.error}
   </div>
 {/if}
 
