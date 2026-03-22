@@ -1,4 +1,6 @@
 <script>
+  import { onDestroy } from "svelte"
+
   /**
    * @typedef {Object} Props
    * @property { number } bidValue
@@ -21,6 +23,8 @@
       bidValue--
     }
   }
+
+  onDestroy(() => (bidValue = 0))
 </script>
 
 <div class="container">
