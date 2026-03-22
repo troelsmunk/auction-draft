@@ -4,7 +4,7 @@
   import { COLOURS } from "$lib/constants"
   import { invalidateAll } from "$app/navigation"
   import { enhance } from "$app/forms"
-  import BidButtons from "./BidButtons.svelte"
+  import BidButton from "./BidButtons.svelte"
   import { BID_OPTIONS } from "$lib/constants"
 
   /**
@@ -101,7 +101,7 @@
     <input hidden={true} value={JSON.stringify(bids)} name="bids" />
     <div class="input-container">
       {#each { length: bids.length }, index}
-        <BidButtons bind:bidValue={bids[index]} {index} {options} />
+        <BidButton bind:bidValue={bids[index]} {index} {options} />
       {/each}
     </div>
     <button type="submit">Bid!</button>
