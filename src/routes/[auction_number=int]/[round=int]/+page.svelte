@@ -25,7 +25,6 @@
   let previousRound = $derived(round - 1)
   let nextRound = $derived(parseInt(params.round) + 1)
   let results = $derived(data.results)
-  let newResultsAreReady = $derived(data.roundOfLatestResults >= round)
   let remainingPoints = $derived(data.points.at(data.seat))
   let auctionSize = $derived(data.points.length)
   let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
@@ -78,7 +77,7 @@
     {sumOfBids} / {remainingPoints}
   </div>
   <div class="next-link">
-    {#if newResultsAreReady}
+    {#if results}
       <a class="next-link" href={`/${auctionNumber}/${nextRound}`}
         >Next round
       </a>
@@ -86,7 +85,7 @@
   </div>
 </div>
 
-{#if !newResultsAreReady}
+{#if !results}
   <h3>Bidding</h3>
   <form
     id="bid-form"
