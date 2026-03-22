@@ -37,9 +37,8 @@
 
 <div class="navigation-container">
   <div class="previous-link">
-    {#if previousRound && !newResultsAreReady}
-      <a href={`/${auctionNumber}/${previousRound}/results`}>Previous Results</a
-      >
+    {#if previousRound}
+      <a href={`/${auctionNumber}/${previousRound}`}>Previous Results</a>
     {/if}
   </div>
   <div
@@ -52,7 +51,9 @@
   </div>
   <div class="next-link">
     {#if newResultsAreReady}
-      <a href={`/${auctionNumber}/${round}/results`}>New Results</a>
+      <a class="next-link" href={`/${auctionNumber}/${nextRound}`}
+        >Next round
+      </a>
     {/if}
   </div>
 </div>
@@ -85,10 +86,6 @@
         {card.bid}
       </div>
     {/each}
-  </div>
-
-  <div class="container">
-    <a class="next-link" href={`/${auctionNumber}/${nextRound}`}>Next round </a>
   </div>
 {/if}
 
@@ -154,10 +151,6 @@
     justify-content: center;
     height: 100px;
     font-weight: bold;
-  }
-
-  .container {
-    display: grid;
   }
 
   .next-link {
