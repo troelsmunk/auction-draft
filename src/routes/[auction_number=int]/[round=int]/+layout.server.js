@@ -21,6 +21,21 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     throw error(500, "Database error")
   }
+  /** @type {{seat:number|null, bid:number}[]} */
+  const results = await db
+    .prepare(
+      `SELECT results FROM results 
+      WHERE round = ? AND auction_id = 
+        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      LIMIT 1`,
+    )
+    .bind(event.params.round, uid)
+    .first("results")
+    .then((value) => {
+      if (typeof value == "string") {
+        return JSON.parse(value)
+      }
+    })
   const usersSelect = await db
     .prepare(
       `SELECT points_remaining, seat_number, uid, auction_id FROM users 
@@ -46,5 +61,6 @@ export async function load(event) {
     points: points,
     seat: seat,
     roundOfLatestResults: roundOfLatestResults,
+    results: results,
   }
 }
