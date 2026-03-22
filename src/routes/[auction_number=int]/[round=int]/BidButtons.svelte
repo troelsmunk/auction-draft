@@ -1,4 +1,6 @@
 <script>
+  import { onMount } from "svelte"
+
   /**
    * @typedef {Object} Props
    * @property { number } bidValue
@@ -21,6 +23,8 @@
       bidValue--
     }
   }
+
+  onMount(() => (bidValue = 0))
 </script>
 
 <div class="container">
