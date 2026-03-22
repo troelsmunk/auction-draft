@@ -99,7 +99,7 @@
     }}
   >
     <input hidden={true} value={JSON.stringify(bids)} name="bids" />
-    <div class="input-container">
+    <div class="grid-container">
       {#each { length: bids.length }, index}
         <BidButton bind:bidValue={bids[index]} {index} {options} />
       {/each}
@@ -125,20 +125,26 @@
 {/if}
 
 <style>
+  .scoreboard {
+    display: flex;
+    justify-content: center;
+    margin: 0.5em 0;
+  }
   .navigation-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
   }
-
-  h3 {
-    margin: 0.25em;
-  }
-
   .previous-link {
     justify-self: left;
   }
   .spending-ratio {
     justify-self: center;
+  }
+  .expensive {
+    color: orange;
+  }
+  .expensive.over-budget {
+    color: red;
   }
   .hidden {
     opacity: 0;
@@ -146,47 +152,24 @@
   .next-link {
     justify-self: right;
   }
-
-  .input-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+  h3 {
+    margin: 0.25em;
   }
-
   button {
     float: right;
   }
-
   .error {
-    color: red;
-  }
-
-  .expensive {
-    color: orange;
-  }
-
-  .expensive.over-budget {
     color: red;
   }
   .grid-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
   }
-
   .result {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100px;
     font-weight: bold;
-  }
-
-  .next-link {
-    justify-self: right;
-  }
-
-  .scoreboard {
-    display: flex;
-    justify-content: center;
-    margin: 0.5em 0;
   }
 </style>
