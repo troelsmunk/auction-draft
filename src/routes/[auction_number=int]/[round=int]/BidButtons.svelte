@@ -1,5 +1,5 @@
 <script>
-  import { onDestroy } from "svelte"
+  import { onMount } from "svelte"
 
   /**
    * @typedef {Object} Props
@@ -24,7 +24,7 @@
     }
   }
 
-  onDestroy(() => (bidValue = 0))
+  onMount(() => (bidValue = 0))
 </script>
 
 <div class="container">

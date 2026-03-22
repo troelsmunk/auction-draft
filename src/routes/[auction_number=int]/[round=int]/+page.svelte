@@ -19,7 +19,6 @@
 
   /** @type{Array<number>}*/
   let bids = $state(Array(15))
-  bids.fill(0)
 
   let auctionNumber = $derived(params.auction_number)
   let round = $derived(parseInt(params.round))
