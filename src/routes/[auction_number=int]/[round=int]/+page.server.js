@@ -1,3 +1,4 @@
+import { error } from "@sveltejs/kit"
 import { BID_OPTIONS, COOKIE_NAME, ERROR_MESSAGE_401 } from "$lib/constants"
 import { broadcastUpdate } from "$lib/sseManager"
 import { fail } from "@sveltejs/kit"
@@ -22,6 +23,61 @@ import { fail } from "@sveltejs/kit"
  * @property {number} round
  * @property {string} results
  */
+
+/** @type {import('./$types').PageServerLoad} */
+export async function load(event) {
+  const uid = event.cookies.get(COOKIE_NAME)
+  if (!uid) {
+    throw error(401, ERROR_MESSAGE_401)
+  }
+  const db = event.platform?.env?.db
+  if (!db) {
+    console.error("Error: Could not connect to database.")
+    throw error(500, "Database error")
+  }
+  /** @type {{seat:number|null, bid:number}[]} */
+  const results = await db
+    .prepare(
+      `SELECT results FROM results 
+      WHERE round = ? AND auction_id = 
+        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      LIMIT 1`,
+    )
+    .bind(event.params.round, uid)
+    .first("results")
+    .then((value) => {
+      if (typeof value == "string") {
+        return JSON.parse(value)
+      }
+    })
+  const usersSelect = await db
+    .prepare(
+      `SELECT points_remaining, seat_number, uid, auction_id FROM users 
+      WHERE auction_id = 
+        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      ORDER BY seat_number`,
+    )
+    .bind(uid)
+    .run()
+  const users = /** @type {UsersRow[]} */ (usersSelect.results)
+  const points = users.map((record) => {
+    return record.points_remaining
+  })
+  const seat = users.find((user) => user.uid == uid)?.seat_number
+  let roundOfLatestResults = await db
+    .prepare(
+      `SELECT round FROM results WHERE auction_id = ? 
+      ORDER BY round DESC LIMIT 1`,
+    )
+    .bind(users.at(0)?.auction_id)
+    .first("round")
+  return {
+    points: points,
+    seat: seat,
+    roundOfLatestResults: roundOfLatestResults,
+    results: results,
+  }
+}
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
