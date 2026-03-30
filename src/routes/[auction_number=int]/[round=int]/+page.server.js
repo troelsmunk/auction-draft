@@ -47,7 +47,7 @@ export async function load(event) {
   if (!userSelect) {
     throw error(401, ERROR_MESSAGE_401)
   }
-  const { auction_id, seat_number } = userSelect
+  const { auction_id: auctionId, seat_number: seat } = userSelect
   /** @type {{seat:number, bid:number}[] | undefined} */
   const results = await db
     .prepare(
@@ -55,7 +55,7 @@ export async function load(event) {
       WHERE round = ? AND auction_id = ?
       LIMIT 1`,
     )
-    .bind(event.params.round, auction_id)
+    .bind(event.params.round, auctionId)
     .first("results")
     .then((value) => {
       if (typeof value == "string") {
@@ -68,14 +68,14 @@ export async function load(event) {
       WHERE auction_id = ?
       ORDER BY seat_number`,
     )
-    .bind(auction_id)
+    .bind(auctionId)
     .run()
   const points = pointsSelect.results.map((record) => {
     return /** @type {number} */ (record.points_remaining)
   })
   return {
     points: points,
-    seat: seat_number,
+    seat: seat,
     results: results,
   }
 }
@@ -119,24 +119,29 @@ export const actions = {
       console.error("Could not find user data for UID: ", uid)
       return fail(500, { success: false, error: "Database error" })
     }
-    const { id: userId, points_remaining, seat_number, auction_id } = userSelect
+    const {
+      id: userId,
+      points_remaining: pointsRemaining,
+      seat_number: seat,
+      auction_id: auctionId,
+    } = userSelect
     /** @type {number|null} */
     const auctionSize = await db
       .prepare(`SELECT count(1) FROM users WHERE auction_id = ?`)
-      .bind(auction_id)
+      .bind(auctionId)
       .first("count(1)")
     if (typeof auctionSize != "number") {
       console.error(
-        `Could not find size for auction_id: ${auction_id}, related to UID: ${uid},`,
+        `Could not find size for auction_id: ${auctionId}, related to UID: ${uid},`,
       )
       return fail(500, { success: false, error: "Database error" })
     }
-    const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat_number)
+    const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat)
     const bidsConvertedToOptions = bids.map((bid) => {
       return optionsForThisUser?.at(bid) || 0
     })
     const sumOfBids = bidsConvertedToOptions.reduce((sum, value) => sum + value)
-    if (points_remaining < sumOfBids) {
+    if (pointsRemaining < sumOfBids) {
       return fail(400, { success: false, error: "Insufficient funds" })
     }
     const round = parseInt(event.params.round)
@@ -158,7 +163,7 @@ export const actions = {
         FROM users JOIN bids ON users.id = bids.user_id 
         WHERE users.auction_id = ? AND bids.round = ?`,
       )
-      .bind(auction_id, round)
+      .bind(auctionId, round)
       .run()
     const usersAndTheirBids = /** @type {(UsersRow & BidsRow)[]} */ (
       selectUserAndBids.results
@@ -186,7 +191,7 @@ export const actions = {
           `INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) 
           ON CONFLICT (auction_id, round) DO NOTHING`,
         )
-        .bind(auction_id, round, JSON.stringify(auctionResults))
+        .bind(auctionId, round, JSON.stringify(auctionResults))
         .run()
       if (!insertResults.meta.changed_db) {
         return { success: insertBids.success }
@@ -211,7 +216,7 @@ export const actions = {
         return fail(500, { success: false, error: "Database error" })
       }
       const update = { newRound: round + 1 }
-      broadcastUpdate(update, auction_id)
+      broadcastUpdate(update, auctionId)
     }
     return { success: insertBids.success }
   },
