@@ -35,35 +35,45 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     throw error(500, "Database error")
   }
+  /** @type {UsersRow | null} */
+  const userSelect = await db
+    .prepare(
+      `SELECT id, points_remaining, seat_number, auction_id FROM users 
+      WHERE uid = ? 
+      LIMIT 1`,
+    )
+    .bind(uid)
+    .first()
+  if (!userSelect) {
+    throw error(401, ERROR_MESSAGE_401)
+  }
+  const auctionId = userSelect.auction_id
+  const seat = userSelect.seat_number
   /** @type {{seat:number, bid:number}[] | undefined} */
   const results = await db
     .prepare(
       `SELECT results FROM results 
-      WHERE round = ? AND auction_id = 
-        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      WHERE round = ? AND auction_id = ?
       LIMIT 1`,
     )
-    .bind(event.params.round, uid)
+    .bind(event.params.round, auctionId)
     .first("results")
     .then((value) => {
       if (typeof value == "string") {
         return JSON.parse(value)
       }
     })
-  const usersSelect = await db
+  const pointsSelect = await db
     .prepare(
-      `SELECT points_remaining, seat_number, uid, auction_id FROM users 
-      WHERE auction_id = 
-        (SELECT auction_id FROM users WHERE uid = ? LIMIT 1) 
+      `SELECT points_remaining FROM users 
+      WHERE auction_id = ?
       ORDER BY seat_number`,
     )
-    .bind(uid)
+    .bind(auctionId)
     .run()
-  const users = /** @type {UsersRow[]} */ (usersSelect.results)
-  const points = users.map((record) => {
-    return record.points_remaining
+  const points = pointsSelect.results.map((record) => {
+    return /** @type {number} */ (record.points_remaining)
   })
-  const seat = users.find((user) => user.uid == uid)?.seat_number
   return {
     points: points,
     seat: seat,
