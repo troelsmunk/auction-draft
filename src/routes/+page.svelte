@@ -6,6 +6,7 @@
    */
   /** @type {Props} */
   let { form, data } = $props()
+  const existingAuction = $derived(data.auction_number)
 </script>
 
 <h3>One of you, create an auction</h3>
@@ -43,9 +44,9 @@
   <button type="submit">Join Auction</button>
 </form>
 
-{#if data.auction_number}
+{#if existingAuction}
   <h3>It looks like you're already in an auction:</h3>
-  <a href="/{data.auction_number}/1">Go to auction {data.auction_number}</a>
+  <a href="/{existingAuction}/1">Go to auction {existingAuction}</a>
 {/if}
 
 <style>
