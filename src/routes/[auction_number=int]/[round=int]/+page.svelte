@@ -37,15 +37,12 @@
 
   if (browser) {
     let eventSource = new EventSource("/api/subscribe/")
-
     eventSource.onmessage = (event) => {
       invalidateAll()
     }
-
     eventSource.onerror = (event) => {
       console.error("SSE connection error", event)
     }
-
     window.addEventListener("beforeunload", () => {
       eventSource.close()
     })
@@ -83,6 +80,10 @@
       </a>
     {/if}
   </div>
+</div>
+
+<div>
+  Your options: {options.join(", ")}
 </div>
 
 {#if !results}
