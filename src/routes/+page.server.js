@@ -115,6 +115,7 @@ export const actions = {
       console.error("Error: Could not connect to database.")
       return fail(500, {
         join: {
+          auction_number: auctionNumber,
           error: "Database error",
         },
       })
