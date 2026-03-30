@@ -37,15 +37,12 @@
 
   if (browser) {
     let eventSource = new EventSource("/api/subscribe/")
-
     eventSource.onmessage = (event) => {
       invalidateAll()
     }
-
     eventSource.onerror = (event) => {
       console.error("SSE connection error", event)
     }
-
     window.addEventListener("beforeunload", () => {
       eventSource.close()
     })
