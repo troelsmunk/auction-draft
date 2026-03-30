@@ -85,14 +85,8 @@
   </div>
 </div>
 
-<div class="bid-options-container">
-  {#each options as option}
-    {#if option > 0}
-      <div class="bid-option">
-        {option}
-      </div>
-    {/if}
-  {/each}
+<div>
+  Your options: {options.join(", ")}
 </div>
 
 {#if !results}
@@ -139,21 +133,6 @@
     justify-content: center;
     margin: 0.5em 0;
   }
-  .bid-options-container {
-    display: flex;
-    margin: 0.5em 0;
-  }
-  .bid-option {
-    box-sizing: border-box;
-    width: 100px;
-    flex: 1;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
   .navigation-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
