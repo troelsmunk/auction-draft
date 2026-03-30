@@ -1,5 +1,11 @@
 <script>
-  let { form } = $props()
+  /**
+   * @typedef {Object} Props
+   * @property {import('./$types').ActionData} form
+   * @property {import('./$types').PageData} data
+   */
+  /** @type {Props} */
+  let { form, data } = $props()
 </script>
 
 <h3>One of you, create an auction</h3>
@@ -36,6 +42,11 @@
   />
   <button type="submit">Join Auction</button>
 </form>
+
+{#if data.auction_number}
+  <h3>It looks like you're already in an auction:</h3>
+  <a href="/{data.auction_number}/1">Go to auction {data.auction_number}</a>
+{/if}
 
 <style>
   .error {
