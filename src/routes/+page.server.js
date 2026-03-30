@@ -1,6 +1,33 @@
 import { error, fail, redirect } from "@sveltejs/kit"
 import { COOKIE_NAME } from "$lib/constants"
 
+/** @type {import('./$types').PageServerLoad} */
+export async function load(event) {
+  const uid = event.cookies.get(COOKIE_NAME)
+  if (uid) {
+    const db = event.platform?.env?.db
+    if (!db) {
+      console.error("Error: Could not connect to database.")
+      return fail(500, {
+        create: {
+          error: "Database error",
+        },
+      })
+    }
+    /** @type {number | null} */
+    const auctionNumber = await db
+      .prepare(
+        `SELECT auction_number FROM auctions, users 
+      ON auctions.id = users.auction_id 
+      WHERE uid = ? 
+      LIMIT 1`,
+      )
+      .bind(uid)
+      .first("auction_number")
+    return { auction_number: auctionNumber }
+  }
+}
+
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
   create: async (event) => {

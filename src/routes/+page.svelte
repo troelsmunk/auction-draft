@@ -1,5 +1,12 @@
 <script>
-  let { form } = $props()
+  /**
+   * @typedef {Object} Props
+   * @property {import('./$types').ActionData} form
+   * @property {import('./$types').PageData} data
+   */
+  /** @type {Props} */
+  let { form, data } = $props()
+  const existingAuction = $derived(data.auction_number)
 </script>
 
 <h3>One of you, create an auction</h3>
@@ -36,6 +43,11 @@
   />
   <button type="submit">Join Auction</button>
 </form>
+
+{#if existingAuction}
+  <h3>It looks like you're already in an auction:</h3>
+  <a href="/{existingAuction}/1">Go to auction {existingAuction}</a>
+{/if}
 
 <style>
   .error {
