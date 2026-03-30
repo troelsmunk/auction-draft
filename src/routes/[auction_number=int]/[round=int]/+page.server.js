@@ -35,7 +35,7 @@ export async function load(event) {
     console.error("Error: Could not connect to database.")
     throw error(500, "Database error")
   }
-  /** @type {{seat:number|null, bid:number}[]} */
+  /** @type {{seat:number, bid:number}[] | undefined} */
   const results = await db
     .prepare(
       `SELECT results FROM results 
