@@ -27,26 +27,23 @@ export const GET = async (event) => {
     throw error(500, "Database error")
   }
 
-  /** @type {(reason: string) => void} */
-  function disconnectClient(reason) {
-    console.log("SSE: Disconnecting client: ", reason)
+  function disconnectClient() {
     unregisterConnection?.()
     clearInterval(keepAlive)
   }
   event.request.signal.addEventListener("abort", () => {
-    disconnectClient("Request aborted")
+    disconnectClient()
   })
 
   const stream = new ReadableStream({
     start(controller) {
-      console.log("SSE: Client connected")
       unregisterConnection = registerConnection(controller, auctionId)
       const encodedPing = new TextEncoder().encode(": ping\n")
       keepAlive = setInterval(() => {
         try {
           controller.enqueue(encodedPing)
         } catch (e) {
-          disconnectClient("Error enqueuing data: " + e)
+          disconnectClient()
           // Attempt to close if not already closed by 'cancel'
           try {
             controller.close()
@@ -54,8 +51,8 @@ export const GET = async (event) => {
         }
       }, 120000)
     },
-    cancel(reason) {
-      disconnectClient("Stream cancelled: " + reason)
+    cancel() {
+      disconnectClient()
     },
   })
   return new Response(stream, {

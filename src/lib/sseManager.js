@@ -14,14 +14,8 @@ const activeConnections = new Map()
  */
 export const registerConnection = (controller, auctionId) => {
   activeConnections.set(controller, auctionId)
-  console.log(
-    `SSE connection registered in id ${auctionId}. Grand total connections: ${activeConnections.size}`,
-  )
   return () => {
     activeConnections.delete(controller)
-    console.log(
-      `SSE connection unregistered from id ${auctionId}. Grand total connections: ${activeConnections.size}`,
-    )
   }
 }
 
