@@ -55,26 +55,12 @@ export const actions = {
       .prepare(`SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1`)
       .first("auction_number")
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
-    const auctionInsert = await db
-      .prepare(`INSERT INTO auctions (auction_number) VALUES (?)`)
-      .bind(auctionNumber)
-      .run()
-    if (auctionInsert.error) {
-      console.error(
-        `Error: Could not insert auction into database: ${auctionInsert.error}`,
-      )
-      return fail(500, {
-        create: {
-          error: "Database error",
-        },
-      })
-    }
     const auctionId = await db
-      .prepare(`SELECT id FROM auctions WHERE auction_number = ? LIMIT 1`)
+      .prepare(`INSERT INTO auctions (auction_number) VALUES (?) RETURNING id`)
       .bind(auctionNumber)
       .first("id")
     if (typeof auctionId != "number") {
-      console.error("Error: Could not read auctionId from database.")
+      console.error(`Error: Did not insert auction into database`)
       return fail(500, {
         create: {
           error: "Database error",
