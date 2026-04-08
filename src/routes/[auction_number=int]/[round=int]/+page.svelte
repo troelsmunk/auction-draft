@@ -1,7 +1,7 @@
 <script>
   import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
-  import { COLOURS } from "$lib/constants"
+  import { COLOURS, ITEM_COUNT } from "$lib/constants"
   import { invalidateAll } from "$app/navigation"
   import { enhance } from "$app/forms"
   import BidButton from "./BidButtons.svelte"
@@ -18,7 +18,7 @@
   let { form, data, params } = $props()
 
   /** @type{Array<number>}*/
-  let bids = $state(Array(15))
+  let bids = $state(Array(ITEM_COUNT))
 
   let auctionNumber = $derived(params.auction_number)
   let round = $derived(parseInt(params.round))
