@@ -7,7 +7,7 @@
    */
 
   /** @type {Props} */
-  let { color = "green", you = false, score } = $props()
+  let { color, you, score } = $props()
 </script>
 
 <div class="scoreboard-item" class:you style:background-color={color}>
