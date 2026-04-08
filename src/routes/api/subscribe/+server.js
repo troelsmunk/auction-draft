@@ -29,7 +29,7 @@ export const GET = async (event) => {
 
   /** @type {(reason: string) => void} */
   function disconnectClient(reason) {
-    console.log("SSE: Disconnecting client: ", reason)
+    console.debug("[SSE] Disconnecting client: ", reason)
     unregisterConnection?.()
     clearInterval(keepAlive)
   }
@@ -39,7 +39,6 @@ export const GET = async (event) => {
 
   const stream = new ReadableStream({
     start(controller) {
-      console.log("SSE: Client connected")
       unregisterConnection = registerConnection(controller, auctionId)
       const encodedPing = new TextEncoder().encode(": ping\n")
       keepAlive = setInterval(() => {
