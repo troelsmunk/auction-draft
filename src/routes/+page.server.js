@@ -55,26 +55,12 @@ export const actions = {
       .prepare(`SELECT auction_number FROM auctions ORDER BY id DESC LIMIT 1`)
       .first("auction_number")
     const auctionNumber = generateAuctionNumber(previousAuctionNumber)
-    const auctionInsert = await db
-      .prepare(`INSERT INTO auctions (auction_number) VALUES (?)`)
-      .bind(auctionNumber)
-      .run()
-    if (auctionInsert.error) {
-      console.error(
-        `Error: Could not insert auction into database: ${auctionInsert.error}`,
-      )
-      return fail(500, {
-        create: {
-          error: "Database error",
-        },
-      })
-    }
-    const auctionId = await db
-      .prepare(`SELECT id FROM auctions WHERE auction_number = ? LIMIT 1`)
+    const insertedAuctionId = await db
+      .prepare(`INSERT INTO auctions (auction_number) VALUES (?) RETURNING id`)
       .bind(auctionNumber)
       .first("id")
-    if (typeof auctionId != "number") {
-      console.error("Error: Could not read auctionId from database.")
+    if (typeof insertedAuctionId != "number") {
+      console.error("Error: Did not insert auction into database")
       return fail(500, {
         create: {
           error: "Database error",
@@ -88,7 +74,7 @@ export const actions = {
           `INSERT INTO users (auction_id, points_remaining, seat_number) 
           VALUES (?, ?, ?)`,
         )
-        .bind(auctionId, 1000, seatIndex)
+        .bind(insertedAuctionId, 1000, seatIndex)
       statements.push(statement)
     }
     const results = await db.batch(statements)
@@ -103,7 +89,7 @@ export const actions = {
         },
       })
     }
-    await enrollUserInAuction(event.cookies, db, auctionId)
+    await enrollUserInAuction(event.cookies, db, insertedAuctionId)
     redirect(303, `/${auctionNumber}/1`)
   },
   join: async (event) => {
