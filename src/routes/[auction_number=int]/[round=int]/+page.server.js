@@ -162,67 +162,71 @@ export const actions = {
       console.error("Failed to write bids to database for uid: ", uid)
       return fail(500, { success: false, error: "Database error" })
     }
-    const selectUserAndBids = await db
-      .prepare(
-        `SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values 
-        FROM users JOIN bids ON users.id = bids.user_id 
-        WHERE users.auction_id = ? AND bids.round = ?`,
-      )
-      .bind(auctionId, round)
-      .run()
-    const usersAndTheirBids = /** @type {(UsersRow & BidsRow)[]} */ (
-      selectUserAndBids.results
-    )
-    const everyoneHasBid = usersAndTheirBids.length === auctionSize
-    if (everyoneHasBid) {
-      /** @type {{seat:number|null, bid:number}[]} */
-      let auctionResults = []
-      // Set default state for every item in a bid
-      for (let index = 0; index < ITEM_COUNT; index++) {
-        auctionResults.push({ seat: null, bid: 0 })
-      }
-      usersAndTheirBids.forEach((record) => {
-        const seatForUser = record.seat_number
-        const bidsFromUser = JSON.parse(record.bid_values)
-        auctionResults.forEach((item, index) => {
-          if (item.bid < bidsFromUser[index]) {
-            item.seat = seatForUser
-            item.bid = bidsFromUser[index]
-          }
-        })
-      })
-      const insertResults = await db
-        .prepare(
-          `INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) 
-          ON CONFLICT (auction_id, round) DO NOTHING`,
-        )
-        .bind(auctionId, round, JSON.stringify(auctionResults))
-        .run()
-      if (!insertResults.meta.changed_db) {
-        return { success: insertBids.success }
-      }
-      const statements = new Array()
-      usersAndTheirBids.forEach((user) => {
-        let points = user.points_remaining
-        auctionResults
-          .filter((value) => value.seat == user.seat_number)
-          .forEach((value) => {
-            points -= value.bid
-          })
-        const statement = db
-          .prepare(`UPDATE users SET points_remaining = ? WHERE id = ?`)
-          .bind(points, user.id)
-        statements.push(statement)
-      })
-      const results = await db.batch(statements)
-      const haveErrors = results.some((result) => Boolean(result.error))
-      if (haveErrors) {
-        console.error(`Error: Could not subtract points from users: ${results}`)
-        return fail(500, { success: false, error: "Database error" })
-      }
-      const update = { newRound: round + 1 }
-      broadcastUpdate(update, auctionId)
-    }
+    name(db, auctionId, round, auctionSize)
     return { success: insertBids.success }
   },
+}
+
+async function name(db, auctionId, round, auctionSize) {
+  const selectUserAndBids = await db
+    .prepare(
+      `SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values 
+        FROM users JOIN bids ON users.id = bids.user_id 
+        WHERE users.auction_id = ? AND bids.round = ?`,
+    )
+    .bind(auctionId, round)
+    .run()
+  const usersAndTheirBids = /** @type {(UsersRow & BidsRow)[]} */ (
+    selectUserAndBids.results
+  )
+  const everyoneHasBid = usersAndTheirBids.length === auctionSize
+  if (everyoneHasBid) {
+    /** @type {{seat:number|null, bid:number}[]} */
+    let auctionResults = []
+    // Set default state for every item in a bid
+    for (let index = 0; index < ITEM_COUNT; index++) {
+      auctionResults.push({ seat: null, bid: 0 })
+    }
+    usersAndTheirBids.forEach((record) => {
+      const seatForUser = record.seat_number
+      const bidsFromUser = JSON.parse(record.bid_values)
+      auctionResults.forEach((item, index) => {
+        if (item.bid < bidsFromUser[index]) {
+          item.seat = seatForUser
+          item.bid = bidsFromUser[index]
+        }
+      })
+    })
+    const insertResults = await db
+      .prepare(
+        `INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) 
+          ON CONFLICT (auction_id, round) DO NOTHING`,
+      )
+      .bind(auctionId, round, JSON.stringify(auctionResults))
+      .run()
+    if (!insertResults.meta.changed_db) {
+      return
+    }
+    const statements = new Array()
+    usersAndTheirBids.forEach((user) => {
+      let points = user.points_remaining
+      auctionResults
+        .filter((value) => value.seat == user.seat_number)
+        .forEach((value) => {
+          points -= value.bid
+        })
+      const statement = db
+        .prepare(`UPDATE users SET points_remaining = ? WHERE id = ?`)
+        .bind(points, user.id)
+      statements.push(statement)
+    })
+    const results = await db.batch(statements)
+    const haveErrors = results.some((result) => Boolean(result.error))
+    if (haveErrors) {
+      console.error(`Error: Could not subtract points from users: ${results}`)
+      return fail(500, { success: false, error: "Database error" })
+    }
+    const update = { newRound: round + 1 }
+    broadcastUpdate(update, auctionId)
+  }
 }
