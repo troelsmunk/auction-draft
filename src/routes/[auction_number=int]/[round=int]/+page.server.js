@@ -130,7 +130,6 @@ export const actions = {
       seat_number: seat,
       auction_id: auctionId,
     } = userSelect
-    /** @type {number|null} */
     const auctionSize = await db
       .prepare(`SELECT count(1) FROM users WHERE auction_id = ?`)
       .bind(auctionId)
@@ -162,12 +161,18 @@ export const actions = {
       console.error("Failed to write bids to database for uid: ", uid)
       return fail(500, { success: false, error: "Database error" })
     }
-    name(db, auctionId, round, auctionSize)
+    await findWinnersIfReady(db, auctionId, round, auctionSize)
     return { success: insertBids.success }
   },
 }
 
-async function name(db, auctionId, round, auctionSize) {
+/**
+ * @param {D1Database} db
+ * @param {number} auctionId
+ * @param {number} round
+ * @param {number} auctionSize
+ */
+async function findWinnersIfReady(db, auctionId, round, auctionSize) {
   const selectUserAndBids = await db
     .prepare(
       `SELECT users.id, users.points_remaining, users.seat_number, bids.bid_values 
