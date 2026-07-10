@@ -188,7 +188,7 @@ async function findWinnersIfReady(db, auctionId, round, auctionSize) {
   if (!everyoneHasBid) return
   /** @type {{seat:number|null, bid:number}[]} */
   let auctionResults = []
-  // Set default state for every item in a bid
+  // Setup base result where there are no winners
   for (let index = 0; index < ITEM_COUNT; index++) {
     auctionResults.push({ seat: null, bid: 0 })
   }
@@ -205,7 +205,7 @@ async function findWinnersIfReady(db, auctionId, round, auctionSize) {
   const insertResults = await db
     .prepare(
       `INSERT INTO results (auction_id, round, results) VALUES (?,?,json(?)) 
-      ON CONFLICT (auction_id, round) DO NOTHING`,
+        ON CONFLICT (auction_id, round) DO NOTHING`,
     )
     .bind(auctionId, round, JSON.stringify(auctionResults))
     .run()
