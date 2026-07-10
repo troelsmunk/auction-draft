@@ -14,6 +14,8 @@ export const COLOURS = [
   "#C27C5B",
   "#FAC30F",
 ]
+/** @type {number} */
+export const ITEM_COUNT = 15
 /**
  * @typedef {Array<userBidOptions>} auctionBidOptions Options for an auction, ordered by user seats
  * @typedef {Array<number>} userBidOptions Options for a user, ordered by the size of bids

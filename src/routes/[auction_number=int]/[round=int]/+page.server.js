@@ -1,5 +1,10 @@
 import { error } from "@sveltejs/kit"
-import { BID_OPTIONS, COOKIE_NAME, ERROR_MESSAGE_401 } from "$lib/constants"
+import {
+  BID_OPTIONS,
+  COOKIE_NAME,
+  ERROR_MESSAGE_401,
+  ITEM_COUNT,
+} from "$lib/constants"
 import { broadcastUpdate } from "$lib/sseManager"
 import { fail } from "@sveltejs/kit"
 
@@ -173,9 +178,9 @@ export const actions = {
       /** @type {{seat:number|null, bid:number}[]} */
       let auctionResults = []
       // Set default state for every item in a bid
-      bidsConvertedToOptions.forEach(() => {
+      for (let index = 0; index < ITEM_COUNT; index++) {
         auctionResults.push({ seat: null, bid: 0 })
-      })
+      }
       usersAndTheirBids.forEach((record) => {
         const seatForUser = record.seat_number
         const bidsFromUser = JSON.parse(record.bid_values)
