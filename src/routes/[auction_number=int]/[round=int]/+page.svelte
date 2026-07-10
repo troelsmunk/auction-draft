@@ -25,15 +25,13 @@
   let previousRound = $derived(round - 1)
   let nextRound = $derived(parseInt(params.round) + 1)
   let results = $derived(data.results)
-  let remainingPoints = $derived(data.points.at(data.seat))
+  let remainingPoints = $derived(data.points.at(data.seat) || -1)
   let auctionSize = $derived(data.points.length)
   let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
   let sumOfBids = $derived(
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
-  let spendingRatio = $derived(
-    sumOfBids / (remainingPoints ? remainingPoints : 1),
-  )
+  let spendingRatio = $derived(sumOfBids / remainingPoints)
 
   if (browser) {
     let eventSource = new EventSource("/api/subscribe/")
@@ -67,7 +65,7 @@
   </div>
   <div
     class="spending-ratio"
-    class:hidden={!spendingRatio}
+    class:hidden={spendingRatio <= 0}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
@@ -101,7 +99,12 @@
     <input hidden={true} value={JSON.stringify(bids)} name="bids" />
     <div class="grid-container">
       {#each { length: bids.length }, index}
-        <BidButton bind:bidValue={bids[index]} {index} {options} />
+        <BidButton
+          bind:bidValue={bids[index]}
+          {index}
+          {options}
+          {remainingPoints}
+        />
       {/each}
     </div>
     <button type="submit">Bid!</button>
