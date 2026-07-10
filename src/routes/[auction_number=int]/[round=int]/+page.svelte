@@ -65,7 +65,7 @@
   </div>
   <div
     class="spending-ratio"
-    class:hidden={spendingRatio <= 0}
+    class:hidden={results || spendingRatio <= 0}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
   >
