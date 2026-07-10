@@ -5,16 +5,20 @@
    * @typedef {Object} Props
    * @property { number } bidValue
    * @property { number } index
+   * @property { number } remainingPoints
    * @property { import('$lib/constants').userBidOptions } options
    */
 
   /** @type {Props} */
-  let { bidValue = $bindable(), index, options } = $props()
+  let { bidValue = $bindable(), index, options, remainingPoints } = $props()
 
   /** @type { (event: Event) => void  }*/
   function plusOne(event) {
     event.preventDefault()
-    bidValue++
+    const nextBid = options.at(bidValue + 1)
+    if (typeof nextBid == "number" && nextBid <= remainingPoints) {
+      bidValue++
+    }
   }
   /** @type { (event: Event) => void  }*/
   function minusOne(event) {

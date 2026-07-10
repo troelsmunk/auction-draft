@@ -99,7 +99,12 @@
     <input hidden={true} value={JSON.stringify(bids)} name="bids" />
     <div class="grid-container">
       {#each { length: bids.length }, index}
-        <BidButton bind:bidValue={bids[index]} {index} {options} />
+        <BidButton
+          bind:bidValue={bids[index]}
+          {index}
+          {options}
+          {remainingPoints}
+        />
       {/each}
     </div>
     <button type="submit">Bid!</button>
