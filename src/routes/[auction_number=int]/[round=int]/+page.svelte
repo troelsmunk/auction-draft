@@ -27,7 +27,8 @@
   let results = $derived(data.results)
   let remainingPoints = $derived(data.points.at(data.seat) || -1)
   let auctionSize = $derived(data.points.length)
-  let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
+  let rotatedSeat = $derived((data.seat + round) % auctionSize)
+  let options = $derived(BID_OPTIONS.get(auctionSize)?.at(rotatedSeat) || [])
   let sumOfBids = $derived(
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
