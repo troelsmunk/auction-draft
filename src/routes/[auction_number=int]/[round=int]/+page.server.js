@@ -140,9 +140,7 @@ export const actions = {
       )
       return fail(500, { success: false, error: "Database error" })
     }
-    const round = parseInt(event.params.round)
-    const rotatedSeat = (seat + round) % auctionSize
-    const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(rotatedSeat)
+    const optionsForThisUser = BID_OPTIONS.get(auctionSize)?.at(seat)
     const bidsConvertedToOptions = bids.map((bid) => {
       return optionsForThisUser?.at(bid) || 0
     })
@@ -150,6 +148,7 @@ export const actions = {
     if (pointsRemaining < sumOfBids) {
       return fail(400, { success: false, error: "Insufficient funds" })
     }
+    const round = parseInt(event.params.round)
     const insertBids = await db
       .prepare(
         `INSERT INTO bids (user_id, round, bid_values) 
