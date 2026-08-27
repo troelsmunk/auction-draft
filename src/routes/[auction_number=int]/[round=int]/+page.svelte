@@ -81,7 +81,7 @@
 </div>
 
 <div>
-  Your options: {options.join(", ")}
+  Your options: {options.slice(1).join(", ")}
 </div>
 
 {#if !results}
