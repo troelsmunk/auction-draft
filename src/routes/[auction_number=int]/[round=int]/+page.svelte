@@ -65,9 +65,9 @@
   </div>
   <div
     class="spending-ratio"
-    class:hidden={results || spendingRatio <= 0}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
+    hidden={Boolean(results) || spendingRatio <= 0}
   >
     {sumOfBids} / {remainingPoints}
   </div>
@@ -80,12 +80,11 @@
   </div>
 </div>
 
-<div>
-  Your options: {options.join(", ")}
-</div>
-
 {#if !results}
-  <h3>Bidding</h3>
+  <div class="header-container">
+    <h3>Bidding</h3>
+    <div class="options">Your bid options: {options.slice(1).join(", ")}</div>
+  </div>
   <form
     id="bid-form"
     method="POST"
@@ -135,13 +134,13 @@
   }
   .navigation-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .previous-link {
     justify-self: left;
   }
   .spending-ratio {
-    justify-self: center;
+    justify-self: right;
   }
   .expensive {
     color: orange;
@@ -149,14 +148,18 @@
   .expensive.over-budget {
     color: red;
   }
-  .hidden {
-    opacity: 0;
-  }
   .next-link {
     justify-self: right;
   }
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+  }
   h3 {
     margin: 0.25em;
+  }
+  .options {
+    align-self: center;
   }
   button {
     float: right;
