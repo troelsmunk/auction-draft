@@ -65,9 +65,9 @@
   </div>
   <div
     class="spending-ratio"
-    class:hidden={results || spendingRatio <= 0}
     class:expensive={spendingRatio > 0.8}
     class:over-budget={spendingRatio > 1}
+    hidden={Boolean(results) || spendingRatio <= 0}
   >
     {sumOfBids} / {remainingPoints}
   </div>
@@ -148,9 +148,6 @@
   }
   .expensive.over-budget {
     color: red;
-  }
-  .hidden {
-    opacity: 0;
   }
   .next-link {
     justify-self: right;
