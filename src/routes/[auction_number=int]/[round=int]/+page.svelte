@@ -80,12 +80,11 @@
   </div>
 </div>
 
-<div>
-  Your options: {options.slice(1).join(", ")}
-</div>
-
 {#if !results}
-  <h3>Bidding</h3>
+  <div class="header-container">
+    <h3>Bidding</h3>
+    <div class="options">Your bid options: {options.slice(1).join(", ")}</div>
+  </div>
   <form
     id="bid-form"
     method="POST"
@@ -152,8 +151,15 @@
   .next-link {
     justify-self: right;
   }
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+  }
   h3 {
     margin: 0.25em;
+  }
+  .options {
+    align-self: center;
   }
   button {
     float: right;
