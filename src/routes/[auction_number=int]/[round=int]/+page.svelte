@@ -135,13 +135,13 @@
   }
   .navigation-container {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .previous-link {
     justify-self: left;
   }
   .spending-ratio {
-    justify-self: center;
+    justify-self: right;
   }
   .expensive {
     color: orange;
