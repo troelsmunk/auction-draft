@@ -32,6 +32,11 @@
     bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
   )
   let spendingRatio = $derived(sumOfBids / remainingPoints)
+  $effect(() => {
+    if (data.existingBidValues && bids.some((v) => v > 0)) {
+      bids = data.existingBidValues
+    }
+  })
 
   if (browser) {
     let eventSource = new EventSource("/api/subscribe/")
