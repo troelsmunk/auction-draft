@@ -52,7 +52,7 @@ export async function load(event) {
   if (!userSelect) {
     throw error(401, ERROR_MESSAGE_401)
   }
-  const { auction_id: auctionId, seat_number: seat } = userSelect
+  const { auction_id: auctionId, seat_number: seat, id: userId } = userSelect
   /** @type {{seat:number, bid:number}[] | undefined} */
   const results = await db
     .prepare(
@@ -75,6 +75,21 @@ export async function load(event) {
     )
     .bind(auctionId)
     .run()
+  /** @type {number[] | undefined} */
+  const existingBidValues = await db
+    .prepare(
+      `SELECT bid_values FROM bids 
+      WHERE user_id = ?
+      AND round = ?
+      LIMIT 1`,
+    )
+    .bind(userId, event.params.round)
+    .first("bid_values")
+    .then((value) => {
+      if (typeof value == "string") {
+        return JSON.parse(value)
+      }
+    })
   const points = pointsSelect.results.map((record) => {
     return /** @type {number} */ (record.points_remaining)
   })
@@ -82,6 +97,7 @@ export async function load(event) {
     points: points,
     seat: seat,
     results: results,
+    existingBidValues: existingBidValues,
   }
 }
 
