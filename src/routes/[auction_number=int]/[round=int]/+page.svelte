@@ -1,11 +1,10 @@
 <script>
   import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
-  import { COLOURS, ITEM_COUNT } from "$lib/constants"
+  import { COLOURS } from "$lib/constants"
   import { invalidateAll } from "$app/navigation"
-  import { enhance } from "$app/forms"
-  import BidButton from "./BidButtons.svelte"
   import { BID_OPTIONS } from "$lib/constants"
+  import BidForm from "./BidForm.svelte"
 
   /**
    * @typedef {Object} Props
@@ -17,20 +16,15 @@
   /** @type {Props} */
   let { form, data, params } = $props()
 
-  /** @type{Array<number>}*/
-  let bids = $state(Array(ITEM_COUNT))
-
   let auctionNumber = $derived(params.auction_number)
   let round = $derived(parseInt(params.round))
   let previousRound = $derived(round - 1)
-  let nextRound = $derived(parseInt(params.round) + 1)
+  let nextRound = $derived(round + 1)
   let results = $derived(data.results)
   let remainingPoints = $derived(data.points.at(data.seat) || -1)
   let auctionSize = $derived(data.points.length)
   let options = $derived(BID_OPTIONS.get(auctionSize)?.at(data.seat) || [])
-  let sumOfBids = $derived(
-    bids.reduce((sum, value) => sum + (options.at(value) || 0), 0),
-  )
+  let sumOfBids = $state(0)
   let spendingRatio = $derived(sumOfBids / remainingPoints)
 
   if (browser) {
@@ -85,29 +79,7 @@
     <h3>Bidding</h3>
     <div class="options">Your bid options: {options.slice(1).join(", ")}</div>
   </div>
-  <form
-    id="bid-form"
-    method="POST"
-    action="?/submit"
-    use:enhance={() => {
-      return async ({ update }) => {
-        await update({ reset: false })
-      }
-    }}
-  >
-    <input hidden={true} value={JSON.stringify(bids)} name="bids" />
-    <div class="grid-container">
-      {#each { length: bids.length }, index}
-        <BidButton
-          bind:bidValue={bids[index]}
-          {index}
-          {options}
-          {remainingPoints}
-        />
-      {/each}
-    </div>
-    <button type="submit">Bid!</button>
-  </form>
+  <BidForm {options} bind:sumOfBids />
   {#if form?.success}
     Bid received
   {:else if form?.error}
@@ -160,9 +132,6 @@
   }
   .options {
     align-self: center;
-  }
-  button {
-    float: right;
   }
   .error {
     color: red;
