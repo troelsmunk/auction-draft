@@ -24,7 +24,7 @@ export async function load(event) {
       )
       .bind(uid)
       .first("auction_number")
-    return { auction_number: auctionNumber }
+    return { auctionNumber: auctionNumber }
   }
 }
 
@@ -95,13 +95,13 @@ export const actions = {
   join: async (event) => {
     const auctionNumber = await event.request
       .formData()
-      .then((data) => Number(data.get("auction_number")))
+      .then((data) => Number(data.get("auction-number")))
     const db = event.platform?.env?.db
     if (!db) {
       console.error("Error: Could not connect to database.")
       return fail(500, {
         join: {
-          auction_number: auctionNumber,
+          auctionNumber: auctionNumber,
           error: "Database error",
         },
       })
@@ -113,7 +113,7 @@ export const actions = {
     if (typeof auctionId != "number") {
       return fail(404, {
         join: {
-          auction_number: auctionNumber,
+          auctionNumber: auctionNumber,
           error: "No auction with that number exists.",
         },
       })

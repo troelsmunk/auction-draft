@@ -6,7 +6,7 @@
    */
   /** @type {Props} */
   let { form, data } = $props()
-  const existingAuction = $derived(data.auction_number)
+  const existingAuction = $derived(data.auctionNumber)
 </script>
 
 <h3>One of you, create an auction</h3>
@@ -31,15 +31,15 @@
   <p class="error">{form.join.error}</p>
 {/if}
 <form id="join-form" method="POST" action="?/join">
-  <label for="auction_number">Insert auction number:</label>
+  <label for="auction-number">Insert auction number:</label>
   <input
-    name="auction_number"
+    name="auction-number"
     type="text"
     size="8"
     inputmode="numeric"
     placeholder="e.g. 1234"
     required
-    value={form?.join?.auction_number ?? ""}
+    value={form?.join?.auctionNumber ?? ""}
   />
   <button type="submit">Join Auction</button>
 </form>
