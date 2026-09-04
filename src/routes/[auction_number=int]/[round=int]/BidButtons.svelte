@@ -1,22 +1,19 @@
 <script>
-  import { onMount } from "svelte"
-
   /**
    * @typedef {Object} Props
    * @property { number } bidValue
    * @property { number } index
-   * @property { number } remainingPoints
    * @property { import('$lib/constants').userBidOptions } options
    */
 
   /** @type {Props} */
-  let { bidValue = $bindable(), index, options, remainingPoints } = $props()
+  let { bidValue = $bindable(), index, options } = $props()
 
   /** @type { (event: Event) => void  }*/
   function plusOne(event) {
     event.preventDefault()
     const nextBid = options.at(bidValue + 1)
-    if (typeof nextBid == "number" && nextBid <= remainingPoints) {
+    if (typeof nextBid == "number") {
       bidValue++
     }
   }
@@ -27,8 +24,6 @@
       bidValue--
     }
   }
-
-  onMount(() => (bidValue = 0))
 </script>
 
 <div class="container">
