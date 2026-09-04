@@ -19,7 +19,7 @@
   let auctionNumber = $derived(params.auction_number)
   let round = $derived(parseInt(params.round))
   let previousRound = $derived(round - 1)
-  let nextRound = $derived(parseInt(params.round) + 1)
+  let nextRound = $derived(round + 1)
   let results = $derived(data.results)
   let remainingPoints = $derived(data.points.at(data.seat) || -1)
   let auctionSize = $derived(data.points.length)
