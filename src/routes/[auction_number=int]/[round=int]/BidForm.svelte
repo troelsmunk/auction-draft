@@ -1,7 +1,7 @@
 <script>
   import { ITEM_COUNT } from "$lib/constants"
   import { enhance } from "$app/forms"
-  import BidButton from "./BidButtons.svelte"
+  import BidButton from "./BidButton.svelte"
 
   /**
    * @typedef {Object} Props
