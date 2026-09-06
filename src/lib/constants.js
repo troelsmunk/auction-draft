@@ -6,7 +6,7 @@ export const ERROR_MESSAGE_401 =
 /** @type {string} */
 export const LOADING = "loading"
 /** @type {string[]} */
-export const COLOURS = [
+export const COLORS = [
   "#A0A6A6",
   "#B98EF6",
   "#FF931F",

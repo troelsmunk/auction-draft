@@ -1,7 +1,7 @@
 <script>
   import { browser } from "$app/environment"
   import ScoreItem from "./ScoreItem.svelte"
-  import { COLOURS } from "$lib/constants"
+  import { COLORS } from "$lib/constants"
   import { invalidateAll } from "$app/navigation"
   import { BID_OPTIONS } from "$lib/constants"
   import BidForm from "./BidForm.svelte"
@@ -44,7 +44,7 @@
 <div class="scoreboard">
   {#each data.points as pointsForOneUser, i}
     <ScoreItem
-      color={COLOURS.at(i)}
+      color={COLORS.at(i)}
       you={i == data.seat}
       score={pointsForOneUser}
     />
@@ -91,7 +91,7 @@
   <h3>Results</h3>
   <div class="grid-container">
     {#each Object.values(results) as card}
-      <div class="result" style:background-color={COLOURS[card.seat]}>
+      <div class="result" style:background-color={COLORS[card.seat]}>
         {card.bid}
       </div>
     {/each}
